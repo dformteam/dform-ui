@@ -207,6 +207,8 @@
 .element_content {
     width: 100%;
     min-height: 200px;
+    display: flex;
+    flex-direction: column;
     margin: 20px 0;
     border-radius: 24px;
     background: var(--color-background);
@@ -228,10 +230,11 @@
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    font-size: 20px;
-    background: var(--color-gradient-secondary);
+    font-size: 18px;
+    background: var(--color-gradient-secondary-mirror);
     color: var(--color-text-button);
     cursor: pointer;
+    border-left: 1px solid var(--color-background);
 }
 
 .button_next:hover > svg {
@@ -241,6 +244,9 @@
 .button_prev {
     @extend .button_next;
     justify-content: flex-start;
+    background: var(--color-gradient-secondary);
+    border-right: 1px solid var(--color-background);
+    border-left: none;
 }
 
 .button_prev:hover > svg {

@@ -14,8 +14,13 @@ import CheckBoxOutlinedIcon from '@mui/icons-material/CheckBoxOutlined';
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 import StarOutlineOutlinedIcon from '@mui/icons-material/StarOutlineOutlined';
 import ArrowForwardOutlinedIcon from '@mui/icons-material/ArrowForwardOutlined';
+import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import Header from '../../../components/Elements/Header';
 import FullName from '../../../components/Elements/FullName';
+import Email from '../../../components/Elements/Email';
+import Address from '../../../components/Elements/Address';
+import Phone from '../../../components/Elements/Phone';
+import DatePicker from '../../../components/Elements/DatePicker';
 
 const CreateForm = () => {
     const listElement = [
@@ -34,7 +39,41 @@ const CreateForm = () => {
         { id: 'rating', label: 'Rating', icon: StarOutlineOutlinedIcon },
     ];
 
-    const aForm = [];
+    const aForm = [
+        { id: 'header', label: 'Header' },
+        { id: 'fullName', label: 'Full Name' },
+        { id: 'email', label: 'Email' },
+        { id: 'address', label: 'Address' },
+        { id: 'phone', label: 'Phone' },
+        { id: 'datePicker', label: 'Date Picker' },
+        { id: 'fillBlank', label: 'Fill in the Blank' },
+        { id: 'shortText', label: 'Shot Text' },
+        { id: 'longText', label: 'Long text' },
+        { id: 'singleChoice', label: 'Single Choice' },
+        { id: 'multiChoice', label: 'Multi Choice' },
+        { id: 'time', label: 'Time' },
+        { id: 'rating', label: 'Rating' },
+    ];
+
+    const renderElement = (el) => {
+        switch (el) {
+            case 'header':
+                return <Header />;
+            case 'fullName':
+                return <FullName />;
+            case 'email':
+                return <Email />;
+            case 'address':
+                return <Address />;
+            case 'phone':
+                return <Phone />;
+            case 'datePicker':
+                return <DatePicker />;
+
+            default:
+                break;
+        }
+    };
 
     return (
         <div className={styles.root}>
@@ -70,12 +109,22 @@ const CreateForm = () => {
                             Start <ArrowForwardOutlinedIcon className={styles.icon_next} />
                         </button>
                     </div>
-                    <div className={styles.element_content}>
-                        <Header />
-                    </div>
-                    <div className={styles.element_content}>
-                        <FullName />
-                    </div>
+                    {aForm?.map?.((item) => {
+                        return (
+                            <div className={styles.element_content} key={item.id}>
+                                {renderElement(item.id)}
+                                <div className={styles.button_submit}>
+                                    <div className={styles.button_prev}>
+                                        <ArrowBackOutlinedIcon className={styles.icon_prev} />
+                                        Previous
+                                    </div>
+                                    <div className={styles.button_next}>
+                                        Next <ArrowForwardOutlinedIcon className={styles.icon_next} />
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
                     <div className={styles.end}>
                         <div className={styles.welcome_title}>Thank You!</div>
                         <div className={styles.welcome_text}>Your submission has been received.</div>

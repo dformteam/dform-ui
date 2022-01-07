@@ -1,8 +1,6 @@
-@import '../../../pages/form/create-form/CreateForm.module.scss';
-
 .root_header {
     width: 100%;
-    height: 100%;
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
