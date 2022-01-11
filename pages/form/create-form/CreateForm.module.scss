@@ -135,7 +135,9 @@
 }
 
 .welcome_text {
-    margin: 20px 0;
+    width: 80%;
+    margin: 20px 10%;
+    text-align: center;
 }
 
 .welcome_button {
@@ -206,7 +208,7 @@
 
 .element_content {
     width: 100%;
-    min-height: 200px;
+    min-height: 220px;
     display: flex;
     flex-direction: column;
     margin: 20px 0;

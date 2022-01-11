@@ -48,6 +48,7 @@ a {
 }
 
 input,
+textarea,
 button {
     font-family: 'DM Sans', sans-serif;
     font-size: 16px;

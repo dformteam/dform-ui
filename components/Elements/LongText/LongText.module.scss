@@ -1,4 +1,4 @@
-.root_phone {
+.root_long_text {
     width: 100%;
     flex: 1;
     display: flex;
@@ -6,20 +6,20 @@
     align-items: center;
 }
 
-.phone_content {
+.long_text_content {
     width: 100%;
     flex: 1;
     display: flex;
     flex-direction: column;
 }
 
-.phone_title {
+.long_text_title {
     font-size: 20px;
     text-align: center;
     margin-top: 20px;
 }
 
-.phone_description {
+.long_text_description {
     width: 80%;
     height: 30px;
     margin: 5px 10%;
@@ -27,27 +27,28 @@
     font-style: italic;
 }
 
-.phone {
+.long_text {
     width: 80%;
     margin: 20px 10%;
     display: flex;
 }
 
-.phone_form {
+.long_text_form {
     flex: 1;
     display: flex;
     flex-direction: column;
 }
 
-.phone_label {
+.long_text_label {
     margin: 15px 0 5px;
 }
 
-.phone_input {
+.long_text_input {
     width: 100%;
-    height: 48px;
-    padding: 0 20px;
+    min-height: 120px;
+    padding: 20px;
     margin-bottom: 10px;
     border-radius: 24px;
     border: 1px solid var(--color-border);
+    resize: none;
 }

@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, useState } from 'react';
 import styles from './CreateForm.module.scss';
 import TitleOutlinedIcon from '@mui/icons-material/TitleOutlined';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
@@ -21,6 +21,13 @@ import Email from '../../../components/Elements/Email';
 import Address from '../../../components/Elements/Address';
 import Phone from '../../../components/Elements/Phone';
 import DatePicker from '../../../components/Elements/DatePicker';
+import ShortText from '../../../components/Elements/ShortText';
+import LongText from '../../../components/Elements/LongText';
+import Time from '../../../components/Elements/Time';
+import StarRating from '../../../components/Elements/StarRating';
+import SingleChoice from '../../../components/Elements/SingleChoice';
+import MultiChoice from '../../../components/Elements/MultiChoice';
+import FillBlank from '../../../components/Elements/FillBlank';
 
 const CreateForm = () => {
     const listElement = [
@@ -69,10 +76,34 @@ const CreateForm = () => {
                 return <Phone />;
             case 'datePicker':
                 return <DatePicker />;
+            case 'shortText':
+                return <ShortText />;
+            case 'longText':
+                return <LongText />;
+            case 'time':
+                return <Time />;
+            case 'rating':
+                return <StarRating />;
+            case 'singleChoice':
+                return <SingleChoice />;
+            case 'multiChoice':
+                return <MultiChoice />;
+            case 'fillBlank':
+                return <FillBlank />;
 
             default:
                 break;
         }
+    };
+    const [welcomeText, setWelcomeText] = useState('Please fill out and submit this form.');
+    const [thanksText, setThanksText] = useState('Your submission has been received.');
+
+    const onWelcomeTextChange = (e) => {
+        setWelcomeText(e.target.value);
+    };
+
+    const onThanksTextChange = (e) => {
+        setThanksText(e.target.value);
     };
 
     return (
@@ -104,7 +135,7 @@ const CreateForm = () => {
                 <div className={styles.content}>
                     <div className={styles.welcome}>
                         <div className={styles.welcome_title}>Welcome!</div>
-                        <div className={styles.welcome_text}>Please fill out and submit this form.</div>
+                        <input className={styles.welcome_text} value={welcomeText} onChange={onWelcomeTextChange} />
                         <button className={styles.welcome_button}>
                             Start <ArrowForwardOutlinedIcon className={styles.icon_next} />
                         </button>
@@ -127,7 +158,7 @@ const CreateForm = () => {
                     })}
                     <div className={styles.end}>
                         <div className={styles.welcome_title}>Thank You!</div>
-                        <div className={styles.welcome_text}>Your submission has been received.</div>
+                        <input className={styles.welcome_text} value={thanksText} onChange={onThanksTextChange} />
                     </div>
                 </div>
             </div>
