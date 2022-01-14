@@ -10,15 +10,6 @@ const Header = () => {
                 <input className={styles.subheader_input} placeholder={'Type a subheader'} />
                 <div className={styles.header_text}>1 question(s)</div>
             </div>
-            <div className={styles.button_submit}>
-                <div className={styles.button_prev}>
-                    <ArrowBackOutlinedIcon className={styles.icon_prev} />
-                    Prev
-                </div>
-                <div className={styles.button_next}>
-                    Next <ArrowForwardOutlinedIcon className={styles.icon_next} />
-                </div>
-            </div>
         </div>
     );
 };

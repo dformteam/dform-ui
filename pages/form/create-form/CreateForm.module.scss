@@ -135,7 +135,9 @@
 }
 
 .welcome_text {
-    margin: 20px 0;
+    width: 80%;
+    margin: 20px 10%;
+    text-align: center;
 }
 
 .welcome_button {
@@ -206,12 +208,15 @@
 
 .element_content {
     width: 100%;
-    min-height: 200px;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     margin: 20px 0;
     border-radius: 24px;
     background: var(--color-background);
     box-shadow: var(--color-boxshadow);
-    overflow: hidden;
+    position: relative;
 }
 
 .button_submit {
@@ -228,10 +233,13 @@
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    font-size: 20px;
-    background: var(--color-gradient-secondary);
+    font-size: 18px;
+    background: var(--color-gradient-secondary-mirror);
     color: var(--color-text-button);
     cursor: pointer;
+    border-left: 1px solid var(--color-background);
+    border-bottom-right-radius: 24px;
+    border-bottom-left-radius: 0;
 }
 
 .button_next:hover > svg {
@@ -241,8 +249,32 @@
 .button_prev {
     @extend .button_next;
     justify-content: flex-start;
+    background: var(--color-gradient-secondary);
+    border-right: 1px solid var(--color-background);
+    border-left: none;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 24px;
 }
 
 .button_prev:hover > svg {
     animation: slideOutLeft 1s infinite;
+}
+
+.button_delete {
+    position: absolute;
+    right: -50px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--color-danger);
+    color: var(--color-text-button);
+    box-shadow: var(--color-boxshadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.button_delete_icon {
+    width: 25px;
+    height: 25px;
 }

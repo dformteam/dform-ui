@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, useState } from 'react';
 import styles from './CreateForm.module.scss';
 import TitleOutlinedIcon from '@mui/icons-material/TitleOutlined';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
@@ -14,8 +14,21 @@ import CheckBoxOutlinedIcon from '@mui/icons-material/CheckBoxOutlined';
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 import StarOutlineOutlinedIcon from '@mui/icons-material/StarOutlineOutlined';
 import ArrowForwardOutlinedIcon from '@mui/icons-material/ArrowForwardOutlined';
+import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
+import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
 import Header from '../../../components/Elements/Header';
 import FullName from '../../../components/Elements/FullName';
+import Email from '../../../components/Elements/Email';
+import Address from '../../../components/Elements/Address';
+import Phone from '../../../components/Elements/Phone';
+import DatePicker from '../../../components/Elements/DatePicker';
+import ShortText from '../../../components/Elements/ShortText';
+import LongText from '../../../components/Elements/LongText';
+import Time from '../../../components/Elements/Time';
+import StarRating from '../../../components/Elements/StarRating';
+import SingleChoice from '../../../components/Elements/SingleChoice';
+import MultiChoice from '../../../components/Elements/MultiChoice';
+import FillBlank from '../../../components/Elements/FillBlank';
 
 const CreateForm = () => {
     const listElement = [
@@ -34,7 +47,65 @@ const CreateForm = () => {
         { id: 'rating', label: 'Rating', icon: StarOutlineOutlinedIcon },
     ];
 
-    const aForm = [];
+    const aForm = [
+        { id: 'header', label: 'Header' },
+        { id: 'fullName', label: 'Full Name' },
+        { id: 'email', label: 'Email' },
+        { id: 'address', label: 'Address' },
+        { id: 'phone', label: 'Phone' },
+        { id: 'datePicker', label: 'Date Picker' },
+        { id: 'fillBlank', label: 'Fill in the Blank' },
+        { id: 'shortText', label: 'Shot Text' },
+        { id: 'longText', label: 'Long text' },
+        { id: 'singleChoice', label: 'Single Choice' },
+        { id: 'multiChoice', label: 'Multi Choice' },
+        { id: 'time', label: 'Time' },
+        { id: 'rating', label: 'Rating' },
+    ];
+
+    const renderElement = (el) => {
+        switch (el) {
+            case 'header':
+                return <Header />;
+            case 'fullName':
+                return <FullName />;
+            case 'email':
+                return <Email />;
+            case 'address':
+                return <Address />;
+            case 'phone':
+                return <Phone />;
+            case 'datePicker':
+                return <DatePicker />;
+            case 'shortText':
+                return <ShortText />;
+            case 'longText':
+                return <LongText />;
+            case 'time':
+                return <Time />;
+            case 'rating':
+                return <StarRating />;
+            case 'singleChoice':
+                return <SingleChoice />;
+            case 'multiChoice':
+                return <MultiChoice />;
+            case 'fillBlank':
+                return <FillBlank />;
+
+            default:
+                break;
+        }
+    };
+    const [welcomeText, setWelcomeText] = useState('Please fill out and submit this form.');
+    const [thanksText, setThanksText] = useState('Your submission has been received.');
+
+    const onWelcomeTextChange = (e) => {
+        setWelcomeText(e.target.value);
+    };
+
+    const onThanksTextChange = (e) => {
+        setThanksText(e.target.value);
+    };
 
     return (
         <div className={styles.root}>
@@ -65,20 +136,33 @@ const CreateForm = () => {
                 <div className={styles.content}>
                     <div className={styles.welcome}>
                         <div className={styles.welcome_title}>Welcome!</div>
-                        <div className={styles.welcome_text}>Please fill out and submit this form.</div>
+                        <input className={styles.welcome_text} value={welcomeText} onChange={onWelcomeTextChange} />
                         <button className={styles.welcome_button}>
                             Start <ArrowForwardOutlinedIcon className={styles.icon_next} />
                         </button>
                     </div>
-                    <div className={styles.element_content}>
-                        <Header />
-                    </div>
-                    <div className={styles.element_content}>
-                        <FullName />
-                    </div>
+                    {aForm?.map?.((item) => {
+                        return (
+                            <div className={styles.element_content} key={item.id}>
+                                {renderElement(item.id)}
+                                <div className={styles.button_submit}>
+                                    <div className={styles.button_prev}>
+                                        <ArrowBackOutlinedIcon className={styles.icon_prev} />
+                                        Previous
+                                    </div>
+                                    <div className={styles.button_next}>
+                                        Next <ArrowForwardOutlinedIcon className={styles.icon_next} />
+                                    </div>
+                                </div>
+                                <button className={styles.button_delete}>
+                                    <DeleteForeverOutlinedIcon className={styles.button_delete_icon} />
+                                </button>
+                            </div>
+                        );
+                    })}
                     <div className={styles.end}>
                         <div className={styles.welcome_title}>Thank You!</div>
-                        <div className={styles.welcome_text}>Your submission has been received.</div>
+                        <input className={styles.welcome_text} value={thanksText} onChange={onThanksTextChange} />
                     </div>
                 </div>
             </div>

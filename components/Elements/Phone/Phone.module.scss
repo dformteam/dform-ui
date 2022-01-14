@@ -1,4 +1,4 @@
-.root_full_name {
+.root_phone {
     width: 100%;
     flex: 1;
     display: flex;
@@ -6,20 +6,20 @@
     align-items: center;
 }
 
-.full_name_content {
+.phone_content {
     width: 100%;
     flex: 1;
     display: flex;
     flex-direction: column;
 }
 
-.full_name_title {
+.phone_title {
     font-size: 20px;
     text-align: center;
     margin-top: 20px;
 }
 
-.full_name_description {
+.phone_description {
     width: 80%;
     height: 30px;
     margin: 5px 10%;
@@ -27,30 +27,23 @@
     font-style: italic;
 }
 
-.full_name {
+.phone {
     width: 80%;
     margin: 20px 10%;
     display: flex;
 }
 
-.full_name_form_left {
+.phone_form {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding-right: 10px;
 }
 
-.full_name_form_right {
-    @extend .full_name_form_left;
-    padding-left: 10px;
-    padding-right: 0;
+.phone_label {
+    margin: 15px 0 5px;
 }
 
-.full_name_label {
-    margin: 5px 0;
-}
-
-.full_name_input {
+.phone_input {
     width: 100%;
     height: 48px;
     padding: 0 20px;

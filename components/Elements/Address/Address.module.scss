@@ -1,4 +1,4 @@
-.root_full_name {
+.root_address {
     width: 100%;
     flex: 1;
     display: flex;
@@ -6,20 +6,20 @@
     align-items: center;
 }
 
-.full_name_content {
+.address_content {
     width: 100%;
     flex: 1;
     display: flex;
     flex-direction: column;
 }
 
-.full_name_title {
+.address_title {
     font-size: 20px;
     text-align: center;
     margin-top: 20px;
 }
 
-.full_name_description {
+.address_description {
     width: 80%;
     height: 30px;
     margin: 5px 10%;
@@ -27,30 +27,41 @@
     font-style: italic;
 }
 
-.full_name {
+.address {
     width: 80%;
     margin: 20px 10%;
     display: flex;
+    flex-direction: column;
+}
+.address_form {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
-.full_name_form_left {
+.address_row {
+    width: 100%;
+    display: flex;
+}
+
+.address_form_left {
     flex: 1;
     display: flex;
     flex-direction: column;
     padding-right: 10px;
 }
 
-.full_name_form_right {
-    @extend .full_name_form_left;
+.address_form_right {
+    @extend .address_form_left;
     padding-left: 10px;
     padding-right: 0;
 }
 
-.full_name_label {
-    margin: 5px 0;
+.address_label {
+    margin: 15px 0 5px;
 }
 
-.full_name_input {
+.address_input {
     width: 100%;
     height: 48px;
     padding: 0 20px;
