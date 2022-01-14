@@ -5,9 +5,9 @@ import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
 const FillBlank = () => {
     const [aInputs, setInputs] = useState([
         { type: 'label', content: 'This is a fill in the' },
-        { type: 'input_text', content: '' },
+        { type: 'input_text', content: 'Blank' },
         { type: 'label', content: 'field. Please add appropriate' },
-        { type: 'input_text', content: '' },
+        { type: 'input_text', content: 'Blank' },
     ]);
     const [title, setTitle] = useState('Type a question');
 
@@ -20,21 +20,21 @@ const FillBlank = () => {
     };
 
     const onDeleteInput = (index) => {
-        aInputs.splice(index, 1);
-        aInputs = [...aInputs];
-        setInputs(aInputs);
+        let copyInputs = [...aInputs];
+        copyInputs.splice(index, 1);
+        setInputs(copyInputs);
     };
 
     const onAddLabel = () => {
-        aInputs.push({ type: 'label', content: 'Label' });
-        aInputs = [...aInputs];
-        setInputs(aInputs);
+        let copyInputs = [...aInputs];
+        copyInputs.push({ type: 'label', content: 'Label' });
+        setInputs(copyInputs);
     };
 
     const onAddInput = () => {
-        aInputs.push({ type: 'input_text', content: 'Blanks' });
-        aInputs = [...aInputs];
-        setInputs(aInputs);
+        let copyInputs = [...aInputs];
+        copyInputs.push({ type: 'input_text', content: 'Blanks' });
+        setInputs(copyInputs);
     };
 
     const renderInput = (item, index) => {

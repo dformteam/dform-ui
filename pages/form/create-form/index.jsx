@@ -15,6 +15,7 @@ import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 import StarOutlineOutlinedIcon from '@mui/icons-material/StarOutlineOutlined';
 import ArrowForwardOutlinedIcon from '@mui/icons-material/ArrowForwardOutlined';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
+import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
 import Header from '../../../components/Elements/Header';
 import FullName from '../../../components/Elements/FullName';
 import Email from '../../../components/Elements/Email';
@@ -153,6 +154,9 @@ const CreateForm = () => {
                                         Next <ArrowForwardOutlinedIcon className={styles.icon_next} />
                                     </div>
                                 </div>
+                                <button className={styles.button_delete}>
+                                    <DeleteForeverOutlinedIcon className={styles.button_delete_icon} />
+                                </button>
                             </div>
                         );
                     })}

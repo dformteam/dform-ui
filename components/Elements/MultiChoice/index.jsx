@@ -19,21 +19,21 @@ const MultiChoice = () => {
     };
 
     const onOptionChange = (value, index) => {
-        aAnswers[index].content = value;
-        aAnswers = [...aAnswers];
-        setAnswers(aAnswers);
+        let copyAnswers = [...aAnswers];
+        copyAnswers[index].content = value;
+        setAnswers(copyAnswers);
     };
 
     const onAddOption = () => {
-        aAnswers.push({ content: 'Type option ' + (aAnswers.length + 1), check: false });
-        aAnswers = [...aAnswers];
-        setAnswers(aAnswers);
+        let copyAnswers = [...aAnswers];
+        copyAnswers.push({ content: 'Type option ' + (aAnswers.length + 1), check: false });
+        setAnswers(copyAnswers);
     };
 
     const onDeleteOption = (index) => {
-        aAnswers.splice(index, 1);
-        aAnswers = [...aAnswers];
-        setAnswers(aAnswers);
+        let copyAnswers = [...aAnswers];
+        copyAnswers.splice(index, 1);
+        setAnswers(copyAnswers);
     };
 
     return (

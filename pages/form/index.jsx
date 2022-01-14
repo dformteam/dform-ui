@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import styles from './Form.module.scss';
 import Image from 'next/image';
 import IconTemplate from './IconTemplate.svg';
@@ -5,8 +6,26 @@ import ChevronRightOutlinedIcon from '@mui/icons-material/ChevronRightOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import MoreVertOutlinedIcon from '@mui/icons-material/MoreVertOutlined';
 import Router from 'next/router';
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+
+const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    minWidth: 600,
+    bgcolor: '#fff',
+    borderRadius: '24px',
+    boxShadow: 24,
+    p: 4,
+    outline: 'none',
+};
 
 const Form = () => {
+    const [open, setOpen] = React.useState(false);
+
     const aTemplate = [
         { id: 'blank', title: 'Blank', name: 'Create a blank form', route: '/form/create-form' },
         { id: 'demo_day', title: 'Demo day', name: `© ${new Date().getFullYear()} Learn NEAR Club`, route: '/create-form' },
@@ -22,6 +41,10 @@ const Form = () => {
         Router.push(route);
     };
 
+    const onOpenModalCreate = () => setOpen(true);
+
+    const onCloseModalCreate = () => setOpen(false);
+
     return (
         <div className={styles.root}>
             <div className={styles.label}>
@@ -33,7 +56,7 @@ const Form = () => {
             <div className={styles.content}>
                 {aTemplate.map((item, index) => {
                     return (
-                        <div className={styles.template} key={index} onClick={() => onCreateClick(item.route)}>
+                        <div className={styles.template} key={index} onClick={() => onOpenModalCreate(item.route)}>
                             <div className={styles.template_content}>
                                 {item.id === 'blank' ? (
                                     <AddOutlinedIcon fontSize="large" className={styles.template_icon_add} />
@@ -74,6 +97,42 @@ const Form = () => {
                     <div className={styles.no_recent}>You don't have recent form.</div>
                 )}
             </div>
+            <Modal open={open} onClose={onCloseModalCreate} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+                <Box sx={style}>
+                    <Typography id="modal-modal-title" variant="h6" component="h2">
+                        Create form
+                    </Typography>
+                    <div className={styles.modal_row}>
+                        <div className={styles.modal_label}>Name</div>
+                        <input className={styles.modal_input} />
+                    </div>
+                    <div className={styles.modal_row}>
+                        <div className={styles.modal_label}>Description</div>
+                        <input className={styles.modal_input} />
+                    </div>
+                    <div className={styles.modal_row}>
+                        <div className={styles.modal_label}>Limit participant</div>
+                        <input className={styles.modal_input} type={'number'} />
+                    </div>
+                    <div className={styles.modal_row}>
+                        <div className={styles.modal_label}>Custom Fee</div>
+                        <button className={styles.modal_button}>Free</button>
+                        <div className={styles.modal_label_paid}>Paid</div>
+                        <input className={styles.modal_input} type={'number'} />
+                    </div>
+                    <div className={styles.modal_row}>
+                        <div className={styles.modal_label}>Start date</div>
+                        <input className={styles.modal_input_date} type={'date'} />
+                        <div className={styles.modal_label_paid}>End date</div>
+                        <input className={styles.modal_input_date} type={'date'} />
+                    </div>
+                    <div className={styles.modal_row}>
+                        <button className={styles.modal_create_button} onClick={() => onCreateClick('/form/create-form')}>
+                            Create form
+                        </button>
+                    </div>
+                </Box>
+            </Modal>
         </div>
     );
 };
