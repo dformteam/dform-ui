@@ -8,7 +8,7 @@ const Header = () => {
             <div className={styles.header_content}>
                 <input className={styles.heading_input} placeholder={'Heading'} />
                 <input className={styles.subheader_input} placeholder={'Type a subheader'} />
-                <div className={styles.header_text}>1 question(s)</div>
+                {/* <div className={styles.header_text}>1 question(s)</div> */}
             </div>
         </div>
     );

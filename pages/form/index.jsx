@@ -5,10 +5,11 @@ import IconTemplate from './IconTemplate.svg';
 import ChevronRightOutlinedIcon from '@mui/icons-material/ChevronRightOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import MoreVertOutlinedIcon from '@mui/icons-material/MoreVertOutlined';
-import Router from 'next/router';
+import { useRouter } from 'next/router';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import { connect } from 'react-redux';
 
 const style = {
     position: 'absolute',
@@ -23,8 +24,11 @@ const style = {
     outline: 'none',
 };
 
-const Form = () => {
-    const [open, setOpen] = React.useState(false);
+const Form = ({ wallet }) => {
+    const [open, setOpen] = useState(false);
+    const [new_form_title, setNewFormTitle] = useState('');
+    const [new_form_description, setNewFormDescripton] = useState('');
+    const router = useRouter();
 
     const aTemplate = [
         { id: 'blank', title: 'Blank', name: 'Create a blank form', route: '/form/create-form' },
@@ -37,8 +41,29 @@ const Form = () => {
         { id: '1', title: 'Blank', subtitle: 'Create a blank form', lastUpdate: '20:00 29/12/2021' },
     ];
 
-    const onCreateClick = (route) => {
-        Router.push(route);
+    const onCreateClick = () => {
+        const { contract, walletConnection } = wallet;
+        const userId = walletConnection.getAccountId();
+
+        contract
+            ?.init_new_form?.({
+                title: new_form_title,
+                description: new_form_description,
+            })
+            .then((res) => {
+                if (res) {
+                    router.push(`/form/create-form?id=${res}`);
+                }
+            })
+            .catch((err) => {});
+    };
+
+    const on_new_form_title_change = (e) => {
+        setNewFormTitle(e.target.value);
+    };
+
+    const on_new_form_description_change = (e) => {
+        setNewFormDescripton(e.target.value);
     };
 
     const onOpenModalCreate = () => setOpen(true);
@@ -104,13 +129,13 @@ const Form = () => {
                     </Typography>
                     <div className={styles.modal_row}>
                         <div className={styles.modal_label}>Name</div>
-                        <input className={styles.modal_input} />
+                        <input value={new_form_title} className={styles.modal_input} onChange={on_new_form_title_change} />
                     </div>
                     <div className={styles.modal_row}>
                         <div className={styles.modal_label}>Description</div>
-                        <input className={styles.modal_input} />
+                        <input value={new_form_description} className={styles.modal_input} onChange={on_new_form_description_change} />
                     </div>
-                    <div className={styles.modal_row}>
+                    {/* <div className={styles.modal_row}>
                         <div className={styles.modal_label}>Limit participant</div>
                         <input className={styles.modal_input} type={'number'} />
                     </div>
@@ -125,9 +150,9 @@ const Form = () => {
                         <input className={styles.modal_input_date} type={'date'} />
                         <div className={styles.modal_label_paid}>End date</div>
                         <input className={styles.modal_input_date} type={'date'} />
-                    </div>
+                    </div> */}
                     <div className={styles.modal_row}>
-                        <button className={styles.modal_create_button} onClick={() => onCreateClick('/form/create-form')}>
+                        <button className={styles.modal_create_button} onClick={onCreateClick}>
                             Create form
                         </button>
                     </div>
@@ -137,4 +162,8 @@ const Form = () => {
     );
 };
 
-export default Form;
+export default connect((state) => {
+    return {
+        wallet: state.wallet,
+    };
+})(Form);

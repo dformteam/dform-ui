@@ -1,23 +1,30 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './Account.module.scss';
-import { connect } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
 import { Popover } from '@mui/material';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import ArrowDropDownCircleSharpIcon from '@mui/icons-material/ArrowDropDownCircleSharp';
 import LogoutSharpIcon from '@mui/icons-material/LogoutSharp';
-import Router, { withRouter } from 'next/router';
+import { useRouter, withRouter } from 'next/router';
 
-const UserAccount = (props) => {
+const UserAccount = () => {
+    const wallet = useSelector((state) => state.wallet);
+    const router = useRouter();
+
+    const [state, setState] = useState({
+        anchorEl: null,
+        popoverOpen: false,
+        popoverId: undefined,
+    });
     const onRequestConnectWallet = () => {
-        const { nearConfig, walletConnection } = props.wallet;
+        const { nearConfig, walletConnection } = wallet;
         walletConnection?.requestSignIn?.(nearConfig?.contractName);
     };
 
     const onRequestSignOut = () => {
-        const { walletConnection } = props.wallet;
-        const { pathname } = props.router;
+        const { walletConnection } = wallet;
         walletConnection.signOut();
-        Router.push('/');
+        router.push('/');
     };
 
     const onRenderSignInButton = () => {
@@ -47,7 +54,7 @@ const UserAccount = (props) => {
     };
 
     const onRenderAccountDetail = () => {
-        const { walletConnection } = props.wallet;
+        const { walletConnection } = wallet;
         const { anchorEl, popoverOpen, popoverId } = state;
         const accountId = walletConnection?.getAccountId?.();
         let popoverRight = 1000;
@@ -94,7 +101,7 @@ const UserAccount = (props) => {
     };
 
     const onRenderScene = () => {
-        const { walletConnection } = props.wallet;
+        const { walletConnection } = wallet;
         const isSigned = walletConnection?.isSignedIn?.();
         if (isSigned) {
             return onRenderAccountDetail();
@@ -105,8 +112,4 @@ const UserAccount = (props) => {
     return <div className={styles.root}>{onRenderScene()}</div>;
 };
 
-export default connect((state) => {
-    return {
-        wallet: state.wallet,
-    };
-})(withRouter(UserAccount));
+export default UserAccount;
