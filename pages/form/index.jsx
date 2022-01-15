@@ -24,7 +24,7 @@ const style = {
 };
 
 const Form = () => {
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = useState(false);
 
     const aTemplate = [
         { id: 'blank', title: 'Blank', name: 'Create a blank form', route: '/form/create-form' },

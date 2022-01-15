@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef, Fragment } from 'react';
 import styles from './Account.module.scss';
 import { connect } from 'react-redux';
 import { Popover } from '@mui/material';
@@ -8,9 +8,38 @@ import LogoutSharpIcon from '@mui/icons-material/LogoutSharp';
 import Router, { withRouter } from 'next/router';
 
 const UserAccount = (props) => {
+    const aMenu = [
+        { id: 'my-form', label: 'My Form' },
+        { id: 'my-event', label: 'My Event' },
+    ];
+    const wrapperRef = useRef(null);
+
+    const [popoverVisible, setPopoverVisible] = useState(false);
+
+    useEffect(() => {
+        window.addEventListener('click', handleClick);
+        return () => {
+            window.removeEventListener('click', handleClick);
+        };
+    }, []);
+
+    const handleClick = (event) => {
+        const { target } = event;
+        if (wrapperRef.current && !wrapperRef.current.contains(target)) {
+            setPopoverVisible(false);
+        }
+    };
+
+    const onNavItemClick = (id) => {
+        let route = '/form/' + id;
+        Router.push(route);
+    };
+
     const onRequestConnectWallet = () => {
-        const { nearConfig, walletConnection } = props.wallet;
-        walletConnection?.requestSignIn?.(nearConfig?.contractName);
+        setPopoverVisible(false);
+        setPopoverVisible(!popoverVisible);
+        // const { nearConfig, walletConnection } = props.wallet;
+        // walletConnection?.requestSignIn?.(nearConfig?.contractName);
     };
 
     const onRequestSignOut = () => {
@@ -22,10 +51,28 @@ const UserAccount = (props) => {
 
     const onRenderSignInButton = () => {
         return (
-            <div className={styles.signIn_area}>
+            <div className={styles.signIn_area} ref={wrapperRef}>
                 <button className={styles.signIn_button} onClick={onRequestConnectWallet}>
                     Connect the wallet
                 </button>
+                {popoverVisible && (
+                    <div className={styles.account_popover}>
+                        {aMenu.map((item, index) => {
+                            return (
+                                <Fragment key={index}>
+                                    <div className={styles.account_popover_label} onClick={() => onNavItemClick(item.id)}>
+                                        {item.label}
+                                    </div>
+                                    <div className={styles.line} />
+                                </Fragment>
+                            );
+                        })}
+                        <div className={styles.account_popover_label}>
+                            <LogoutSharpIcon className={styles.account_popover_icon} />
+                            Log out
+                        </div>
+                    </div>
+                )}
             </div>
         );
     };

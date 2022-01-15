@@ -1,5 +1,6 @@
 import { Fragment, useState } from 'react';
 import styles from './CreateForm.module.scss';
+import Router from 'next/router';
 import TitleOutlinedIcon from '@mui/icons-material/TitleOutlined';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
@@ -107,6 +108,10 @@ const CreateForm = () => {
         setThanksText(e.target.value);
     };
 
+    const onPublishForm = () => {
+        Router.push('/form/create-form/publish');
+    };
+
     return (
         <div className={styles.root}>
             <div className={styles.nav}>
@@ -130,7 +135,9 @@ const CreateForm = () => {
             <div className={styles.container}>
                 <div className={styles.button_area}>
                     <button className={styles.button}>Build</button>
-                    <button className={styles.button}>Publish</button>
+                    <button className={styles.button} onClick={onPublishForm}>
+                        Publish
+                    </button>
                     <button className={styles.button}>Preview Form</button>
                 </div>
                 <div className={styles.content}>
