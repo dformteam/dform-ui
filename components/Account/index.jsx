@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './Account.module.scss';
 import { connect } from 'react-redux';
 import { Popover } from '@mui/material';
@@ -8,6 +8,11 @@ import LogoutSharpIcon from '@mui/icons-material/LogoutSharp';
 import Router, { withRouter } from 'next/router';
 
 const UserAccount = (props) => {
+    const [state, setState] = useState({
+        anchorEl: null,
+        popoverOpen: false,
+        popoverId: undefined,
+    });
     const onRequestConnectWallet = () => {
         const { nearConfig, walletConnection } = props.wallet;
         walletConnection?.requestSignIn?.(nearConfig?.contractName);

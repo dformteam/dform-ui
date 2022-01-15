@@ -1,16 +1,37 @@
 import React, { useState } from 'react';
 import styles from './Phone.module.scss';
 
-const Phone = () => {
-    const [title, setTitle] = useState('Phone Number');
-    const [first_field, setFirstField] = useState('Please enter a valid phone number.');
+const Phone = ({ index, onChange, defaultValue, type = '' }) => {
+    const initValue = {
+        title: ['Phone Number', 'Please enter a valid phone number.'],
+        meta: [],
+    };
+
+    if (typeof defaultValue !== 'undefined') {
+        initValue = { ...defaultValue };
+    }
+
+    const [title, setTitle] = useState(initValue?.title?.[0] || 'Phone Number');
+    const [first_field, setFirstField] = useState(initValue?.first_field?.[1] || 'Please enter a valid phone number.');
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
+        type === 'create' &&
+            onChange?.({
+                index,
+                title: [e.target.value, first_field],
+                meta: [],
+            });
     };
 
     const onFirstFieldChange = (e) => {
         setFirstField(e.target.value);
+        type === 'create' &&
+            onChange?.({
+                index,
+                title: [title, e.target.value],
+                meta: [],
+            });
     };
 
     return (

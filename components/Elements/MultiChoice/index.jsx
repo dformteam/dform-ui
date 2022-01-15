@@ -5,42 +5,81 @@ import CheckBoxOutlinedIcon from '@mui/icons-material/CheckBoxOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 
-const MultiChoice = () => {
-    const [title, setTitle] = useState('Type a question');
-    const [aAnswers, setAnswers] = useState([
-        { content: 'Type option 1', check: false },
-        { content: 'Type option 2', check: false },
-        { content: 'Type option 3', check: false },
-        { content: 'Type option 4', check: false },
-    ]);
+const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
+    const initValue = {
+        title: ['Type a question'],
+        meta: [
+            { content: 'Type option 1', check: false },
+            { content: 'Type option 2', check: false },
+            { content: 'Type option 3', check: false },
+            { content: 'Type option 4', check: false },
+        ],
+    };
+
+    if (typeof defaultValue !== 'undefined') {
+        initValue = { ...defaultValue };
+    }
+
+    const [title, setTitle] = useState(initValue?.title?.[0] || 'Type a question');
+    const [aAnswers, setAnswers] = useState(initValue?.meta);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
+        type === 'create' &&
+            onChange?.({
+                index,
+                title: [e.target.value],
+                meta: [...aAnswers],
+            });
     };
 
-    const onOptionChange = (value, index) => {
+    const onOptionChange = (value, indexz) => {
         let copyAnswers = [...aAnswers];
-        copyAnswers[index].content = value;
+        copyAnswers[indexz].content = value;
         setAnswers(copyAnswers);
+        type === 'create' &&
+            onChange?.({
+                index,
+                title: [title],
+                meta: [...aAnswers],
+            });
     };
 
     const onAddOption = () => {
         let copyAnswers = [...aAnswers];
         copyAnswers.push({ content: 'Type option ' + (aAnswers.length + 1), check: false });
         setAnswers(copyAnswers);
+        type === 'create' &&
+            onChange?.({
+                index,
+                title: [title],
+                meta: [...aAnswers],
+            });
     };
 
-    const onDeleteOption = (index) => {
+    const onDeleteOption = (indexz) => {
         let copyAnswers = [...aAnswers];
-        copyAnswers.splice(index, 1);
+        copyAnswers.splice(indexz, 1);
         setAnswers(copyAnswers);
+        type === 'create' &&
+            onChange?.({
+                index,
+                title: [title],
+                meta: [...aAnswers],
+            });
     };
 
     return (
         <div className={styles.root_multi_choice}>
             <div className={styles.multi_choice_content}>
-                <input className={styles.multi_choice_title} value={title} onChange={onTitleChange} placeholder={'Type a title'} />
-                <input className={styles.multi_choice_description} placeholder={'Type a description'} />
+                <input
+                    className={styles.multi_choice_title}
+                    value={title}
+                    onChange={onTitleChange}
+                    placeholder={'Type a title'}
+                    disabled={type === 'create' ? false : true}
+                />
+                <input className={styles.multi_choice_description} placeholder={'Type a description'} disabled={type === 'create' ? false : true} />
                 <div className={styles.multi_choice}>
                     {aAnswers?.map?.((item, index) => {
                         return (
@@ -57,6 +96,7 @@ const MultiChoice = () => {
                                     value={item.content}
                                     placeholder={'Type an option'}
                                     onChange={(e) => onOptionChange(e.target.value, index)}
+                                    disabled={type === 'create' ? false : true}
                                 />
                                 <div
                                     className={index % 2 === 0 ? styles.multi_choice_delete_left : styles.multi_choice_delete_right}

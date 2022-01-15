@@ -1,11 +1,24 @@
 import React, { useState } from 'react';
 import styles from './Time.module.scss';
 
-const Time = () => {
-    const [title, setTitle] = useState('Type a question');
+const Time = ({ index, onChange, defaultValue, type = '' }) => {
+    const initValue = {
+        title: ['Type a question'],
+        meta: [],
+    };
+
+    if (typeof defaultValue !== 'undefined') {
+        initValue = { ...defaultValue };
+    }
+    const [title, setTitle] = useState(initValue?.title?.[0] || 'Type a question');
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
+        onChange?.({
+            index,
+            title: [e.target.value],
+            meta: [],
+        });
     };
 
     return (
