@@ -5,6 +5,7 @@ const Email = ({ index, onChange, defaultValue, type = '' }) => {
     const initValue = {
         title: ['Email', 'Email.'],
         meta: [],
+        isRequired: false,
     };
 
     if (typeof defaultValue !== 'undefined') {
@@ -20,6 +21,8 @@ const Email = ({ index, onChange, defaultValue, type = '' }) => {
             onChange?.({
                 index,
                 title: [e.target.value, first_field],
+                meta: [],
+                isRequired: false,
             });
     };
 
@@ -29,6 +32,8 @@ const Email = ({ index, onChange, defaultValue, type = '' }) => {
             onChange?.({
                 index,
                 title: [title, e.target.value],
+                meta: [],
+                isRequired: false,
             });
     };
 

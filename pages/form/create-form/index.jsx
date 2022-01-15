@@ -30,8 +30,14 @@ import SingleChoice from '../../../components/Elements/SingleChoice';
 import MultiChoice from '../../../components/Elements/MultiChoice';
 import FillBlank from '../../../components/Elements/FillBlank';
 import Semaphore from '../../../backed/semaphore';
+import { useSelector } from 'react-redux';
+import { useRouter } from 'next/router';
 
 const CreateForm = () => {
+    const wallet = useSelector((state) => state.wallet);
+    const router = useRouter();
+    const { query } = router;
+
     const listElement = [
         { id: 'header', type: 1, label: 'Header', icon: TitleOutlinedIcon },
         {
@@ -42,6 +48,7 @@ const CreateForm = () => {
             defaultValue: {
                 title: ['Name', 'First Name', 'Last Name'],
                 meta: [],
+                isRequire: false,
             },
         },
         {
@@ -52,6 +59,7 @@ const CreateForm = () => {
             defaultValue: {
                 title: ['Email', 'Email.'],
                 meta: [],
+                isRequire: false,
             },
         },
         {
@@ -62,6 +70,7 @@ const CreateForm = () => {
             defaultValue: {
                 title: ['Address', 'Street Address', 'Street Address Line 2', 'City', 'State / Province', 'Postal / Zip Code'],
                 meta: [],
+                isRequire: false,
             },
         },
         {
@@ -72,6 +81,7 @@ const CreateForm = () => {
             defaultValue: {
                 title: ['Phone Number', 'Please enter a valid phone number.'],
                 meta: [],
+                isRequire: false,
             },
         },
         {
@@ -82,6 +92,7 @@ const CreateForm = () => {
             defaultValue: {
                 title: ['Date Picker', 'Please pick a date.'],
                 meta: [],
+                isRequire: false,
             },
         },
         {
@@ -92,6 +103,7 @@ const CreateForm = () => {
             defaultValue: {
                 title: ['Type a question'],
                 meta: [],
+                isRequire: false,
             },
         },
         {
@@ -102,6 +114,7 @@ const CreateForm = () => {
             defaultValue: {
                 title: ['Type a question'],
                 meta: [],
+                isRequire: false,
             },
         },
         {
@@ -112,6 +125,7 @@ const CreateForm = () => {
             defaultValue: {
                 title: ['Type a question'],
                 meta: [],
+                isRequire: false,
             },
         },
         {
@@ -122,6 +136,7 @@ const CreateForm = () => {
             defaultValue: {
                 title: ['Type a question'],
                 meta: [],
+                isRequire: false,
             },
         },
         {
@@ -132,6 +147,7 @@ const CreateForm = () => {
             defaultValue: {
                 title: ['Type a question'],
                 meta: [],
+                isRequire: false,
             },
         },
         {
@@ -142,6 +158,7 @@ const CreateForm = () => {
             defaultValue: {
                 title: ['Type a question'],
                 meta: [],
+                isRequire: false,
             },
         },
         {
@@ -152,6 +169,7 @@ const CreateForm = () => {
             defaultValue: {
                 title: ['Type a question'],
                 meta: [],
+                isRequire: false,
             },
         },
     ];
@@ -211,18 +229,16 @@ const CreateForm = () => {
         setForms([...forms]);
     };
 
-    const onElementChanged = ({ index, title, meta }) => {
-        console.log(index, title, meta);
-        console.log(333, forms[index]);
+    const onElementChanged = ({ index, title, meta, isRequire }) => {
         forms[index] = {
             ...forms[index],
             defaultValue: {
                 title,
                 meta,
+                isRequire,
             },
         };
 
-        console.log(4444, forms);
         setForms([...forms]);
     };
 
@@ -231,10 +247,38 @@ const CreateForm = () => {
         setForms([...forms]);
     };
 
-    const onSaveFormClicked = () => {
+    const onSaveFormClicked = async () => {
         const seph = new Semaphore({
-            max: 1,
+            max: 4,
         });
+
+        const { contract } = wallet;
+        const { id } = query;
+
+        await Promise.all[
+            forms?.map(async (element) => {
+                const { type, defaultValue } = element;
+                console.log(element);
+                await seph.acquire();
+
+                contract
+                    .new_element({
+                        formId: id,
+                        type,
+                        title: defaultValue.title,
+                        meta: defaultValue.meta,
+                        isRequired: defaultValue.isRequire,
+                    })
+                    .then((res) => {
+                        console.log(res);
+                        seph.release();
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                        seph.release();
+                    });
+            })
+        ];
     };
 
     return (

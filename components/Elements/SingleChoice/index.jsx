@@ -14,6 +14,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
             { content: 'Type option 3', check: false },
             { content: 'Type option 4', check: false },
         ],
+        isRequired: false,
     };
 
     if (typeof defaultValue !== 'undefined') {
@@ -28,6 +29,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
             index,
             title: e.target.value,
             meta: [...aAnswers],
+            isRequired: false,
         });
     };
 
@@ -39,6 +41,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
             index,
             title: e.target.value,
             meta: [...aAnswers],
+            isRequired: false,
         });
     };
 
@@ -50,6 +53,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
             index,
             title: e.target.value,
             meta: [...aAnswers],
+            isRequired: false,
         });
     };
 
@@ -61,6 +65,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
             index,
             title: e.target.value,
             meta: [...aAnswers],
+            isRequired: false,
         });
     };
 

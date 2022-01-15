@@ -6,6 +6,7 @@ const StarRating = ({ index, onChange, defaultValue, type = '' }) => {
     const initValue = {
         title: ['Type a question'],
         meta: [],
+        isRequired: false,
     };
 
     if (typeof defaultValue !== 'undefined') {
@@ -22,6 +23,7 @@ const StarRating = ({ index, onChange, defaultValue, type = '' }) => {
             index,
             title: [e.target.value],
             meta: [],
+            isRequired: false,
         });
     };
 

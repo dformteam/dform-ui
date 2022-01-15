@@ -21,8 +21,9 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [e.target.value, first_field, second_field],
                 meta: [],
-            });
-    };
+        isRequire: false,
+    })
+};
 
     const onFirstFieldChange = (e) => {
         setFirstField(e.target.value);
@@ -31,8 +32,9 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, e.target.value, second_field],
                 meta: [],
-            });
-    };
+        isRequire: false,
+    })
+};
 
     const onSecondFieldChange = (e) => {
         setSecondField(e.target.value);
@@ -41,8 +43,9 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, first_field, e.target.value],
                 meta: [],
-            });
-    };
+        isRequire: false,
+    })
+};
 
     return (
         <div className={styles.root_full_name}>

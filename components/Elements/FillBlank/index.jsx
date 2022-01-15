@@ -18,7 +18,7 @@ const FillBlank = ({ index, onChange, defaultValue, type = '' }) => {
         { type: 'label', content: 'field. Please add appropriate' },
         { type: 'input_text', content: 'Blank' },
     ]);
-    
+
     const [title, setTitle] = useState(initValue?.title?.[0] || 'Type a question');
 
     const onTitleChange = (e) => {
@@ -28,8 +28,9 @@ const FillBlank = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [e.target.value],
                 meta: [],
-            });
-    };
+        isRequire: false,
+    })
+};
 
     const onChangeInput = (e, index) => {
         aInputs[index].content = e.currentTarget.textContent;

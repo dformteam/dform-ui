@@ -5,6 +5,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
     const initValue = {
         title: 'Address',
         meta: [],
+        isRequire: false,
     };
 
     if (typeof defaultValue !== 'undefined') {
@@ -25,6 +26,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [e.target.value, first_field, second_field, third_field, fourth_field, fifth_field],
                 meta: [],
+                isRequire: false,
             });
     };
 
@@ -35,6 +37,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, e.target.value, second_field, third_field, fourth_field, fifth_field],
                 meta: [],
+                isRequire: false,
             });
     };
 
@@ -45,6 +48,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, first_field, e.target.value, third_field, fourth_field, fifth_field],
                 meta: [],
+                isRequire: false,
             });
     };
 
@@ -55,6 +59,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, first_field, second_field, e.target.value, fourth_field, fifth_field],
                 meta: [],
+                isRequire: false,
             });
     };
 
@@ -65,6 +70,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, first_field, second_field, third_field, e.target.value, fifth_field],
                 meta: [],
+                isRequire: false,
             });
     };
 
@@ -75,6 +81,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, first_field, second_field, third_field, fourth_field, e.target.value],
                 meta: [],
+                isRequire: false,
             });
     };
 

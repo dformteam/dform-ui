@@ -19,8 +19,9 @@ const LongText = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [e.target.value],
                 meta: [],
-            });
-    };
+        isRequire: false,
+    })
+};
 
     return (
         <div className={styles.root_long_text}>

@@ -21,8 +21,9 @@ const Phone = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [e.target.value, first_field],
                 meta: [],
-            });
-    };
+        isRequire: false,
+    })
+};
 
     const onFirstFieldChange = (e) => {
         setFirstField(e.target.value);
@@ -31,8 +32,9 @@ const Phone = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, e.target.value],
                 meta: [],
-            });
-    };
+        isRequire: false,
+    })
+};
 
     return (
         <div className={styles.root_phone}>
