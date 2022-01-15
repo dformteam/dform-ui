@@ -140,13 +140,11 @@ const MyForm = () => {
                                     ) : (
                                         <CheckBoxOutlineBlankIcon className={styles.table_icon_select} onClick={() => onSelectAllRow(true)} />
                                     )}
-                                    <span>
-                                        {aRowFavorite.length === rows.length ? (
-                                            <FavoriteOutlinedIcon className={styles.table_icon_favor} onClick={() => onAddAllFavorite(false)} />
-                                        ) : (
-                                            <FavoriteBorderOutlinedIcon className={styles.table_icon_favor} onClick={() => onAddAllFavorite(true)} />
-                                        )}
-                                    </span>
+                                    {aRowFavorite.length === rows.length ? (
+                                        <FavoriteOutlinedIcon className={styles.table_icon_favor} onClick={() => onAddAllFavorite(false)} />
+                                    ) : (
+                                        <FavoriteBorderOutlinedIcon className={styles.table_icon_favor} onClick={() => onAddAllFavorite(true)} />
+                                    )}
                                 </TableCell>
                                 {headers.map((header, index) => (
                                     <TableCell align="left" key={index} className={styles.table_title}>

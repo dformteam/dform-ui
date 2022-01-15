@@ -2,13 +2,29 @@ import React, { useState } from 'react';
 import styles from './StarRating.module.scss';
 import StarOutlinedIcon from '@mui/icons-material/StarOutlined';
 
-const StarRating = () => {
+const StarRating = ({ index, onChange, defaultValue, type = '' }) => {
+    const initValue = {
+        title: ['Type a question'],
+        meta: [],
+        isRequired: false,
+    };
+
+    if (typeof defaultValue !== 'undefined') {
+        initValue = { ...defaultValue };
+    }
+
     const star = [1, 2, 3, 4, 5];
-    const [title, setTitle] = useState('Type a questionzz');
+    const [title, setTitle] = useState(initValue?.title?.[0] || 'Type a question');
     const [active, setActive] = useState(null);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
+        onChange?.({
+            index,
+            title: [e.target.value],
+            meta: [],
+            isRequired: false,
+        });
     };
 
     const onStarClicked = (star) => {

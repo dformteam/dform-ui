@@ -2,18 +2,35 @@ import React, { useState } from 'react';
 import styles from './FillBlank.module.scss';
 import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
 
-const FillBlank = () => {
+const FillBlank = ({ index, onChange, defaultValue, type = '' }) => {
+    const initValue = {
+        title: 'Type a question',
+        meta: [],
+    };
+
+    if (typeof defaultValue !== 'undefined') {
+        initValue = { ...defaultValue };
+    }
+
     const [aInputs, setInputs] = useState([
         { type: 'label', content: 'This is a fill in the' },
         { type: 'input_text', content: 'Blank' },
         { type: 'label', content: 'field. Please add appropriate' },
         { type: 'input_text', content: 'Blank' },
     ]);
-    const [title, setTitle] = useState('Type a question');
+
+    const [title, setTitle] = useState(initValue?.title?.[0] || 'Type a question');
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
-    };
+        type === 'create' &&
+            onChange?.({
+                index,
+                title: [e.target.value],
+                meta: [],
+        isRequire: false,
+    })
+};
 
     const onChangeInput = (e, index) => {
         aInputs[index].content = e.currentTarget.textContent;
@@ -81,8 +98,14 @@ const FillBlank = () => {
     return (
         <div className={styles.root_fill_blank}>
             <div className={styles.fill_blank_content}>
-                <input className={styles.fill_blank_title} value={title} onChange={onTitleChange} placeholder={'Type a title'} />
-                <input className={styles.fill_blank_description} placeholder={'Type a description'} />
+                <input
+                    className={styles.fill_blank_title}
+                    value={title}
+                    onChange={onTitleChange}
+                    placeholder={'Type a title'}
+                    disabled={type === 'create' ? false : true}
+                />
+                <input className={styles.fill_blank_description} placeholder={'Type a description'} disabled={type === 'create' ? false : true} />
                 <div className={styles.fill_blank}>
                     <div className={styles.fill_blank_form}>
                         {aInputs?.map?.((item, index) => {
@@ -92,12 +115,16 @@ const FillBlank = () => {
                                 </div>
                             );
                         })}
-                        <span className={styles.fill_blank_add_label} onClick={onAddLabel}>
-                            + Add label
-                        </span>
-                        <span className={styles.fill_blank_add_label} onClick={onAddInput}>
-                            + Add input
-                        </span>
+                        {type === 'create' && (
+                            <span className={styles.fill_blank_add_label} onClick={onAddLabel}>
+                                + Add label
+                            </span>
+                        )}
+                        {type === 'create' && (
+                            <span className={styles.fill_blank_add_label} onClick={onAddInput}>
+                                + Add input
+                            </span>
+                        )}
                     </div>
                 </div>
             </div>

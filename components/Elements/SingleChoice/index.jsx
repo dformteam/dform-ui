@@ -5,35 +5,68 @@ import RadioButtonUncheckedOutlinedIcon from '@mui/icons-material/RadioButtonUnc
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 
-const SingleChoice = () => {
-    const [title, setTitle] = useState('Type a question');
-    const [aAnswers, setAnswers] = useState([
-        { content: 'Type option 1', check: false },
-        { content: 'Type option 2', check: false },
-        { content: 'Type option 3', check: false },
-        { content: 'Type option 4', check: false },
-    ]);
+const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
+    const initValue = {
+        title: ['Type a question'],
+        meta: [
+            { content: 'Type option 1', check: false },
+            { content: 'Type option 2', check: false },
+            { content: 'Type option 3', check: false },
+            { content: 'Type option 4', check: false },
+        ],
+        isRequired: false,
+    };
+
+    if (typeof defaultValue !== 'undefined') {
+        initValue = { ...defaultValue };
+    }
+    const [title, setTitle] = useState(initValue?.title?.[0] || 'Type a question');
+    const [aAnswers, setAnswers] = useState(initValue?.meta);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
+        onChange?.({
+            index,
+            title: e.target.value,
+            meta: [...aAnswers],
+            isRequired: false,
+        });
     };
 
-    const onOptionChange = (value, index) => {
-        copyAnswers = [...aAnswers];
-        copyAnswers[index].content = value;
+    const onOptionChange = (value, indexz) => {
+        let copyAnswers = [...aAnswers];
+        copyAnswers[indexz].content = value;
         setAnswers(copyAnswers);
+        onChange?.({
+            index,
+            title: e.target.value,
+            meta: [...aAnswers],
+            isRequired: false,
+        });
     };
 
-    const onAddOption = () => {
-        copyAnswers = [...aAnswers];
+    const onAddOption = (e) => {
+        let copyAnswers = [...aAnswers];
         copyAnswers.push({ content: 'Type option ' + (aAnswers.length + 1), check: false });
         setAnswers(copyAnswers);
+        onChange?.({
+            index,
+            title: e.target.value,
+            meta: [...aAnswers],
+            isRequired: false,
+        });
     };
 
-    const onDeleteOption = (index) => {
-        copyAnswers = [...aAnswers];
-        copyAnswers.splice(index, 1);
+    const onDeleteOption = (indexz) => {
+        let copyAnswers = [...aAnswers];
+        copyAnswers.splice(indexz, 1);
         setAnswers(copyAnswers);
+        onChange?.({
+            index,
+            title: e.target.value,
+            meta: [...aAnswers],
+            isRequired: false,
+        });
     };
 
     return (

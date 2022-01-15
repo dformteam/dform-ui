@@ -105,7 +105,7 @@
 .cell_select_area {
     @extend .cell;
     width: 80px;
-    padding: 0;
+    padding: 0 !important;
 }
 
 .table_icon_select {
