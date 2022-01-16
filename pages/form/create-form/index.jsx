@@ -230,6 +230,7 @@ const CreateForm = () => {
     const [thanksText, setThanksText] = useState('Your submission has been received.');
     const [forms, setForms] = useState([]);
     const [modalSave, setModalSave] = useState(false);
+    const [isSuccess, setSuccess] = useState(false);
 
     const onWelcomeTextChange = (e) => {
         setWelcomeText(e.target.value);
@@ -381,11 +382,26 @@ const CreateForm = () => {
                     <Typography id="modal-modal-title" variant="h6" component="h2">
                         Save Form
                     </Typography>
-                    <div className={styles.modal_label}>Please wait while saving your form.</div>
-                    <div className={styles.modal_content}>
-                        <img src={'/loading.svg'} className={styles.modal_loading_icon} />
-                    </div>
-                    <div className={styles.modal_content_text}>Processing: 10/15 completed.</div>
+                    <div className={styles.line} />
+                    {isSuccess ? (
+                        <>
+                            <div className={styles.modal_label + ' ' + styles.margin_top}>Your form has been successfully saved.</div>
+                            <div className={styles.modal_label}>Are you want to?</div>
+                            <div className={styles.modal_row}>
+                                <button className={styles.modal_button_publish}>Publish</button>
+                                <div className={styles.modal_text}>Or: </div>
+                                <div className={styles.modal_button}>Go to homepage</div>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <div className={styles.modal_label + ' ' + styles.margin_top}>Please wait while saving your form.</div>
+                            <div className={styles.modal_content}>
+                                <img src={'/loading.svg'} className={styles.modal_loading_icon} />
+                            </div>
+                            <div className={styles.modal_content_text}>Processing: 10/15 completed.</div>
+                        </>
+                    )}
                 </Box>
             </Modal>
         </div>

@@ -309,3 +309,38 @@
     text-decoration: underline;
     padding-bottom: 10px;
 }
+
+.modal_row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    margin-top: 40px;
+}
+
+.modal_button_publish {
+    height: 48px;
+    padding: 0 20px;
+    background: var(--color-gradient);
+    color: var(--color-text-button);
+}
+
+.modal_button {
+    color: var(--color-link);
+    cursor: pointer;
+}
+
+.modal_button:hover {
+    text-decoration: underline;
+}
+
+.margin_top {
+    margin-top: 20px;
+}
+
+.margin_left {
+    margin-left: 20px;
+}
+
+.modal_text {
+    margin: 0 20px 0 10px;
+}
