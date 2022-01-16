@@ -207,10 +207,25 @@
     padding: 0 10px;
 }
 
-.modal_create_button {
-    width: 200px;
+.modal_row_button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 40px 0 0;
+}
+
+.modal_button_cancel {
+    width: 140px;
     height: 48px;
+    margin: 0 10px;
+    border: 1px solid var(--color-border);
+    color: var(--color-secondary);
+}
+
+.modal_create_button {
+    @extend .modal_button_cancel;
     background: var(--color-gradient);
     color: var(--color-text-button);
-    margin: 20px auto 0;
+    border: none;
 }

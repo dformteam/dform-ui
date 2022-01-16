@@ -5,7 +5,7 @@ import { Popover } from '@mui/material';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import ArrowDropDownCircleSharpIcon from '@mui/icons-material/ArrowDropDownCircleSharp';
 import LogoutSharpIcon from '@mui/icons-material/LogoutSharp';
-import Router, { useRouter } from 'next/router';
+import { useRouter } from 'next/router';
 
 const UserAccount = () => {
     const wallet = useSelector((state) => state.wallet);
@@ -35,7 +35,7 @@ const UserAccount = () => {
     const onNavItemClick = (id) => {
         setPopoverVisible(false);
         let route = '/form/' + id;
-        Router.push(route);
+        router.push(route);
     };
 
     const [state, setState] = useState({

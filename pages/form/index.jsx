@@ -148,7 +148,10 @@ const Form = ({ wallet }) => {
                             Basic Form
                         </button>
                     </div>
-                    <div className={styles.modal_row}>
+                    <div className={styles.modal_row_button}>
+                        <button className={styles.modal_button_cancel} onClick={() => setOpen(false)}>
+                            Cancel
+                        </button>
                         <button className={styles.modal_create_button} onClick={onCreateClick}>
                             Create form
                         </button>

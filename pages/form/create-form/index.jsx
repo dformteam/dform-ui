@@ -1,6 +1,5 @@
 import { Fragment, useState } from 'react';
 import styles from './CreateForm.module.scss';
-import Router from 'next/router';
 import TitleOutlinedIcon from '@mui/icons-material/TitleOutlined';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
@@ -33,6 +32,22 @@ import FillBlank from '../../../components/Elements/FillBlank';
 import Semaphore from '../../../backed/semaphore';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+
+const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    minWidth: 400,
+    bgcolor: '#fff',
+    borderRadius: '24px',
+    boxShadow: 24,
+    p: 4,
+    outline: 'none',
+};
 
 const CreateForm = () => {
     const wallet = useSelector((state) => state.wallet);
@@ -214,6 +229,7 @@ const CreateForm = () => {
     const [welcomeText, setWelcomeText] = useState('Please fill out and submit this form.');
     const [thanksText, setThanksText] = useState('Your submission has been received.');
     const [forms, setForms] = useState([]);
+    const [modalSave, setModalSave] = useState(false);
 
     const onWelcomeTextChange = (e) => {
         setWelcomeText(e.target.value);
@@ -224,6 +240,7 @@ const CreateForm = () => {
     };
 
     const onAddNewElement = (item) => {
+        delete item.icon;
         forms.push({
             ...item,
         });
@@ -249,6 +266,8 @@ const CreateForm = () => {
     };
 
     const onSaveFormClicked = async () => {
+        setModalSave(true);
+
         const seph = new Semaphore({
             max: 4,
         });
@@ -282,6 +301,15 @@ const CreateForm = () => {
         ];
     };
 
+    const onCloseModalSave = () => {
+        setModalSave(false);
+    };
+
+    const onPreviewClick = () => {
+        localStorage.setItem('myForms', JSON.stringify(forms));
+        router.push('create-form/preview-form');
+    };
+
     return (
         <div className={styles.root}>
             <div className={styles.nav}>
@@ -304,11 +332,13 @@ const CreateForm = () => {
             </div>
             <div className={styles.container}>
                 <div className={styles.button_area}>
-                    <button className={styles.button} onClick={onSaveFormClicked}>
+                    <button className={styles.button}>Cancel</button>
+                    <button className={styles.button} onClick={onPreviewClick}>
+                        Preview Form
+                    </button>
+                    <button className={styles.button_save} onClick={onSaveFormClicked}>
                         Save to use latter
                     </button>
-                    <button className={styles.button}>Cancel</button>
-                    <button className={styles.button}>Preview Form</button>
                 </div>
                 <div className={styles.content}>
                     <div className={styles.welcome}>
@@ -329,7 +359,7 @@ const CreateForm = () => {
                                             Previous
                                         </div>
                                     )}
-                                    <div className={styles.button_next} style={{ borderBottomLeftRadius: index === 0 ? 24 : 0 }}>
+                                    <div className={styles.button_next} style={index === 0 ? { borderBottomLeftRadius: 24, justifyContent: 'center' } : null}>
                                         {index < forms.length - 1 ? 'Next' : 'Submit'} <ArrowForwardOutlinedIcon className={styles.icon_next} />
                                     </div>
                                 </div>
@@ -345,6 +375,19 @@ const CreateForm = () => {
                     </div>
                 </div>
             </div>
+
+            <Modal open={modalSave} onClose={onCloseModalSave} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+                <Box sx={style}>
+                    <Typography id="modal-modal-title" variant="h6" component="h2">
+                        Save Form
+                    </Typography>
+                    <div className={styles.modal_label}>Please wait while saving your form.</div>
+                    <div className={styles.modal_content}>
+                        <img src={'/loading.svg'} className={styles.modal_loading_icon} />
+                    </div>
+                    <div className={styles.modal_content_text}>Processing: 10/15 completed.</div>
+                </Box>
+            </Modal>
         </div>
     );
 };

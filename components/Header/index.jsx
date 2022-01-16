@@ -5,12 +5,13 @@ import NavItem from '../NavItem';
 import DateRangeOutlinedIcon from '@mui/icons-material/DateRangeOutlined';
 import SummarizeOutlinedIcon from '@mui/icons-material/SummarizeOutlined';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
-import { withRouter } from 'next/router';
-import Router from 'next/router';
+import { withRouter, useRouter } from 'next/router';
 import Image from 'next/image';
 import Logo from './lnc.svg';
 
 const Header = (props) => {
+    const router = useRouter();
+
     const getActiveClassName = () => {
         const { router } = props;
         return router.pathname;
@@ -18,7 +19,7 @@ const Header = (props) => {
     const cPath = getActiveClassName();
 
     const onLogoClick = () => {
-        Router.push('/');
+        router.push('/');
     };
 
     return (
