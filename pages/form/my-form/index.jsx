@@ -20,7 +20,7 @@ const MyForm = () => {
         { id: 'favorites', label: 'Favorites', icon: FavoriteOutlinedIcon },
     ];
 
-    const headers = ['Form name', 'Submissions', 'Created at', 'status'];
+    const headers = ['Form name', 'Submissions', 'Type', 'Created at', 'status'];
     const [rows, setRows] = useState([
         // { id: 1, formName: 'Form name 1', submission: 5, create: 'Nov 11 2021' },
         // { id: 2, formName: 'Form name 2', submission: 5, create: 'Nov 11 2021' },
@@ -198,6 +198,8 @@ const MyForm = () => {
         }
     };
 
+    const onExportFormType = (type) => {};
+
     return (
         <div className={styles.root}>
             <div className={styles.nav}>
@@ -272,6 +274,7 @@ const MyForm = () => {
                                     </TableCell>
                                     <TableCell className={styles.cell}>{item.title}</TableCell>
                                     <TableCell className={styles.cell}>{item.participants?.length}</TableCell>
+                                    <TableCell className={styles.cell}>{item.type === 0 ? 'Basic' : 'Card'}</TableCell>
                                     <TableCell className={styles.cell}>{onExportDateTime(item.created_at)}</TableCell>
                                     <TableCell className={styles.cell}>{onExportFormStatus(item)}</TableCell>
                                     <TableCell className={styles.cell_action}>
