@@ -27,6 +27,7 @@ const Publish = () => {
     const [status, setStatus] = useState('private');
     const [focus, setFocus] = useState(false);
     const [open, setOpen] = useState(false);
+    const [free, setFree] = useState(true);
 
     const aStatus = [
         { id: 'private', title: 'PRIVATE FORM', sub: 'Only available to invited people' },
@@ -110,6 +111,28 @@ const Publish = () => {
                         </div>
                     );
                 })}
+                <div className={styles.publish_fee_row + ' ' + styles.margin_top}>
+                    <div className={styles.publish_fee_label}>Limit participant</div>
+                    <input className={styles.publish_fee_input} type={'number'} />
+                </div>
+                <div className={styles.publish_fee_row}>
+                    <div className={styles.publish_fee_label}>Custom Fee</div>
+                    <button className={free ? styles.publish_fee_button_active : styles.publish_fee_button} onClick={() => setFree(!free)}>
+                        Free
+                    </button>
+                    {!free && (
+                        <>
+                            <div className={styles.publish_fee_label_paid}>Paid</div>
+                            <input className={styles.publish_fee_input} type={'number'} />
+                        </>
+                    )}
+                </div>
+                <div className={styles.publish_fee_row}>
+                    <div className={styles.publish_fee_label}>Start date</div>
+                    <input className={styles.publish_fee_input_date} type={'date'} />
+                    <div className={styles.publish_fee_label_paid}>End date</div>
+                    <input className={styles.publish_fee_input_date} type={'date'} />
+                </div>
                 <div className={styles.publish_invite}>INVITE BY NEAR ACCOUNT</div>
                 <div className={styles.publish_invite_content}>
                     <EmailOutlinedIcon className={styles.publish_invite_email_icon} />

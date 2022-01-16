@@ -275,3 +275,52 @@
     height: 1px;
     background: linear-gradient(to right, transparent, var(--color-border), transparent);
 }
+
+.margin_top {
+    margin-top: 40px !important;
+}
+
+.publish_fee_row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.publish_fee_label {
+    width: 150px;
+}
+
+.publish_fee_input {
+    flex: 1;
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    padding: 0 10px;
+}
+
+.publish_fee_button {
+    width: 100px;
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+}
+
+.publish_fee_button_active {
+    @extend .publish_fee_button;
+    background: var(--color-gradient);
+    color: var(--color-text-button);
+    border: none;
+}
+
+.publish_fee_label_paid {
+    margin: 0 20px 0 50px;
+}
+
+.publish_fee_input_date {
+    flex: 1;
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    padding: 0 10px;
+}
