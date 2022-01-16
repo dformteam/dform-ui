@@ -9,6 +9,8 @@ import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import { useRouter } from 'next/router';
+import { useSelector } from 'react-redux';
 
 const style = {
     position: 'absolute',
@@ -24,10 +26,19 @@ const style = {
 };
 
 const Publish = () => {
+    const wallet = useSelector((state) => state.wallet);
+    const router = useRouter();
+    const query = { router };
     const [status, setStatus] = useState('private');
     const [focus, setFocus] = useState(false);
     const [open, setOpen] = useState(false);
     const [free, setFree] = useState(true);
+    const [fee, setFee] = useState('0');
+    const [participant, setParticipant] = useState(0);
+    const [black_list, setBlackList] = useState([]);
+    const [white_list, setWhiteList] = useState([]);
+    const [start_date, setStartDate] = useState('');
+    const [end_date, setEndDate] = useState('');
 
     const aStatus = [
         { id: 'private', title: 'PRIVATE FORM', sub: 'Only available to invited people' },
@@ -52,6 +63,67 @@ const Publish = () => {
 
     const onCloseInputEmail = () => {
         setFocus(false);
+    };
+
+    const onFeeChange = (e) => {
+        setFee(e.target.value);
+    };
+
+    const onStartingDateChange = (e) => {
+        const date = new Date(e.target.value);
+        setStartDate(date.getTime().toString());
+    };
+
+    const onEndingDateChange = (e) => {
+        const date = new Date(e.target.value);
+        setEndDate(date.getTime().toString());
+    };
+
+    const onBlackListChang = (e) => {
+        setBlackList(e.target.value);
+    };
+
+    const onWhiteListChange = (e) => {
+        setWhiteList(e.target.value);
+    };
+
+    const onPublishForm = () => {
+        const { contract } = wallet;
+        let isDuplicate = false;
+        const black_lists = black_list?.split(',')?.map((x) => x?.trim?.()) || [];
+        const white_list = white_list?.split(',')?.map((x) => x?.trim()) || [];
+        const black_list_set = new Set(black_lists);
+        black_list_set.forEach((item) => {
+            if (white_list_set.has(item)) {
+                isDuplicate = true;
+            }
+        });
+
+        const white_list_set = new Set(white_lists);
+        const id = { query };
+
+        if (isDuplicate) {
+            //Show error
+            return;
+        }
+        
+        contract
+            ?.publish_form?.({
+                form_id: id,
+                limit_participants: participant,
+                enroll_fee: fee,
+                start_date,
+                end_date,
+                black_list: black_list_set.values(),
+                white_list: white_list_set.values(),
+            })
+            .then((res) => {
+                if (res) {
+                    console.log(res);
+                    // router.push(`/form/create-form?id=${res}`);
+                }
+            })
+            .catch((err) => {});
     };
 
     const renderStatus = () => {
@@ -113,25 +185,35 @@ const Publish = () => {
                 })}
                 <div className={styles.publish_fee_row + ' ' + styles.margin_top}>
                     <div className={styles.publish_fee_label}>Limit participant</div>
-                    <input className={styles.publish_fee_input} type={'number'} />
+                    <input
+                        className={styles.publish_fee_input}
+                        type={'number'}
+                        onChange={onParticipantChange}
+                        placeholder={`Leave blank if you don't want to the limitation`}
+                    />
                 </div>
                 <div className={styles.publish_fee_row}>
-                    <div className={styles.publish_fee_label}>Custom Fee</div>
+                    <div className={styles.publish_fee_label}>Joining Fee</div>
                     <button className={free ? styles.publish_fee_button_active : styles.publish_fee_button} onClick={() => setFree(!free)}>
                         Free
                     </button>
                     {!free && (
                         <>
                             <div className={styles.publish_fee_label_paid}>Paid</div>
-                            <input className={styles.publish_fee_input} type={'number'} />
+                            <input
+                                className={styles.publish_fee_input}
+                                type={'number'}
+                                onChange={onFeeChange}
+                                placeholder={'The amount need to be paid by a participant'}
+                            />
                         </>
                     )}
                 </div>
                 <div className={styles.publish_fee_row}>
-                    <div className={styles.publish_fee_label}>Start date</div>
-                    <input className={styles.publish_fee_input_date} type={'date'} />
-                    <div className={styles.publish_fee_label_paid}>End date</div>
-                    <input className={styles.publish_fee_input_date} type={'date'} />
+                    <div className={styles.publish_fee_label}>Starting time</div>
+                    <input className={styles.publish_fee_input_date} type={'datetime-local'} onChange={onStartingDateChange} />
+                    <div className={styles.publish_fee_label_paid}>Ending time</div>
+                    <input className={styles.publish_fee_input_date} type={'datetime-local'} onChange={onEndingDateChange} />
                 </div>
                 <div className={styles.publish_invite}>INVITE BY NEAR ACCOUNT</div>
                 <div className={styles.publish_invite_content}>

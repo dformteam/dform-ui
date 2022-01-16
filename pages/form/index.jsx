@@ -45,11 +45,13 @@ const Form = ({ wallet }) => {
     const onCreateClick = () => {
         const { contract, walletConnection } = wallet;
         const userId = walletConnection.getAccountId();
+        const form_type = new_form_title === 'card' ? 1 : 0;
 
         contract
             ?.init_new_form?.({
                 title: new_form_title,
                 description: new_form_description,
+                type: form_type,
             })
             .then((res) => {
                 if (res) {
