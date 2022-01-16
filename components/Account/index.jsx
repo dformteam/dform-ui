@@ -1,15 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, Fragment } from 'react';
 import styles from './Account.module.scss';
-import { connect, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Popover } from '@mui/material';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import ArrowDropDownCircleSharpIcon from '@mui/icons-material/ArrowDropDownCircleSharp';
 import LogoutSharpIcon from '@mui/icons-material/LogoutSharp';
-import { useRouter, withRouter } from 'next/router';
+import Router, { useRouter } from 'next/router';
 
 const UserAccount = () => {
     const wallet = useSelector((state) => state.wallet);
     const router = useRouter();
+    const aMenu = [
+        { id: 'my-form', label: 'My Form' },
+        { id: 'my-event', label: 'My Event' },
+    ];
+    const wrapperRef = useRef(null);
+
+    const [popoverVisible, setPopoverVisible] = useState(false);
+
+    useEffect(() => {
+        window.addEventListener('click', handleClick);
+        return () => {
+            window.removeEventListener('click', handleClick);
+        };
+    }, []);
+
+    const handleClick = (event) => {
+        const { target } = event;
+        if (wrapperRef.current && !wrapperRef.current.contains(target)) {
+            setPopoverVisible(false);
+        }
+    };
+
+    const onNavItemClick = (id) => {
+        setPopoverVisible(false);
+        let route = '/form/' + id;
+        Router.push(route);
+    };
 
     const [state, setState] = useState({
         anchorEl: null,
@@ -38,11 +65,8 @@ const UserAccount = () => {
     };
 
     const onOpenAccountPopover = (e) => {
-        setState({
-            anchorEl: e.target,
-            popoverOpen: true,
-            popoverId: 'simple-popover',
-        });
+        setPopoverVisible(false);
+        setPopoverVisible(!popoverVisible);
     };
 
     const onCloseAccountPopover = () => {
@@ -62,7 +86,7 @@ const UserAccount = () => {
             popoverRight = window?.screen?.width - 15;
         }
         return (
-            <div className={styles.signIn_area}>
+            <div className={styles.signIn_area} ref={wrapperRef}>
                 <button className={styles.account_button} onClick={onOpenAccountPopover}>
                     <div className={styles.account_button_icon_area}>
                         <AccountCircleOutlinedIcon className={styles.account_button_icon} />
@@ -72,6 +96,24 @@ const UserAccount = () => {
                         <ArrowDropDownCircleSharpIcon className={styles.account_button_drop_icon} />
                     </div>
                 </button>
+                {popoverVisible && (
+                    <div className={styles.account_popover}>
+                        {aMenu.map((item, index) => {
+                            return (
+                                <Fragment key={index}>
+                                    <div className={styles.account_popover_label} onClick={() => onNavItemClick(item.id)}>
+                                        {item.label}
+                                    </div>
+                                    <div className={styles.line} />
+                                </Fragment>
+                            );
+                        })}
+                        <div className={styles.account_popover_label} onClick={onRequestSignOut}>
+                            <LogoutSharpIcon className={styles.account_popover_icon} />
+                            Log out
+                        </div>
+                    </div>
+                )}
                 <Popover
                     id={popoverId}
                     open={popoverOpen}

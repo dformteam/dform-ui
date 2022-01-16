@@ -34,7 +34,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
     };
 
     const onOptionChange = (value, indexz) => {
-        copyAnswers = [...aAnswers];
+        let copyAnswers = [...aAnswers];
         copyAnswers[indexz].content = value;
         setAnswers(copyAnswers);
         onChange?.({
@@ -45,8 +45,8 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
         });
     };
 
-    const onAddOption = () => {
-        copyAnswers = [...aAnswers];
+    const onAddOption = (e) => {
+        let copyAnswers = [...aAnswers];
         copyAnswers.push({ content: 'Type option ' + (aAnswers.length + 1), check: false });
         setAnswers(copyAnswers);
         onChange?.({
@@ -58,7 +58,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
     };
 
     const onDeleteOption = (indexz) => {
-        copyAnswers = [...aAnswers];
+        let copyAnswers = [...aAnswers];
         copyAnswers.splice(indexz, 1);
         setAnswers(copyAnswers);
         onChange?.({

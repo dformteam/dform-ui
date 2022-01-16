@@ -1,5 +1,6 @@
 import { Fragment, useState } from 'react';
 import styles from './CreateForm.module.scss';
+import Router from 'next/router';
 import TitleOutlinedIcon from '@mui/icons-material/TitleOutlined';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
@@ -322,12 +323,14 @@ const CreateForm = () => {
                             <div className={styles.element_content} key={index}>
                                 {renderElement(item, index)}
                                 <div className={styles.button_submit}>
-                                    <div className={styles.button_prev}>
-                                        <ArrowBackOutlinedIcon className={styles.icon_prev} />
-                                        Previous
-                                    </div>
-                                    <div className={styles.button_next}>
-                                        Next <ArrowForwardOutlinedIcon className={styles.icon_next} />
+                                    {index !== 0 && (
+                                        <div className={styles.button_prev}>
+                                            <ArrowBackOutlinedIcon className={styles.icon_prev} />
+                                            Previous
+                                        </div>
+                                    )}
+                                    <div className={styles.button_next} style={{ borderBottomLeftRadius: index === 0 ? 24 : 0 }}>
+                                        {index < forms.length - 1 ? 'Next' : 'Submit'} <ArrowForwardOutlinedIcon className={styles.icon_next} />
                                     </div>
                                 </div>
                                 <button className={styles.button_delete}>
