@@ -28,6 +28,7 @@ const Form = ({ wallet }) => {
     const [open, setOpen] = useState(false);
     const [new_form_title, setNewFormTitle] = useState('');
     const [new_form_description, setNewFormDescripton] = useState('');
+    const [new_form_type, setNewFormType] = useState('card');
     const router = useRouter();
 
     const aTemplate = [
@@ -135,22 +136,18 @@ const Form = ({ wallet }) => {
                         <div className={styles.modal_label}>Description</div>
                         <input value={new_form_description} className={styles.modal_input} onChange={on_new_form_description_change} />
                     </div>
-                    {/* <div className={styles.modal_row}>
-                        <div className={styles.modal_label}>Limit participant</div>
-                        <input className={styles.modal_input} type={'number'} />
-                    </div>
                     <div className={styles.modal_row}>
-                        <div className={styles.modal_label}>Custom Fee</div>
-                        <button className={styles.modal_button}>Free</button>
-                        <div className={styles.modal_label_paid}>Paid</div>
-                        <input className={styles.modal_input} type={'number'} />
+                        <div className={styles.modal_label}>Form type</div>
+                        <button className={new_form_type === 'card' ? styles.modal_button_active : styles.modal_button} onClick={() => setNewFormType('card')}>
+                            Card Form
+                        </button>
+                        <button
+                            className={(new_form_type === 'basic' ? styles.modal_button_active : styles.modal_button) + ' ' + styles.margin_left}
+                            onClick={() => setNewFormType('basic')}
+                        >
+                            Basic Form
+                        </button>
                     </div>
-                    <div className={styles.modal_row}>
-                        <div className={styles.modal_label}>Start date</div>
-                        <input className={styles.modal_input_date} type={'date'} />
-                        <div className={styles.modal_label_paid}>End date</div>
-                        <input className={styles.modal_input_date} type={'date'} />
-                    </div> */}
                     <div className={styles.modal_row}>
                         <button className={styles.modal_create_button} onClick={onCreateClick}>
                             Create form
