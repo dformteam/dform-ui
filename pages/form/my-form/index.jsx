@@ -10,10 +10,12 @@ import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlin
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import { useSelector } from 'react-redux';
+import { useRouter } from 'next/router';
 
 const MyForm = () => {
     const raws = [];
     const wallet = useSelector((state) => state.wallet);
+    const router = useRouter();
     const aNav = [
         { id: 'all-form', label: 'All Form', icon: null },
         { id: 'share-with-me', label: 'Share With Me', icon: null },
@@ -200,6 +202,10 @@ const MyForm = () => {
 
     const onExportFormType = (type) => {};
 
+    const onAnalysisForm = () => {
+        router.push('form-analysis');
+    };
+
     return (
         <div className={styles.root}>
             <div className={styles.nav}>
@@ -218,7 +224,11 @@ const MyForm = () => {
             </div>
             <div className={styles.content}>
                 <div className={styles.content_row}>
-                    <button className={styles.content_button + ' ' + `${aRowSelected.length !== 1 && styles.disabled}`} disabled={aRowSelected.length !== 1}>
+                    <button
+                        className={styles.content_button + ' ' + `${aRowSelected.length !== 1 && styles.disabled}`}
+                        disabled={aRowSelected.length !== 1}
+                        onClick={onAnalysisForm}
+                    >
                         Analysis
                     </button>
                     <button
