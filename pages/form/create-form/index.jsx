@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { Fragment, useLayoutEffect, useState } from 'react';
 import styles from './CreateForm.module.scss';
 import TitleOutlinedIcon from '@mui/icons-material/TitleOutlined';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
@@ -50,24 +50,38 @@ const style = {
 };
 
 const CreateForm = () => {
+    const raws = [];
     const wallet = useSelector((state) => state.wallet);
     const router = useRouter();
     const { query } = router;
 
     const listElement = [
-        { id: 'header', type: 1, label: 'Header', icon: TitleOutlinedIcon },
         {
+            bId: '',
+            id: 'header',
+            type: 0,
+            label: 'Header',
+            icon: TitleOutlinedIcon,
+            defaultValue: {
+                title: [],
+                meta: [],
+                isRequired: false,
+            },
+        },
+        {
+            bId: '',
             id: 'fullName',
-            type: 2,
+            type: 1,
             label: 'Full Name',
             icon: AccountCircleOutlinedIcon,
             defaultValue: {
                 title: ['Name', 'First Name', 'Last Name'],
                 meta: [],
-                isRequire: false,
+                isRequired: false,
             },
         },
         {
+            bId: '',
             id: 'email',
             type: 2,
             label: 'Email',
@@ -75,117 +89,127 @@ const CreateForm = () => {
             defaultValue: {
                 title: ['Email', 'Email.'],
                 meta: [],
-                isRequire: false,
+                isRequired: false,
             },
         },
         {
+            bId: '',
             id: 'address',
-            type: 2,
+            type: 3,
             label: 'Address',
             icon: LocationOnOutlinedIcon,
             defaultValue: {
                 title: ['Address', 'Street Address', 'Street Address Line 2', 'City', 'State / Province', 'Postal / Zip Code'],
                 meta: [],
-                isRequire: false,
+                isRequired: false,
             },
         },
         {
+            bId: '',
             id: 'phone',
-            type: 2,
+            type: 4,
             label: 'Phone',
             icon: LocalPhoneOutlinedIcon,
             defaultValue: {
                 title: ['Phone Number', 'Please enter a valid phone number.'],
                 meta: [],
-                isRequire: false,
+                isRequired: false,
             },
         },
         {
+            bId: '',
             id: 'datePicker',
-            type: 2,
+            type: 5,
             label: 'Date Picker',
             icon: DateRangeOutlinedIcon,
             defaultValue: {
                 title: ['Date Picker', 'Please pick a date.'],
                 meta: [],
-                isRequire: false,
+                isRequired: false,
             },
         },
         {
+            bId: '',
             id: 'fillBlank',
-            type: 2,
+            type: 6,
             label: 'Fill in the Blank',
             icon: FormatSizeOutlinedIcon,
             defaultValue: {
                 title: ['Type a question'],
                 meta: [],
-                isRequire: false,
+                isRequired: false,
             },
         },
         {
+            bId: '',
             id: 'shortText',
-            type: 2,
+            type: 7,
             label: 'Shot Text',
             icon: ShortTextOutlinedIcon,
             defaultValue: {
                 title: ['Type a question'],
                 meta: [],
-                isRequire: false,
+                isRequired: false,
             },
         },
         {
+            bId: '',
             id: 'longText',
-            type: 2,
+            type: 8,
             label: 'Long text',
             icon: ChromeReaderModeOutlinedIcon,
             defaultValue: {
                 title: ['Type a question'],
                 meta: [],
-                isRequire: false,
+                isRequired: false,
             },
         },
         {
+            bId: '',
             id: 'singleChoice',
-            type: 2,
+            type: 9,
             label: 'Single Choice',
             icon: AdjustOutlinedIcon,
             defaultValue: {
                 title: ['Type a question'],
                 meta: [],
-                isRequire: false,
+                isRequired: false,
             },
         },
         {
+            bId: '',
             id: 'multiChoice',
-            type: 2,
+            type: 10,
             label: 'Multi Choice',
             icon: CheckBoxOutlinedIcon,
             defaultValue: {
                 title: ['Type a question'],
                 meta: [],
-                isRequire: false,
+                isRequired: false,
             },
         },
         {
+            bId: '',
             id: 'time',
-            type: 2,
+            type: 11,
             label: 'Time',
             icon: AccessTimeOutlinedIcon,
             defaultValue: {
                 title: ['Type a question'],
                 meta: [],
-                isRequire: false,
+                isRequired: false,
             },
         },
         {
+            bId: '',
             id: 'rating',
-            type: 2,
+            type: 12,
             label: 'Rating',
             icon: StarOutlineOutlinedIcon,
             defaultValue: {
                 title: ['Type a question'],
                 meta: [],
-                isRequire: false,
+                isRequired: false,
             },
         },
     ];
@@ -231,6 +255,84 @@ const CreateForm = () => {
     const [forms, setForms] = useState([]);
     const [modalSave, setModalSave] = useState(false);
     const [isSuccess, setSuccess] = useState(false);
+    const [executing, setExecuting] = useState(0);
+    const [processing, setProcessing] = useState(0);
+    const [forms_upload_failure, setFormUploadFailure] = useState([]);
+
+    useLayoutEffect(() => {
+        onGetMaxElement();
+    }, []);
+
+    const onGetMaxElement = () => {
+        const { contract } = wallet;
+        const { id } = query;
+
+        contract
+            ?.get_element_count?.({
+                formId: id,
+            })
+            .then((res) => {
+                if (res) {
+                    onGetElements({ total: res });
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+
+    const onGetElements = ({ total }) => {
+        const { contract, walletConnection } = wallet;
+        const num_page = parseInt(total / 5) + 1;
+        const page_arr = new Array(num_page).fill(0);
+        setForms([]);
+
+        const userId = walletConnection.getAccountId();
+        const { id } = query;
+        page_arr.map((page, index) => {
+            contract
+                .get_elements({
+                    userId,
+                    formId: id,
+                    page: index + 1,
+                })
+                .then((data) => {
+                    if (data) {
+                        console.log(data);
+                        const pIndex = raws.findIndex((x) => x?.page === data?.page);
+                        if (pIndex === -1) {
+                            raws.push(data);
+                            raws.sort((a, b) => {
+                                if (a.page < b.page) return -1;
+                                if (a.page > b.page) return 1;
+                                return 0;
+                            });
+                            let forms = [];
+                            raws.map((raw) => {
+                                const transform_form = raw?.data?.map((data) => {
+                                    return {
+                                        bId: data.id,
+                                        id: listElement?.[data.type]?.id,
+                                        type: data.type,
+                                        label: listElement?.[data.type]?.label,
+                                        icon: ShortTextOutlinedIcon,
+                                        defaultValue: {
+                                            title: data?.title,
+                                            meta: data?.meta,
+                                            isRequire: data?.isRequired,
+                                        },
+                                        edited: false,
+                                    };
+                                });
+                                forms = [...forms, ...(transform_form || [])];
+                            });
+                            console.log(forms);
+                            setForms([...forms]);
+                        }
+                    }
+                });
+        });
+    };
 
     const onWelcomeTextChange = (e) => {
         setWelcomeText(e.target.value);
@@ -248,14 +350,15 @@ const CreateForm = () => {
         setForms([...forms]);
     };
 
-    const onElementChanged = ({ index, title, meta, isRequire }) => {
+    const onElementChanged = ({ index, title, meta, isRequired }) => {
         forms[index] = {
             ...forms[index],
             defaultValue: {
                 title,
                 meta,
-                isRequire,
+                isRequired,
             },
+            edited: true,
         };
 
         setForms([...forms]);
@@ -276,28 +379,71 @@ const CreateForm = () => {
         const { contract } = wallet;
         const { id } = query;
 
+        const excecute_count = forms.filter((x) => {
+            const { bId, edited } = x;
+            return typeof bId === 'undefined' || bId === '' || bId === null || edited;
+        }).length;
+
+        setExecuting(excecute_count);
+
         await Promise.all[
             forms?.map(async (element) => {
-                const { type, defaultValue } = element;
-                console.log(element);
-                await seph.acquire();
+                const { type, defaultValue, bId, edited } = element;
+                if (typeof bId === 'undefined' || bId === '' || bId === null) {
+                    await seph.acquire();
 
-                contract
-                    .new_element({
-                        formId: id,
-                        type,
-                        title: defaultValue.title,
-                        meta: defaultValue.meta,
-                        isRequired: defaultValue.isRequire,
-                    })
-                    .then((res) => {
-                        console.log(res);
-                        seph.release();
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                        seph.release();
-                    });
+                    contract
+                        .new_element({
+                            formId: id,
+                            type,
+                            title: defaultValue.title,
+                            meta: defaultValue.meta,
+                            isRequired: defaultValue.isRequired,
+                        })
+                        .then((res) => {
+                            setProcessing(processing + 1);
+                            if (!res) {
+                                setFormUploadFailure([...forms_upload_failure, { ...element }]);
+                            } else {
+                                element = {
+                                    ...element,
+                                    bId: res.bId,
+                                };
+                            }
+                            seph.release();
+                        })
+                        .catch((err) => {
+                            console.log(err);
+                            setFormUploadFailure([...forms_upload_failure, { ...element }]);
+                            seph.release();
+                        });
+                } else if (edited) {
+                    contract
+                        .update_element({
+                            formId: id,
+                            id: element.bId,
+                            title: defaultValue.title,
+                            meta: defaultValue.meta,
+                            isRequired: defaultValue.isRequired,
+                        })
+                        .then((res) => {
+                            setProcessing(processing + 1);
+                            if (!res) {
+                                setFormUploadFailure([...forms_upload_failure, { ...element }]);
+                            } else {
+                                element = {
+                                    ...element,
+                                    bId: res.bId,
+                                };
+                            }
+                            seph.release();
+                        })
+                        .catch((err) => {
+                            console.log(err);
+                            setFormUploadFailure([...forms_upload_failure, { ...element }]);
+                            seph.release();
+                        });
+                }
             })
         ];
     };
@@ -399,7 +545,9 @@ const CreateForm = () => {
                             <div className={styles.modal_content}>
                                 <img src={'/loading.svg'} className={styles.modal_loading_icon} />
                             </div>
-                            <div className={styles.modal_content_text}>Processing: 10/15 completed.</div>
+                            <div className={styles.modal_content_text}>
+                                Processing: {processing}/{executing} completed.
+                            </div>
                         </>
                     )}
                 </Box>
