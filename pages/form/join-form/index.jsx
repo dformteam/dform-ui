@@ -23,7 +23,7 @@ const JoinForm = () => {
 
         contract
             ?.get_form?.({
-                formId: id,
+                id,
             })
             .then((res) => {
                 if (res) {
