@@ -45,7 +45,7 @@ const Form = ({ wallet }) => {
     const onCreateClick = () => {
         const { contract, walletConnection } = wallet;
         const userId = walletConnection.getAccountId();
-        const form_type = new_form_title === 'card' ? 1 : 0;
+        const form_type = new_form_type === 'card' ? 1 : 0;
 
         contract
             ?.init_new_form?.(
@@ -58,7 +58,7 @@ const Form = ({ wallet }) => {
             )
             .then((res) => {
                 if (res) {
-                    router.push(`/form/create-form?id=${res}`);
+                    router.push(`/form/edit-form?id=${res}`);
                 }
             })
             .catch((err) => {});

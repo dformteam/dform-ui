@@ -260,8 +260,45 @@ const CreateForm = () => {
     const [forms_upload_failure, setFormUploadFailure] = useState([]);
 
     useLayoutEffect(() => {
-        onGetMaxElement();
+        onGetFormDetail();
+        // onGetMaxElement();
     }, []);
+
+    const onGetFormDetail = () => {
+        const { contract, walletConnection } = wallet;
+        const { id } = query;
+        const content = 'Could not found any object have that id!';
+        const encoded_content = encodeURIComponent(content);
+        if (id === null || id === '' || typeof id === 'undefined') {
+            router.push(`/error?content=${encoded_content}`);
+        }
+        contract
+            ?.get_form_status?.({
+                formId: id,
+            })
+            .then((res) => {
+                if (res) {
+                    const content = '';
+                    const userId = walletConnection.getAccountId();
+                    if (userId !== res?.owner) {
+                        content = 'You do not have permssion to edit this form!';
+                    }
+                    // if (res.status !== 0) {
+                    //     content = 'This form has been published before. Please unpublish first then edit!';
+                    // }
+
+                    if (content !== '') {
+                        const encoded_content = encodeURIComponent(content);
+                        router.push(`/error?content=${encoded_content}`);
+                    }
+
+                    // onGetElements({ total: res });
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
 
     const onGetMaxElement = () => {
         const { contract } = wallet;
@@ -454,7 +491,8 @@ const CreateForm = () => {
 
     const onPreviewClick = () => {
         localStorage.setItem('myForms', JSON.stringify(forms));
-        router.push('create-form/preview-form');
+        const id = query.id;
+        router.push(`edit-form/preview-form?id=${id}`);
     };
 
     return (

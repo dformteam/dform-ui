@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useLayoutEffect, useState } from 'react';
+import { Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import styles from './MyForm.module.scss';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -16,6 +16,7 @@ const MyForm = () => {
     const raws = [];
     const wallet = useSelector((state) => state.wallet);
     const router = useRouter();
+    const mouted = useRef(false);
     const aNav = [
         { id: 'all-form', label: 'All Form', icon: null },
         { id: 'share-with-me', label: 'Share With Me', icon: null },
@@ -35,8 +36,14 @@ const MyForm = () => {
     const [aRowFavorite, setRowFavorite] = useState([]);
 
     useLayoutEffect(() => {
+        mouted.current = true;
         onGetMaxRows();
+        return () => {
+            mouted.current = false;
+        };
     }, []);
+
+    useEffect(() => {});
 
     const onGetMaxRows = () => {
         const { contract, walletConnection } = wallet;
@@ -67,7 +74,6 @@ const MyForm = () => {
                 })
                 .then((data) => {
                     if (data) {
-                        console.log(data);
                         const pIndex = raws.findIndex((x) => x?.page === data?.page);
                         if (pIndex === -1) {
                             raws.push(data);
@@ -80,7 +86,7 @@ const MyForm = () => {
                             raws.map((raw) => {
                                 forms = [...forms, ...(raw?.data || [])];
                             });
-                            setRows([...forms]);
+                            mouted && setRows([...forms]);
                         }
                     }
                 });
@@ -88,7 +94,7 @@ const MyForm = () => {
     };
 
     const onEditForm = (item) => {
-        console.log(item);
+        router.push(`/form/edit-form?id=${item.id}`);
     };
 
     const onDeleteForm = (item) => {
