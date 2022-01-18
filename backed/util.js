@@ -35,6 +35,8 @@ export async function initContract() {
             'get_participants',
             'get_question_count',
             'get_joined_forms',
+            'get_form_status',
+            'get_participant_form_status',
         ],
         changeMethods: [
             'init_new_form',
