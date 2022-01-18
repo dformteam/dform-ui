@@ -48,11 +48,14 @@ const Form = ({ wallet }) => {
         const form_type = new_form_title === 'card' ? 1 : 0;
 
         contract
-            ?.init_new_form?.({
-                title: new_form_title,
-                description: new_form_description,
-                type: form_type,
-            })
+            ?.init_new_form?.(
+                {
+                    title: new_form_title,
+                    description: new_form_description,
+                    type: form_type,
+                },
+                100000000000000,
+            )
             .then((res) => {
                 if (res) {
                     router.push(`/form/create-form?id=${res}`);
