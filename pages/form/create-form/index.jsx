@@ -16,6 +16,7 @@ import StarOutlineOutlinedIcon from '@mui/icons-material/StarOutlineOutlined';
 import ArrowForwardOutlinedIcon from '@mui/icons-material/ArrowForwardOutlined';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
+import CloseIcon from '@mui/icons-material/Close';
 import Header from '../../../components/Elements/Header';
 import FullName from '../../../components/Elements/FullName';
 import Email from '../../../components/Elements/Email';
@@ -29,6 +30,7 @@ import StarRating from '../../../components/Elements/StarRating';
 import SingleChoice from '../../../components/Elements/SingleChoice';
 import MultiChoice from '../../../components/Elements/MultiChoice';
 import FillBlank from '../../../components/Elements/FillBlank';
+import PreviewForm from '../../../components/PreviewForm';
 import Semaphore from '../../../backed/semaphore';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
@@ -257,6 +259,7 @@ const CreateForm = () => {
     const [isSuccess, setSuccess] = useState(false);
     const [executing, setExecuting] = useState(0);
     const [processing, setProcessing] = useState(0);
+    const [modalPreview, setModalPreview] = useState(0);
     const [forms_upload_failure, setFormUploadFailure] = useState([]);
 
     useLayoutEffect(() => {
@@ -452,9 +455,14 @@ const CreateForm = () => {
         setModalSave(false);
     };
 
+    const onCloseModalPreview = () => {
+        setModalPreview(false);
+    };
+
     const onPreviewClick = () => {
+        setModalPreview(true);
         localStorage.setItem('myForms', JSON.stringify(forms));
-        router.push('create-form/preview-form');
+        // router.push('create-form/preview-form');
     };
 
     return (
@@ -550,6 +558,26 @@ const CreateForm = () => {
                             </div>
                         </>
                     )}
+                </Box>
+            </Modal>
+
+            <Modal open={modalPreview} onClose={onCloseModalPreview} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+                <Box sx={{ width: '100vw', height: '100vh' }}>
+                    <div className={styles.modal_preview_content}>
+                        <div className={styles.modal_preview_content_title}>
+                            <Typography id="modal-modal-title" variant="h6" component="h2">
+                                Preview form
+                            </Typography>
+                            <div className={styles.line} />
+                        </div>
+                        <div className="form_bg" />
+                        <div className={styles.modal_preview_close} onClick={onCloseModalPreview}>
+                            <CloseIcon />
+                        </div>
+                        <div className={styles.preview_content}>
+                            <PreviewForm />
+                        </div>
+                    </div>
                 </Box>
             </Modal>
         </div>
