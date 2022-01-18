@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import styles from './PreviewForm.module.scss';
 import Header from '../../../../components/Elements/Header';
 import FullName from '../../../../components/Elements/FullName';
@@ -15,8 +15,13 @@ import MultiChoice from '../../../../components/Elements/MultiChoice';
 import FillBlank from '../../../../components/Elements/FillBlank';
 import ArrowForwardOutlinedIcon from '@mui/icons-material/ArrowForwardOutlined';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
+import { useSelector } from 'react-redux';
+import { useRouter } from 'next/router';
 
 const PreviewForm = () => {
+    const wallet = useSelector((state) => state.wallet);
+    const router = useRouter();
+    const { query } = router;
     let forms = JSON.parse(localStorage.getItem('myForms'));
     forms = [
         {
@@ -82,6 +87,44 @@ const PreviewForm = () => {
             default:
                 break;
         }
+    };
+
+    useLayoutEffect(() => {
+        onGetFormDetail();
+    }, []);
+
+    const onGetFormDetail = () => {
+        const { contract, walletConnection } = wallet;
+        const { id } = query;
+        const content = 'Could not found any object have that id!';
+        const encoded_content = encodeURIComponent(content);
+        if (id === null || id === '' || typeof id === 'undefined') {
+            router.push(`/error?content=${encoded_content}`);
+        }
+
+        contract
+            ?.get_form_status?.({
+                formId: id,
+            })
+            .then((res) => {
+                if (res) {
+                    const content = '';
+                    const userId = walletConnection.getAccountId();
+                    if (userId !== res?.owner) {
+                        content = 'You do not have permssion to edit this form!';
+                    }
+                    
+                    if (content !== '') {
+                        const encoded_content = encodeURIComponent(content);
+                        router.push(`/error?content=${encoded_content}`);
+                    }
+
+                    // onGetElements({ total: res });
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+            });
     };
 
     const renderWelcome = (el) => {
