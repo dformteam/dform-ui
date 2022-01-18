@@ -1,13 +1,16 @@
+import styles from './JoinForm.module.scss';
 import { utils } from 'near-api-js';
 import { useRouter } from 'next/router';
 import { useLayoutEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import Typography from '@mui/material/Typography';
 
 const JoinForm = () => {
     const wallet = useSelector((state) => state.wallet);
     const router = useRouter();
     const [fee, setFee] = useState(0);
     const [joined, setJoined] = useState(false);
+    const { query } = router;
 
     useLayoutEffect(() => {
         onGetFormDetail();
@@ -127,7 +130,38 @@ const JoinForm = () => {
         router.push(`/error?content=${encoded_content}`);
     };
 
-    return <div></div>;
+    return (
+        <div className={styles.root}>
+            <div className={styles.content}>
+                <Typography id="modal-modal-title" variant="h6" component="h2">
+                    Form Detail
+                </Typography>
+                <div className={styles.form_row}>
+                    <div className={styles.form_label}>Name</div>
+                    <div className={styles.form_input}>{'form_title'}</div>
+                </div>
+                <div className={styles.form_row}>
+                    <div className={styles.form_label}>Description</div>
+                    <div className={styles.form_input}>{'form_description'}</div>
+                </div>
+                <div className={styles.fee_row}>
+                    <div className={styles.fee_label}>Joining Fee</div>
+                    <div className={styles.fee_input}>{fee > 0 ? fee + ' NEAR' : 'FREE'}</div>
+                </div>
+                <div className={styles.fee_row}>
+                    <div className={styles.fee_label}>Starting time</div>
+                    <input className={styles.fee_input_date} type={'datetime-local'} onChange={() => {}} />
+                    <div className={styles.fee_label_paid}>Ending time</div>
+                    <input className={styles.fee_input_date} type={'datetime-local'} onChange={() => {}} />
+                </div>
+                <div className={styles.form_row_button}>
+                    <button className={styles.form_create_button} onClick={onJoinForm}>
+                        Join form
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
 };
 
 export default JoinForm;

@@ -11,6 +11,8 @@ import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 
 const MyForm = () => {
     const raws = [];
@@ -20,9 +22,6 @@ const MyForm = () => {
     const mouted = useRef(false);
     const aNav = [
         { id: 'all-form', label: 'All Form', url: 'all', icon: null },
-        { id: 'edit-form', label: 'Editable Form', url: 'editable', icon: null },
-        { id: 'publish-form', label: 'Publishing Form', url: 'publishing', icon: null },
-        { id: 'finish-form', label: 'Finished Form', url: 'finished', icon: null },
         { id: 'share-with-me', label: 'Share With Me', icon: null },
         { id: 'favorites', label: 'Favorites', icon: FavoriteOutlinedIcon },
     ];
@@ -218,16 +217,6 @@ const MyForm = () => {
     };
 
     const onNavItemClicked = (item) => {
-        router
-            .push(`?filter=${item.url}`)
-            .then((res) => {
-                if (res) {
-                    setFilter(item.url);
-                }
-            })
-            .catch((err) => {
-                console.log(err);
-            });
     };
 
     useEffect(() => {
@@ -261,6 +250,8 @@ const MyForm = () => {
             });
 
             setRows([...filterd]);
+        } else {
+            setRows([...unfiltered]);
         }
     };
 
@@ -302,6 +293,19 @@ const MyForm = () => {
         }
     };
 
+    const onFilterChange = (event) => {
+        router
+            .push(`?filter=${event.target.value}`)
+            .then((res) => {
+                if (res) {
+                    setFilter(event.target.value);
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+
     return (
         <div className={styles.root}>
             <div className={styles.nav}>
@@ -333,6 +337,20 @@ const MyForm = () => {
                     >
                         Delete Selected
                     </button>
+                    <div className={styles.filter}>Filter:</div>
+                    <Select
+                        value={filter}
+                        onChange={onFilterChange}
+                        className={styles.content_button_filter}
+                        inputProps={{ 'aria-label': 'Without label' }}
+                        displayEmpty
+                        inputProps={{ 'aria-label': 'Without label' }}
+                    >
+                        <MenuItem value={'all'}>All</MenuItem>
+                        <MenuItem value={'editable'}>Editable</MenuItem>
+                        <MenuItem value={'publishing'}>Publishing</MenuItem>
+                        <MenuItem value={'finished'}>Finished</MenuItem>
+                    </Select>
                 </div>
                 <div className={styles.line} />
                 <div className={styles.table}>
