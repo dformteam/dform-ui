@@ -499,12 +499,8 @@ const CreateForm = () => {
     const onPreviewClick = () => {
         setModalPreview(true);
         localStorage.setItem('myForms', JSON.stringify(forms));
-<<<<<<< HEAD:pages/form/create-form/index.jsx
-        // router.push('create-form/preview-form');
-=======
-        const id = query.id;
-        router.push(`edit-form/preview-form?id=${id}`);
->>>>>>> master:pages/form/edit-form/index.jsx
+        // const id = query.id;
+        // router.push(`edit-form/preview-form?id=${id}`);
     };
 
     return (
