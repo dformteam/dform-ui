@@ -14,7 +14,7 @@ const LongText = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
-        type === 'create' &&
+        type === 'edit' &&
             onChange?.({
                 index,
                 title: [e.target.value],
@@ -31,9 +31,9 @@ const LongText = ({ index, onChange, defaultValue, type = '' }) => {
                     value={title}
                     onChange={onTitleChange}
                     placeholder={'Type a title'}
-                    disabled={type === 'create' ? false : true}
+                    disabled={type === 'edit' ? false : true}
                 />
-                <input className={styles.long_text_description} placeholder={'Type a description'} disabled={type === 'create' ? false : true} />
+                <input className={styles.long_text_description} placeholder={'Type a description'} disabled={type === 'edit' ? false : true} />
                 <div className={styles.long_text}>
                     <div className={styles.long_text_form}>
                         <textarea className={styles.long_text_input} />

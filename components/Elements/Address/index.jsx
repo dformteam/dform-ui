@@ -21,7 +21,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
-        type === 'create' &&
+        type === 'edit' &&
             onChange?.({
                 index,
                 title: [e.target.value, first_field, second_field, third_field, fourth_field, fifth_field],
@@ -32,7 +32,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onFirstFieldChange = (e) => {
         setFirstField(e.target.value);
-        type === 'create' &&
+        type === 'edit' &&
             onChange?.({
                 index,
                 title: [title, e.target.value, second_field, third_field, fourth_field, fifth_field],
@@ -43,7 +43,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onSecondFieldChange = (e) => {
         setSecondField(e.target.value);
-        type === 'create' &&
+        type === 'edit' &&
             onChange?.({
                 index,
                 title: [title, first_field, e.target.value, third_field, fourth_field, fifth_field],
@@ -54,7 +54,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onThirdFieldChange = (e) => {
         setThirdField(e.target.value);
-        type === 'create' &&
+        type === 'edit' &&
             onChange?.({
                 index,
                 title: [title, first_field, second_field, e.target.value, fourth_field, fifth_field],
@@ -65,7 +65,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onFourthFieldChange = (e) => {
         setFourthField(e.target.value);
-        type === 'create' &&
+        type === 'edit' &&
             onChange?.({
                 index,
                 title: [title, first_field, second_field, third_field, e.target.value, fifth_field],
@@ -76,7 +76,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onFifthFieldChange = (e) => {
         setFifthField(e.target.value);
-        type === 'create' &&
+        type === 'edit' &&
             onChange?.({
                 index,
                 title: [title, first_field, second_field, third_field, fourth_field, e.target.value],
@@ -93,9 +93,9 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                     value={title}
                     onChange={onTitleChange}
                     placeholder={'Type a title'}
-                    disabled={type === 'create' ? false : true}
+                    disabled={type === 'edit' ? false : true}
                 />
-                <input className={styles.address_description} placeholder={'Type a description'} disabled={type === 'create' ? false : true} />
+                <input className={styles.address_description} placeholder={'Type a description'} disabled={type === 'edit' ? false : true} />
                 <div className={styles.address}>
                     <div className={styles.address_form}>
                         <input
@@ -103,7 +103,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                             value={first_field}
                             onChange={onFirstFieldChange}
                             placeholder={'Type a field'}
-                            disabled={type === 'create' ? false : true}
+                            disabled={type === 'edit' ? false : true}
                         />
                         <input className={styles.address_input} disabled={type === 'answer' ? false : true} />
                     </div>
@@ -113,7 +113,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                             value={second_field}
                             onChange={onSecondFieldChange}
                             placeholder={'Type a field'}
-                            disabled={type === 'create' ? false : true}
+                            disabled={type === 'edit' ? false : true}
                         />
                         <input className={styles.address_input} disabled={type === 'answer' ? false : true} />
                     </div>
@@ -124,7 +124,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                                 value={third_field}
                                 onChange={onThirdFieldChange}
                                 placeholder={'Type a field'}
-                                disabled={type === 'create' ? false : true}
+                                disabled={type === 'edit' ? false : true}
                             />
                             <input className={styles.address_input} disabled={type === 'answer' ? false : true} />
                         </div>
@@ -134,7 +134,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                                 value={fourth_field}
                                 onChange={onFourthFieldChange}
                                 placeholder={'Type a field'}
-                                disabled={type === 'create' ? false : true}
+                                disabled={type === 'edit' ? false : true}
                             />
                             <input className={styles.address_input} disabled={type === 'answer' ? false : true} />
                         </div>
@@ -146,7 +146,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                                 value={fifth_field}
                                 onChange={onFifthFieldChange}
                                 placeholder={'Type a field'}
-                                disabled={type === 'create' ? false : true}
+                                disabled={type === 'edit' ? false : true}
                             />
                             <input className={styles.address_input} disabled={type === 'answer' ? false : true} />
                         </div>

@@ -16,7 +16,7 @@ const Phone = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
-        type === 'create' &&
+        type === 'edit' &&
             onChange?.({
                 index,
                 title: [e.target.value, first_field],
@@ -27,7 +27,7 @@ const Phone = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onFirstFieldChange = (e) => {
         setFirstField(e.target.value);
-        type === 'create' &&
+        type === 'edit' &&
             onChange?.({
                 index,
                 title: [title, e.target.value],

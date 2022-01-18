@@ -18,28 +18,28 @@ const MyForm = () => {
     const raws = [];
     const wallet = useSelector((state) => state.wallet);
     const router = useRouter();
+    const { query } = router;
     const mouted = useRef(false);
     const aNav = [
-        { id: 'all-form', label: 'All Form', icon: null },
+        { id: 'all-form', label: 'All Form', url: 'all', icon: null },
         { id: 'share-with-me', label: 'Share With Me', icon: null },
         { id: 'favorites', label: 'Favorites', icon: FavoriteOutlinedIcon },
     ];
 
     const headers = ['Form name', 'Submissions', 'Type', 'Created at', 'status'];
-    const [rows, setRows] = useState([
-        // { id: 1, formName: 'Form name 1', submission: 5, create: 'Nov 11 2021' },
-        // { id: 2, formName: 'Form name 2', submission: 5, create: 'Nov 11 2021' },
-        // { id: 3, formName: 'Form name 3', submission: 5, create: 'Nov 11 2021' },
-        // { id: 4, formName: 'Form name 1', submission: 5, create: 'Nov 11 2021' },
-        // { id: 5, formName: 'Form name 2', submission: 5, create: 'Nov 11 2021' },
-        // { id: 6, formName: 'Form name 3', submission: 5, create: 'Nov 11 2021' },
-    ]);
+    const [rows, setRows] = useState([]);
     const [aRowSelected, setRowSelected] = useState([]);
     const [aRowFavorite, setRowFavorite] = useState([]);
-    const [filter, setFilter] = useState('');
+    const [filter, setFilter] = useState(query.filter || 'editable');
+    const [unfiltered, setUnfilterd] = useState([]);
 
     useLayoutEffect(() => {
         mouted.current = true;
+        const filter = query.filter;
+        if (filter === null || filter === '' || typeof filter === 'undefined') {
+            router.push(`?filter=editable`);
+        }
+
         onGetMaxRows();
         return () => {
             mouted.current = false;
@@ -63,37 +63,39 @@ const MyForm = () => {
             });
     };
 
-    const onGetRows = ({ total }) => {
+    const onGetRows = async ({ total }) => {
         const { contract, walletConnection } = wallet;
         const num_page = parseInt(total / 5) + 1;
         const page_arr = new Array(num_page).fill(0);
         setRows([]);
         const userId = walletConnection.getAccountId();
-        page_arr.map((page, index) => {
-            contract
-                .get_forms({
-                    userId,
-                    page: index + 1,
-                })
-                .then((data) => {
-                    if (data) {
-                        const pIndex = raws.findIndex((x) => x?.page === data?.page);
-                        if (pIndex === -1) {
-                            raws.push(data);
-                            raws.sort((a, b) => {
-                                if (a.page < b.page) return -1;
-                                if (a.page > b.page) return 1;
-                                return 0;
-                            });
-                            let forms = [];
-                            raws.map((raw) => {
-                                forms = [...forms, ...(raw?.data || [])];
-                            });
-                            mouted && setRows([...forms]);
+        await Promise.all(
+            page_arr.map(async (page, index) => {
+                await contract
+                    .get_forms({
+                        userId,
+                        page: index + 1,
+                    })
+                    .then((data) => {
+                        if (data) {
+                            const pIndex = raws.findIndex((x) => x?.page === data?.page);
+                            if (pIndex === -1) {
+                                raws.push(data);
+                                raws.sort((a, b) => {
+                                    if (a.page < b.page) return -1;
+                                    if (a.page > b.page) return 1;
+                                    return 0;
+                                });
+                                let forms = [];
+                                raws.map((raw) => {
+                                    forms = [...forms, ...(raw?.data || [])];
+                                });
+                                mouted && setUnfilterd([...forms]);
+                            }
                         }
-                    }
-                });
-        });
+                    });
+            }),
+        );
     };
 
     const onEditForm = (item) => {
@@ -193,19 +195,18 @@ const MyForm = () => {
     };
 
     const onExportFormStatus = (item) => {
-        const { status, start_date, end_date } = item;
-        const cTimestamp = Date.now();
-        if (status === 0) {
-            return 'Editable';
-        }
-        if (status === 1 && cTimestamp < start_date) {
-            return 'Waiting for publish';
-        }
-        if (status === 1 && cTimestamp > start_date && cTimestamp < end_date) {
-            return 'Publishing';
-        }
-        if ((status === 1 && cTimestamp > end_date) || status === 2) {
-            return 'Finished';
+        const { cast_status } = item;
+        switch (cast_status) {
+            case 0:
+                return 'Editable';
+            case 1:
+                return 'Waiting for publish';
+            case 2:
+                return 'Publishing';
+            case 3:
+                return 'Finished';
+            default:
+                return 'unknown';
         }
     };
 
@@ -215,8 +216,94 @@ const MyForm = () => {
         router.push('form-analysis');
     };
 
+    const onNavItemClicked = (item) => {
+    };
+
+    useEffect(() => {
+        onFillterTable();
+    }, [filter]);
+
+    useEffect(() => {
+        onCastFormStatus();
+        onFillterTable();
+    }, [unfiltered]);
+
+    const onFillterTable = () => {
+        const filter = query.filter;
+        if (filter === 'editable') {
+            const filterd = unfiltered.filter((x) => {
+                return x.status === 0;
+            });
+
+            setRows([...filterd]);
+        } else if (filter === 'publishing') {
+            const currenTimeStamp = Date.now();
+            const filterd = unfiltered.filter((x) => {
+                return x.status === 1 && x.end_date > currenTimeStamp;
+            });
+
+            setRows([...filterd]);
+        } else if (filter === 'finished') {
+            const currenTimeStamp = Date.now();
+            const filterd = unfiltered.filter((x) => {
+                return (x.status === 1 && x.end_date < currenTimeStamp) || x.status === 2;
+            });
+
+            setRows([...filterd]);
+        } else {
+            setRows([...unfiltered]);
+        }
+    };
+
+    const onCastFormStatus = () => {
+        unfiltered?.map((item) => {
+            const { status, start_date, end_date } = item;
+            const cTimestamp = Date.now();
+            if (status === 0) {
+                item['cast_status'] = 0;
+            }
+            if (status === 1 && cTimestamp < start_date) {
+                item['cast_status'] = 1;
+                // return 'Waiting for publish';
+            }
+            if (status === 1 && cTimestamp > start_date && cTimestamp < end_date) {
+                item['cast_status'] = 2;
+                // return 'Publishing';
+            }
+            if ((status === 1 && cTimestamp > end_date) || status === 2) {
+                item['cast_status'] = 3;
+                // return 'Finished';
+            }
+        });
+    };
+
+    const onExportFormAction = (item) => {
+        const { cast_status } = item;
+        switch (cast_status) {
+            case 0:
+                return 'Edit Form';
+            case 1:
+                return 'View Form';
+            case 2:
+                return 'View Form';
+            case 3:
+                return 'View Form';
+            default:
+                return 'View Form';
+        }
+    };
+
     const onFilterChange = (event) => {
-        setFilter(event.target.value);
+        router
+            .push(`?filter=${event.target.value}`)
+            .then((res) => {
+                if (res) {
+                    setFilter(event.target.value);
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+            });
     };
 
     return (
@@ -226,7 +313,7 @@ const MyForm = () => {
                 {aNav.map((item, index) => {
                     return (
                         <Fragment key={index}>
-                            <div className={styles.nav_label}>
+                            <div className={styles.nav_label} onClick={() => onNavItemClicked(item)}>
                                 {item.icon && <item.icon className={styles.nav_icon} />}
                                 {item.label}
                             </div>
@@ -254,8 +341,7 @@ const MyForm = () => {
                     <Select
                         value={filter}
                         onChange={onFilterChange}
-                        className={styles.content_button_filter + ' ' + `${rows.length <= 0 && styles.disabled}`}
-                        disabled={rows.length <= 0}
+                        className={styles.content_button_filter}
                         inputProps={{ 'aria-label': 'Without label' }}
                         displayEmpty
                         inputProps={{ 'aria-label': 'Without label' }}
@@ -317,7 +403,7 @@ const MyForm = () => {
                                     <TableCell className={styles.cell}>{onExportFormStatus(item)}</TableCell>
                                     <TableCell className={styles.cell_action}>
                                         <button className={styles.table_button_edit} onClick={() => onEditForm(item)}>
-                                            Edit Form
+                                            {onExportFormAction(item)}
                                         </button>
                                         <button className={styles.table_button_delete} onClick={() => onDeleteForm(item)}>
                                             Delete Form
