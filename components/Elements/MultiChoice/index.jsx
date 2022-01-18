@@ -26,7 +26,7 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
-        type === 'create' &&
+        type === 'edit' &&
             onChange?.({
                 index,
                 title: [e.target.value],
@@ -38,7 +38,7 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
         let copyAnswers = [...aAnswers];
         copyAnswers[indexz].content = value;
         setAnswers(copyAnswers);
-        type === 'create' &&
+        type === 'edit' &&
             onChange?.({
                 index,
                 title: [title],
@@ -51,7 +51,7 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
         let copyAnswers = [...aAnswers];
         copyAnswers.push({ content: 'Type option ' + (aAnswers.length + 1), check: false });
         setAnswers(copyAnswers);
-        type === 'create' &&
+        type === 'edit' &&
             onChange?.({
                 index,
                 title: [title],
@@ -64,7 +64,7 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
         let copyAnswers = [...aAnswers];
         copyAnswers.splice(indexz, 1);
         setAnswers(copyAnswers);
-        type === 'create' &&
+        type === 'edit' &&
             onChange?.({
                 index,
                 title: [title],
@@ -81,9 +81,9 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
                     value={title}
                     onChange={onTitleChange}
                     placeholder={'Type a title'}
-                    disabled={type === 'create' ? false : true}
+                    disabled={type === 'edit' ? false : true}
                 />
-                <input className={styles.multi_choice_description} placeholder={'Type a description'} disabled={type === 'create' ? false : true} />
+                <input className={styles.multi_choice_description} placeholder={'Type a description'} disabled={type === 'edit' ? false : true} />
                 <div className={styles.multi_choice}>
                     {aAnswers?.map?.((item, index) => {
                         return (
@@ -100,7 +100,7 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
                                     value={item.content}
                                     placeholder={'Type an option'}
                                     onChange={(e) => onOptionChange(e.target.value, index)}
-                                    disabled={type === 'create' ? false : true}
+                                    disabled={type === 'edit' ? false : true}
                                 />
                                 <div
                                     className={index % 2 === 0 ? styles.multi_choice_delete_left : styles.multi_choice_delete_right}

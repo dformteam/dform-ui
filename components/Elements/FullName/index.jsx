@@ -16,36 +16,36 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
-        type === 'create' &&
+        type === 'edit' &&
             onChange?.({
                 index,
                 title: [e.target.value, first_field, second_field],
                 meta: [],
-        isRequire: false,
-    })
-};
+                isRequire: false,
+            });
+    };
 
     const onFirstFieldChange = (e) => {
         setFirstField(e.target.value);
-        type === 'create' &&
+        type === 'edit' &&
             onChange?.({
                 index,
                 title: [title, e.target.value, second_field],
                 meta: [],
-        isRequire: false,
-    })
-};
+                isRequire: false,
+            });
+    };
 
     const onSecondFieldChange = (e) => {
         setSecondField(e.target.value);
-        type === 'create' &&
+        type === 'edit' &&
             onChange?.({
                 index,
                 title: [title, first_field, e.target.value],
                 meta: [],
-        isRequire: false,
-    })
-};
+                isRequire: false,
+            });
+    };
 
     return (
         <div className={styles.root_full_name}>
@@ -55,9 +55,9 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
                     value={title}
                     onChange={onTitleChange}
                     placeholder={'Type a title'}
-                    disabled={type === 'create' ? false : true}
+                    disabled={type === 'edit' ? false : true}
                 />
-                <input className={styles.full_name_description} placeholder={'Type a description'} disabled={type === 'create' ? false : true} />
+                <input className={styles.full_name_description} placeholder={'Type a description'} disabled={type === 'edit' ? false : true} />
                 <div className={styles.full_name}>
                     <div className={styles.full_name_form_left}>
                         <input
@@ -65,7 +65,7 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
                             value={first_field}
                             onChange={onFirstFieldChange}
                             placeholder={'Type a field'}
-                            disabled={type === 'create' ? false : true}
+                            disabled={type === 'edit' ? false : true}
                         />
                         <input className={styles.full_name_input} />
                     </div>
@@ -75,7 +75,7 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
                             value={second_field}
                             onChange={onSecondFieldChange}
                             placeholder={'Type a field'}
-                            disabled={type === 'create' ? false : true}
+                            disabled={type === 'edit' ? false : true}
                         />
                         <input className={styles.full_name_input} />
                     </div>

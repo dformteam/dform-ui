@@ -217,35 +217,37 @@ const CreateForm = () => {
     ];
 
     const renderElement = (el, index) => {
-        const { type, id, defaultValue } = el;
+        const { type, editable, id, defaultValue } = el;
+
+        const editableType = editable ? 'edit' : 'view';
 
         switch (id) {
             case 'header':
                 return <Header />;
             case 'fullName':
-                return <FullName index={index} onChange={onElementChanged} elType={type} type={'create'} defaultValue={defaultValue} />;
+                return <FullName index={index} onChange={onElementChanged} elType={type} type={editableType} defaultValue={defaultValue} />;
             case 'email':
-                return <Email index={index} onChange={onElementChanged} elType={type} type={'create'} defaultValue={defaultValue} />;
+                return <Email index={index} onChange={onElementChanged} elType={type} type={editableType} defaultValue={defaultValue} />;
             case 'address':
-                return <Address index={index} onChange={onElementChanged} elType={type} type={'create'} defaultValue={defaultValue} />;
+                return <Address index={index} onChange={onElementChanged} elType={type} type={editableType} defaultValue={defaultValue} />;
             case 'phone':
-                return <Phone index={index} onChange={onElementChanged} elType={type} type={'create'} defaultValue={defaultValue} />;
+                return <Phone index={index} onChange={onElementChanged} elType={type} type={editableType} defaultValue={defaultValue} />;
             case 'datePicker':
-                return <DatePicker index={index} onChange={onElementChanged} elType={type} type={'create'} defaultValue={defaultValue} />;
+                return <DatePicker index={index} onChange={onElementChanged} elType={type} type={editableType} defaultValue={defaultValue} />;
             case 'shortText':
-                return <ShortText index={index} onChange={onElementChanged} elType={type} type={'create'} defaultValue={defaultValue} />;
+                return <ShortText index={index} onChange={onElementChanged} elType={type} type={editableType} defaultValue={defaultValue} />;
             case 'longText':
-                return <LongText index={index} onChange={onElementChanged} elType={type} type={'create'} defaultValue={defaultValue} />;
+                return <LongText index={index} onChange={onElementChanged} elType={type} type={editableType} defaultValue={defaultValue} />;
             case 'time':
-                return <Time index={index} onChange={onElementChanged} elType={type} type={'create'} defaultValue={defaultValue} />;
+                return <Time index={index} onChange={onElementChanged} elType={type} type={editableType} defaultValue={defaultValue} />;
             case 'rating':
-                return <StarRating index={index} onChange={onElementChanged} elType={type} type={'create'} defaultValue={defaultValue} />;
+                return <StarRating index={index} onChange={onElementChanged} elType={type} type={editableType} defaultValue={defaultValue} />;
             case 'singleChoice':
-                return <SingleChoice index={index} onChange={onElementChanged} elType={type} type={'create'} defaultValue={defaultValue} />;
+                return <SingleChoice index={index} onChange={onElementChanged} elType={type} type={editableType} defaultValue={defaultValue} />;
             case 'multiChoice':
-                return <MultiChoice index={index} onChange={onElementChanged} elType={type} type={'create'} defaultValue={defaultValue} />;
+                return <MultiChoice index={index} onChange={onElementChanged} elType={type} type={editableType} defaultValue={defaultValue} />;
             case 'fillBlank':
-                return <FillBlank index={index} onChange={onElementChanged} elType={type} type={'create'} defaultValue={defaultValue} />;
+                return <FillBlank index={index} onChange={onElementChanged} elType={type} type={editableType} defaultValue={defaultValue} />;
 
             default:
                 break;
@@ -261,11 +263,15 @@ const CreateForm = () => {
     const [processing, setProcessing] = useState(0);
     const [modalPreview, setModalPreview] = useState(false);
     const [forms_upload_failure, setFormUploadFailure] = useState([]);
+    const [forms_status, setFormStatus] = useState('');
 
     useLayoutEffect(() => {
         onGetFormDetail();
-        // onGetMaxElement();
     }, []);
+
+    useLayoutEffect(() => {
+        onGetMaxElement();
+    }, [forms_status]);
 
     const onGetFormDetail = () => {
         const { contract, walletConnection } = wallet;
@@ -293,12 +299,22 @@ const CreateForm = () => {
                         router.push(`/error?content=${encoded_content}`);
                     }
 
+                    onCastFormStatus(res);
+
                     // onGetElements({ total: res });
                 }
             })
             .catch((err) => {
                 console.log(err);
             });
+    };
+
+    const onCastFormStatus = (form) => {
+        const { status } = form;
+        if (status === 0) {
+            return setFormStatus('edit');
+        }
+        setFormStatus('view');
     };
 
     const onGetMaxElement = () => {
@@ -360,6 +376,7 @@ const CreateForm = () => {
                                             isRequire: data?.isRequired,
                                         },
                                         edited: false,
+                                        editable: forms_status === 'view' ? false : true,
                                     };
                                 });
                                 forms = [...forms, ...(transform_form || [])];
@@ -506,24 +523,26 @@ const CreateForm = () => {
 
     return (
         <div className={styles.root}>
-            <div className={styles.nav}>
-                <div className={styles.label}>Form Elements</div>
-                <div className={styles.element}>
-                    {listElement?.map?.((item, index) => {
-                        return (
-                            <Fragment key={item.id}>
-                                <div className={styles.line} />
-                                <div className={styles.element_item} onClick={() => onAddNewElement(item, index)}>
-                                    <div className={styles.element_icon}>
-                                        <item.icon className={styles.element_icon_img} fontSize="large" />
+            {forms_status === 'edit' && (
+                <div className={styles.nav}>
+                    <div className={styles.label}>Form Elements</div>
+                    <div className={styles.element}>
+                        {listElement?.map?.((item, index) => {
+                            return (
+                                <Fragment key={item.id}>
+                                    <div className={styles.line} />
+                                    <div className={styles.element_item} onClick={() => onAddNewElement(item, index)}>
+                                        <div className={styles.element_icon}>
+                                            <item.icon className={styles.element_icon_img} fontSize="large" />
+                                        </div>
+                                        <div className={styles.element_label}>{item.label}</div>
                                     </div>
-                                    <div className={styles.element_label}>{item.label}</div>
-                                </div>
-                            </Fragment>
-                        );
-                    })}
+                                </Fragment>
+                            );
+                        })}
+                    </div>
                 </div>
-            </div>
+            )}
             <div className={styles.container}>
                 <div className={styles.button_area}>
                     <button className={styles.button} onClick={onCancelEditForm}>
@@ -559,9 +578,11 @@ const CreateForm = () => {
                                         {index < forms.length - 1 ? 'Next' : 'Submit'} <ArrowForwardOutlinedIcon className={styles.icon_next} />
                                     </div>
                                 </div>
-                                <button className={styles.button_delete}>
-                                    <DeleteForeverOutlinedIcon className={styles.button_delete_icon} onClick={() => onDeleteElement(index)} />
-                                </button>
+                                {item.editable && (
+                                    <button className={styles.button_delete}>
+                                        <DeleteForeverOutlinedIcon className={styles.button_delete_icon} onClick={() => onDeleteElement(index)} />
+                                    </button>
+                                )}
                             </div>
                         );
                     })}

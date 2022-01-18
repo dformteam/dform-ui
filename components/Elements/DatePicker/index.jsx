@@ -16,7 +16,7 @@ const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
-        type === 'create' &&
+        type === 'edit' &&
             onChange?.({
                 index,
                 title: [e.target.value, first_field],
@@ -27,7 +27,7 @@ const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onFirstFieldChange = (e) => {
         setFirstField(e.target.value);
-        type === 'create' &&
+        type === 'edit' &&
             onChange?.({
                 index,
                 title: [title, e.target.value],
@@ -44,9 +44,9 @@ const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
                     value={title}
                     onChange={onTitleChange}
                     placeholder={'Type a title'}
-                    disabled={type === 'create' ? false : true}
+                    disabled={type === 'edit' ? false : true}
                 />
-                <input className={styles.date_picker_description} placeholder={'Type a description'} disabled={type === 'create' ? false : true} />
+                <input className={styles.date_picker_description} placeholder={'Type a description'} disabled={type === 'edit' ? false : true} />
                 <div className={styles.date_picker}>
                     <div className={styles.date_picker_form}>
                         <input
@@ -54,7 +54,7 @@ const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
                             value={first_field}
                             onChange={onFirstFieldChange}
                             placeholder={'Type a field'}
-                            disabled={type === 'create' ? false : true}
+                            disabled={type === 'edit' ? false : true}
                         />
                         <input className={styles.date_picker_input} type={'date'} disabled={type === 'answer' ? false : true} />
                     </div>

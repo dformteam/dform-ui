@@ -23,7 +23,7 @@ const FillBlank = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
-        type === 'create' &&
+        type === 'edit' &&
             onChange?.({
                 index,
                 title: [e.target.value],
@@ -103,9 +103,9 @@ const FillBlank = ({ index, onChange, defaultValue, type = '' }) => {
                     value={title}
                     onChange={onTitleChange}
                     placeholder={'Type a title'}
-                    disabled={type === 'create' ? false : true}
+                    disabled={type === 'edit' ? false : true}
                 />
-                <input className={styles.fill_blank_description} placeholder={'Type a description'} disabled={type === 'create' ? false : true} />
+                <input className={styles.fill_blank_description} placeholder={'Type a description'} disabled={type === 'edit' ? false : true} />
                 <div className={styles.fill_blank}>
                     <div className={styles.fill_blank_form}>
                         {aInputs?.map?.((item, index) => {
@@ -115,12 +115,12 @@ const FillBlank = ({ index, onChange, defaultValue, type = '' }) => {
                                 </div>
                             );
                         })}
-                        {type === 'create' && (
+                        {type === 'edit' && (
                             <span className={styles.fill_blank_add_label} onClick={onAddLabel}>
                                 + Add label
                             </span>
                         )}
-                        {type === 'create' && (
+                        {type === 'edit' && (
                             <span className={styles.fill_blank_add_label} onClick={onAddInput}>
                                 + Add input
                             </span>
