@@ -89,44 +89,6 @@ const PreviewForm = () => {
         }
     };
 
-    useLayoutEffect(() => {
-        onGetFormDetail();
-    }, []);
-
-    const onGetFormDetail = () => {
-        const { contract, walletConnection } = wallet;
-        const { id } = query;
-        const content = 'Could not found any object have that id!';
-        const encoded_content = encodeURIComponent(content);
-        if (id === null || id === '' || typeof id === 'undefined') {
-            router.push(`/error?content=${encoded_content}`);
-        }
-
-        contract
-            ?.get_form_status?.({
-                formId: id,
-            })
-            .then((res) => {
-                if (res) {
-                    const content = '';
-                    const userId = walletConnection.getAccountId();
-                    if (userId !== res?.owner) {
-                        content = 'You do not have permssion to edit this form!';
-                    }
-                    
-                    if (content !== '') {
-                        const encoded_content = encodeURIComponent(content);
-                        router.push(`/error?content=${encoded_content}`);
-                    }
-
-                    // onGetElements({ total: res });
-                }
-            })
-            .catch((err) => {
-                console.log(err);
-            });
-    };
-
     const renderWelcome = (el) => {
         const { defaultValue } = el;
         return (

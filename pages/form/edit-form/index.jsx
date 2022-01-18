@@ -259,7 +259,7 @@ const CreateForm = () => {
     const [isSuccess, setSuccess] = useState(false);
     const [executing, setExecuting] = useState(0);
     const [processing, setProcessing] = useState(0);
-    const [modalPreview, setModalPreview] = useState(0);
+    const [modalPreview, setModalPreview] = useState(false);
     const [forms_upload_failure, setFormUploadFailure] = useState([]);
 
     useLayoutEffect(() => {
@@ -281,14 +281,12 @@ const CreateForm = () => {
             })
             .then((res) => {
                 if (res) {
+                    const { status, owner } = res;
                     const content = '';
                     const userId = walletConnection.getAccountId();
-                    if (userId !== res?.owner) {
+                    if (userId !== owner) {
                         content = 'You do not have permssion to edit this form!';
                     }
-                    // if (res.status !== 0) {
-                    //     content = 'This form has been published before. Please unpublish first then edit!';
-                    // }
 
                     if (content !== '') {
                         const encoded_content = encodeURIComponent(content);
@@ -388,6 +386,10 @@ const CreateForm = () => {
             ...item,
         });
         setForms([...forms]);
+    };
+
+    const onCancelEditForm = () => {
+        router.push('/form');
     };
 
     const onElementChanged = ({ index, title, meta, isRequired }) => {
@@ -493,14 +495,13 @@ const CreateForm = () => {
     };
 
     const onCloseModalPreview = () => {
+        localStorage.removeItem('myForms');
         setModalPreview(false);
     };
 
     const onPreviewClick = () => {
         setModalPreview(true);
         localStorage.setItem('myForms', JSON.stringify(forms));
-        // const id = query.id;
-        // router.push(`edit-form/preview-form?id=${id}`);
     };
 
     return (
@@ -525,7 +526,9 @@ const CreateForm = () => {
             </div>
             <div className={styles.container}>
                 <div className={styles.button_area}>
-                    <button className={styles.button}>Cancel</button>
+                    <button className={styles.button} onClick={onCancelEditForm}>
+                        Cancel
+                    </button>
                     <button className={styles.button} onClick={onPreviewClick}>
                         Preview Form
                     </button>
