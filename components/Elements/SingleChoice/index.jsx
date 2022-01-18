@@ -27,7 +27,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
         setTitle(e.target.value);
         onChange?.({
             index,
-            title: e.target.value,
+            title: [e.target.value],
             meta: [...aAnswers],
             isRequired: false,
         });
@@ -39,8 +39,8 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
         setAnswers(copyAnswers);
         onChange?.({
             index,
-            title: e.target.value,
-            meta: [...aAnswers],
+            title: [value],
+            meta: [...copyAnswers],
             isRequired: false,
         });
     };
@@ -51,20 +51,20 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
         setAnswers(copyAnswers);
         onChange?.({
             index,
-            title: e.target.value,
-            meta: [...aAnswers],
+            title: [e.target.value],
+            meta: [...copyAnswers],
             isRequired: false,
         });
     };
 
-    const onDeleteOption = (indexz) => {
+    const onDeleteOption = (e, indexz) => {
         let copyAnswers = [...aAnswers];
         copyAnswers.splice(indexz, 1);
         setAnswers(copyAnswers);
         onChange?.({
             index,
-            title: e.target.value,
-            meta: [...aAnswers],
+            title: [e.target.value],
+            meta: [...copyAnswers],
             isRequired: false,
         });
     };
@@ -95,7 +95,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
                                 />
                                 <div
                                     className={index % 2 === 0 ? styles.single_choice_delete_left : styles.single_choice_delete_right}
-                                    onClick={() => onDeleteOption(index)}
+                                    onClick={(e) => onDeleteOption(e, index)}
                                 >
                                     <DeleteOutlinedIcon className={styles.single_choice_delete_icon} />
                                 </div>

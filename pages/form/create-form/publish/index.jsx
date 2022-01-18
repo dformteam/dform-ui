@@ -91,7 +91,7 @@ const Publish = () => {
         const { contract } = wallet;
         let isDuplicate = false;
         const black_lists = black_list?.split(',')?.map((x) => x?.trim?.()) || [];
-        const white_list = white_list?.split(',')?.map((x) => x?.trim()) || [];
+        const white_lists = white_list?.split(',')?.map((x) => x?.trim()) || [];
         const black_list_set = new Set(black_lists);
         black_list_set.forEach((item) => {
             if (white_list_set.has(item)) {
@@ -106,7 +106,7 @@ const Publish = () => {
             //Show error
             return;
         }
-        
+
         contract
             ?.publish_form?.({
                 form_id: id,
@@ -161,6 +161,8 @@ const Publish = () => {
             return styles[tmp];
         }
     };
+
+    const onParticipantChange = () => {};
 
     return (
         <div className={styles.root}>
