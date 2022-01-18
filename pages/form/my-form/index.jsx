@@ -11,6 +11,8 @@ import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 
 const MyForm = () => {
     const raws = [];
@@ -34,6 +36,7 @@ const MyForm = () => {
     ]);
     const [aRowSelected, setRowSelected] = useState([]);
     const [aRowFavorite, setRowFavorite] = useState([]);
+    const [filter, setFilter] = useState('');
 
     useLayoutEffect(() => {
         mouted.current = true;
@@ -212,6 +215,10 @@ const MyForm = () => {
         router.push('form-analysis');
     };
 
+    const onFilterChange = (event) => {
+        setFilter(event.target.value);
+    };
+
     return (
         <div className={styles.root}>
             <div className={styles.nav}>
@@ -243,6 +250,21 @@ const MyForm = () => {
                     >
                         Delete Selected
                     </button>
+                    <div className={styles.filter}>Filter:</div>
+                    <Select
+                        value={filter}
+                        onChange={onFilterChange}
+                        className={styles.content_button_filter + ' ' + `${rows.length <= 0 && styles.disabled}`}
+                        disabled={rows.length <= 0}
+                        inputProps={{ 'aria-label': 'Without label' }}
+                        displayEmpty
+                        inputProps={{ 'aria-label': 'Without label' }}
+                    >
+                        <MenuItem value={'all'}>All</MenuItem>
+                        <MenuItem value={'editable'}>Editable</MenuItem>
+                        <MenuItem value={'publishing'}>Publishing</MenuItem>
+                        <MenuItem value={'finished'}>Finished</MenuItem>
+                    </Select>
                 </div>
                 <div className={styles.line} />
                 <div className={styles.table}>
