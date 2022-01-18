@@ -39,6 +39,7 @@
     width: 100%;
     display: flex;
     align-items: center;
+    position: relative;
 }
 
 .nav_title {
@@ -137,4 +138,18 @@
 .disabled {
     opacity: 0.4;
     pointer-events: none;
+}
+
+.content_button_filter {
+    @extend .content_button;
+    background: transparent;
+    color: var(--color-primary) !important;
+    border: none;
+    margin: 0 10px 10px 10px;
+    border-radius: 24px !important;
+}
+
+.filter {
+    font-size: 15px;
+    margin: 0 0 10px 20px;
 }
