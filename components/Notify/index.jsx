@@ -4,7 +4,7 @@ import Alert from '../Alert';
 import Loading from '../Loading';
 import styles from './Notify.module.scss';
 
-export default function Notify(props) {
+export default (props) => {
     const { openSnack, snackMsg, alertType, openLoading, onClose } = props;
 
     return (
@@ -23,4 +23,4 @@ export default function Notify(props) {
             </Snackbar>
         </>
     );
-}
+};
