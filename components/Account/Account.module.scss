@@ -57,13 +57,12 @@
     width: 100%;
     border: none;
     border-radius: 24px;
-    font-size: 16px;
-    font-weight: 600;
     padding: 8px;
     display: flex;
     align-items: center;
-    background-color: #e9e9e9;
-    cursor: pointer;
+    background: var(--color-gradient);
+    color: var(--color-text-button);
+    box-shadow: var(--color-boxshadow);
 }
 
 .account_button_icon_area {
@@ -73,19 +72,17 @@
 
 .account_button_icon {
     font-size: 28px !important;
-    color: var(--color-primary);
 }
 
 .account_button_accountId_area {
+    font-size: 18px;
     margin-left: 5px;
     flex: 1;
-    color: var(--color-primary);
     font-family: 'Bai Jamjuree', sans-serif;
 }
 
 .account_button_drop_icon {
     font-size: 28px !important;
-    color: #cdcdcd;
 }
 
 .signOut_button_icon {
@@ -101,21 +98,33 @@
 }
 
 .account_popover {
-    width: 180px;
+    width: 300px;
     padding: 10px 20px;
     background: #fff;
-    border-radius: 24px;
+    border-radius: 8px;
     position: absolute;
     top: 60px;
     right: 0;
     box-shadow: var(--color-boxshadow);
 }
 
+.account_popover::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    right: 20px;
+    width: 20px;
+    height: 20px;
+    transform: rotateZ(45deg);
+    background: #fff;
+}
+
 .account_popover_label {
+    font-size: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 10px 0;
+    margin: 15px 0;
     cursor: pointer;
 }
 
