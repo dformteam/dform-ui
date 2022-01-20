@@ -43,7 +43,7 @@ const Publish = () => {
     const aStatus = [
         { id: 'private', title: 'PRIVATE FORM', sub: 'Only available to invited people' },
         { id: 'public', title: 'PUBLIC FORM', sub: 'Available to everyone' },
-        { id: 'share', title: 'SHARE FORM AS A TEMPLATE', sub: 'Share your form as a template ' },
+        // { id: 'share', title: 'SHARE FORM AS A TEMPLATE', sub: 'Share your form as a template ' },
     ];
 
     const onStatusItemClick = (item) => {
@@ -168,14 +168,23 @@ const Publish = () => {
         <div className={styles.root}>
             <div className={styles.publish_content}>
                 <div className={styles.publish_title}>
-                    <div className={styles.publish_title_text}>Link to share</div>
+                    <div className={styles.publish_title_text}>Publish Form</div>
                     <div className={styles.publish_title_status}>{renderStatus()}</div>
+                    <div className={styles.publish_button_area}>
+                        <button className={styles.publish_button}>Publish</button>
+                    </div>
                 </div>
-                <div className={styles.publish_row}>
-                    <LinkOutlinedIcon className={styles.publish_icon_link} />
-                    <div className={styles.publish_link_input}></div>
-                    <div className={styles.publish_link_copy}>Copy link</div>
-                </div>
+                <div className={styles.line} />
+                {
+                    <>
+                        <div className={styles.publish_share_label}>Link to share:</div>
+                        <div className={styles.publish_row}>
+                            <LinkOutlinedIcon className={styles.publish_icon_link} />
+                            <div className={styles.publish_link_input}></div>
+                            <div className={styles.publish_link_copy}>Copy link</div>
+                        </div>
+                    </>
+                }
                 {aStatus.map((item, index) => {
                     return (
                         <div className={styles.publish_status_content + ' ' + renderActiveStatus(item.id)} onClick={() => onStatusItemClick(item)} key={index}>
@@ -185,6 +194,12 @@ const Publish = () => {
                         </div>
                     );
                 })}
+                <div className={styles.publish_row_input} style={{ height: status === 'private' ? 64 : 0 }}>
+                    <input className={styles.publish_black_input} placeholder={'Enter black list'} />
+                    <div className={styles.publish_black_button}>Add to Black List</div>
+                    <input className={styles.publish_black_input} placeholder={'Enter white list'} />
+                    <div className={styles.publish_white_button}>Add to White List</div>
+                </div>
                 <div className={styles.publish_fee_row + ' ' + styles.margin_top}>
                     <div className={styles.publish_fee_label}>Limit participant</div>
                     <input
