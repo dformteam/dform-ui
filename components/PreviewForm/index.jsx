@@ -34,7 +34,7 @@ const PreviewForm = () => {
                 isRequire: false,
             },
         },
-        ...forms,
+        ...(forms || {}),
         {
             id: 'thanks',
             type: 2,

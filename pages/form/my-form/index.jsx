@@ -102,6 +102,10 @@ const MyForm = () => {
         router.push(`/form/edit-form?id=${item.id}`);
     };
 
+    const onViewForm = (item) => {
+        router.push(`/form/view-form?id=${item.id}`);
+    };
+
     const onDeleteForm = (item) => {
         const { contract } = wallet;
         contract
@@ -216,8 +220,7 @@ const MyForm = () => {
         router.push('form-analysis');
     };
 
-    const onNavItemClicked = (item) => {
-    };
+    const onNavItemClicked = (item) => {};
 
     useEffect(() => {
         onFillterTable();
@@ -402,8 +405,8 @@ const MyForm = () => {
                                     <TableCell className={styles.cell}>{onExportDateTime(item.created_at)}</TableCell>
                                     <TableCell className={styles.cell}>{onExportFormStatus(item)}</TableCell>
                                     <TableCell className={styles.cell_action}>
-                                        <button className={styles.table_button_edit} onClick={() => onEditForm(item)}>
-                                            {onExportFormAction(item)}
+                                        <button className={styles.table_button_edit} onClick={() => onViewForm(item)}>
+                                            View form
                                         </button>
                                         <button className={styles.table_button_delete} onClick={() => onDeleteForm(item)}>
                                             Delete Form
