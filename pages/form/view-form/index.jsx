@@ -1,5 +1,5 @@
 import { Fragment, useLayoutEffect, useState } from 'react';
-import styles from './CreateForm.module.scss';
+import styles from './ViewForm.module.scss';
 import TitleOutlinedIcon from '@mui/icons-material/TitleOutlined';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
@@ -16,6 +16,7 @@ import StarOutlineOutlinedIcon from '@mui/icons-material/StarOutlineOutlined';
 import ArrowForwardOutlinedIcon from '@mui/icons-material/ArrowForwardOutlined';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
+import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
 import Header from '../../../components/Elements/Header';
 import FullName from '../../../components/Elements/FullName';
@@ -58,23 +59,17 @@ const CreateForm = () => {
     const router = useRouter();
     const { query } = router;
 
-    const [welcomeText, setWelcomeText] = useState('Please fill out and submit this form.');
-    const [thanksText, setThanksText] = useState('Your submission has been received.');
-    const [forms, setForms] = useState([]);
-    const [modalSave, setModalSave] = useState(false);
-    const [isSuccess, setSuccess] = useState(false);
-    const [executing, setExecuting] = useState(0);
-    const [processing, setProcessing] = useState(0);
+    const [actions, setAction] = useState([]);
+    const [form, setForm] = useState({});
+    const [elements, setElements] = useState([]);
     const [modalPreview, setModalPreview] = useState(false);
-    const [forms_upload_failure, setFormUploadFailure] = useState([]);
+    const [modalEdit, setModalEdit] = useState(false);
     const [forms_status, setFormStatus] = useState('');
     const [openLoading, setOpenLoading] = useState(false);
     const [openSnack, setOpenSnack] = useState(false);
     const [alertType, setAlertType] = useState('success');
     const [snackMsg, setSnackMsg] = useState('');
-    const [forms_deleted, setFormDeleted] = useState([]);
-    const [hasUpdate, setHasUpdate] = useState(false);
-    const [raw_forms, setRawForms] = useState([]);
+    const [editingElement, setEditingElement] = useState({});
 
     const onCloseSnack = () => {
         setOpenSnack(false);
@@ -89,6 +84,9 @@ const CreateForm = () => {
 
     useLayoutEffect(() => {
         onGetFormDetail();
+        return () => {
+            localStorage.removeItem('myForms');
+        };
     }, []);
 
     useLayoutEffect(() => {
@@ -104,8 +102,8 @@ const CreateForm = () => {
             router.push(`/error?content=${encoded_content}`);
         }
         contract
-            ?.get_form_status?.({
-                formId: id,
+            ?.get_form?.({
+                id: id,
             })
             .then((res) => {
                 if (res) {
@@ -121,20 +119,13 @@ const CreateForm = () => {
                         router.push(`/error?content=${encoded_content}`);
                     }
 
-                    onCastFormStatus(res);
+                    setForm({ ...res });
+                    renderAction(res);
                 }
             })
             .catch((err) => {
                 console.log(err);
             });
-    };
-
-    const onCastFormStatus = (form) => {
-        const { status } = form;
-        if (status === 0) {
-            return setFormStatus('edit');
-        }
-        setFormStatus('view');
     };
 
     const onGetMaxElement = () => {
@@ -159,7 +150,7 @@ const CreateForm = () => {
         const { contract, walletConnection } = wallet;
         const num_page = parseInt(total / 5) + 1;
         const page_arr = new Array(num_page).fill(0);
-        setForms([]);
+        setElements([]);
 
         const userId = walletConnection.getAccountId();
         const { id } = query;
@@ -180,7 +171,7 @@ const CreateForm = () => {
                                 if (a.page > b.page) return 1;
                                 return 0;
                             });
-                            let forms = [];
+                            let elements = [];
                             raws.map((raw) => {
                                 const transform_form = raw?.data?.map((data) => {
                                     return {
@@ -195,42 +186,106 @@ const CreateForm = () => {
                                             isRequire: data?.isRequired,
                                         },
                                         edited: false,
-                                        editable: forms_status === 'view' ? false : true,
+                                        editable: false,
                                     };
                                 });
-                                forms = [...forms, ...(transform_form || [])];
+                                elements = [...elements, ...(transform_form || [])];
                             });
-                            setRawForms([...forms]);
-                            setForms([...forms]);
+                            setElements([...elements]);
                         }
                     }
                 });
         });
     };
 
-    const onWelcomeTextChange = (e) => {
-        setWelcomeText(e.target.value);
-    };
-
-    const onThanksTextChange = (e) => {
-        setThanksText(e.target.value);
-    };
-
-    const onAddNewElement = (item) => {
-        forms.push({
-            ...item,
-        });
-        setForms([...forms]);
-        setHasUpdate(true);
-        onShowResult({
-            type: 'success',
-            msg: `Added new ${item.label} to form`,
-        });
-    };
-
     const onPublishForm = () => {
         const id = query.id;
         router.push(`/form/edit-form/publish?id=${id}`);
+    };
+
+    const onCloseModalPreview = () => {
+        localStorage.removeItem('myForms');
+        setModalPreview(false);
+    };
+
+    const onCloseModalEdit = () => {
+        setModalEdit(false);
+    };
+
+    const onPreviewClick = () => {
+        localStorage.setItem('myForms', JSON.stringify(elements));
+        setModalPreview(true);
+    };
+
+    const onEditFormClick = () => {
+        setModalEdit(true);
+    };
+
+    const onEditElementClick = (item) => {
+        setEditingElement({
+            ...item,
+            editable: true,
+        });
+        setModalEdit(true);
+    };
+
+    const onAnalysisClick = () => {};
+
+    const renderAction = (form) => {
+        const { status, start_date, end_date } = form;
+        const cTimestamp = Date.now();
+        let action = [];
+        if (status === 0) {
+            action = [
+                {
+                    title: 'Edit',
+                    onClick: onEditFormClick,
+                },
+                {
+                    title: 'Preview',
+                    onClick: onPreviewClick,
+                },
+            ];
+        } else if (status === 1 && cTimestamp < start_date) {
+            action = [
+                {
+                    title: 'Unpublish',
+                    onClick: onEditFormClick,
+                },
+                {
+                    title: 'Preview',
+                    onClick: onPreviewClick,
+                },
+            ];
+        } else if (status === 1 && cTimestamp > start_date && cTimestamp < end_date) {
+            action = [
+                {
+                    title: 'Unpublish',
+                    onClick: onEditFormClick,
+                },
+                {
+                    title: 'Preview',
+                    onClick: onPreviewClick,
+                },
+                {
+                    title: 'Analysis',
+                    onClick: onAnalysisClick,
+                },
+            ];
+        } else if ((status === 1 && cTimestamp > end_date) || status === 2) {
+            action = [
+                {
+                    title: 'Preview',
+                    onClick: onPreviewClick,
+                },
+                {
+                    title: 'Analysis',
+                    onClick: onAnalysisClick,
+                },
+            ];
+        }
+
+        setAction([...action]);
     };
 
     const onElementChanged = ({ index, title, meta, isRequired }) => {
@@ -243,7 +298,7 @@ const CreateForm = () => {
             },
             edited: true,
         };
-        
+
         if (JSON.stringify(forms) !== JSON.stringify(raw_forms)) {
             setHasUpdate(true);
         } else {
@@ -251,195 +306,6 @@ const CreateForm = () => {
         }
 
         setForms([...forms]);
-    };
-
-    const onDeleteElement = (index) => {
-        const element = forms.splice(index, 1);
-        setForms([...forms]);
-
-        if (element.bId !== '' && typeof element.bId !== 'undefined') {
-            setFormDeleted([...forms_deleted, { ...element?.[0] }]);
-        }
-        console.log(raw_forms, forms);
-        console.log(JSON.stringify(raw_forms));
-        console.log(JSON.stringify(forms));
-        console.log(JSON.stringify(raw_forms) !== JSON.stringify(forms));
-
-        if (JSON.stringify(raw_forms) !== JSON.stringify(forms)) {
-            setHasUpdate(true);
-        } else {
-            setHasUpdate(false);
-        }
-    };
-
-    const onSaveFormClicked = async () => {
-        const edit_excecute_count = forms.filter((x) => {
-            const { bId, edited } = x;
-            return typeof bId === 'undefined' || bId === '' || bId === null || edited;
-        }).length;
-
-        const delete_execute_count = forms_deleted.length;
-
-        const execute_count = edit_excecute_count + delete_execute_count;
-
-        if (execute_count === 0) {
-            return onShowResult({
-                type: 'error',
-                msg: 'There is no change to be saved',
-            });
-        }
-
-        setSuccess(false);
-        setModalSave(true);
-        setExecuting(execute_count);
-        const seph = new Semaphore({
-            max: 4,
-        });
-
-        await Promise.all[
-            forms?.map(async (element) => {
-                const { bId, edited } = element;
-                if (typeof bId === 'undefined' || bId === '' || bId === null) {
-                    await seph.acquire();
-                    await uploadNewElement(element, seph);
-                } else if (edited) {
-                    await seph.acquire();
-                    await updateElement(element, seph);
-                }
-            })
-        ];
-
-        await Promise.all[
-            forms_deleted?.map(async (element) => {
-                const { bId } = element;
-                if (typeof bId !== 'undefined' && bId !== '') {
-                    await seph.acquire();
-                    await deleteElement(element, seph);
-                }
-            })
-        ];
-
-        if (forms_upload_failure.length === 0) {
-            setSuccess(true);
-        }
-    };
-
-    const uploadNewElement = async (element, seph) => {
-        const { contract } = wallet;
-        const { id } = query;
-        const { type, defaultValue } = element;
-
-        await contract
-            .new_element({
-                formId: id,
-                type,
-                title: defaultValue.title,
-                meta: defaultValue.meta,
-                isRequired: defaultValue.isRequired,
-            })
-            .then((res) => {
-                setProcessing(processing + 1);
-                if (!res) {
-                    setFormUploadFailure([...forms_upload_failure, { ...element }]);
-                } else {
-                    element = {
-                        ...element,
-                        bId: res.bId,
-                    };
-                }
-                seph.release();
-                return;
-            })
-            .catch((err) => {
-                console.log(err);
-                setFormUploadFailure([...forms_upload_failure, { ...element }]);
-                seph.release();
-            });
-    };
-
-    const updateElement = async (element, seph) => {
-        const { contract } = wallet;
-        const { id } = query;
-        const { defaultValue, bId } = element;
-        await contract
-            .update_element({
-                formId: id,
-                id: bId,
-                title: defaultValue.title,
-                meta: defaultValue.meta,
-                isRequired: defaultValue.isRequired,
-            })
-            .then((res) => {
-                setProcessing(processing + 1);
-                if (!res) {
-                    setFormUploadFailure([...forms_upload_failure, { ...element }]);
-                } else {
-                    element = {
-                        ...element,
-                        bId: res.bId,
-                    };
-                }
-                seph.release();
-                return;
-            })
-            .catch((err) => {
-                console.log(err);
-                setFormUploadFailure([...forms_upload_failure, { ...element }]);
-                seph.release();
-            });
-    };
-
-    const deleteElement = async (element, seph) => {
-        const { contract } = wallet;
-        const { id } = query;
-        const { bId } = element;
-        console.log(element);
-        contract
-            ?.delete_element?.({
-                formId: id,
-                id: bId,
-            })
-            .then((res) => {
-                setProcessing(processing + 1);
-                if (!res) {
-                    setFormUploadFailure([...forms_upload_failure, { ...element }]);
-                }
-                seph.release();
-                return;
-            })
-            .catch((err) => {
-                console.log(err);
-                setFormUploadFailure([...forms_upload_failure, { ...element }]);
-                seph.release();
-            });
-    };
-
-    const onCloseModalSave = () => {
-        setModalSave(false);
-    };
-
-    const onCloseModalPreview = () => {
-        localStorage.removeItem('myForms');
-        setModalPreview(false);
-    };
-
-    const onPreviewClick = () => {
-        setModalPreview(true);
-        localStorage.setItem('myForms', JSON.stringify(forms));
-    };
-
-    const renderElements = (item, index) => {
-        return (
-            <Fragment key={item.id}>
-                <div className={styles.line} />
-                <div className={styles.element_item} onClick={() => onAddNewElement(item, index)}>
-                    <div className={styles.element_icon}>
-                        <item.icon className={styles.element_icon_img} fontSize="large" />
-                    </div>
-                    <div className={styles.element_label}>{item.label}</div>
-                </div>
-            </Fragment>
-        );
     };
 
     const renderElement = (el, index) => {
@@ -484,50 +350,16 @@ const CreateForm = () => {
         return (
             <div className={styles.element_content} key={index}>
                 {renderElement(item, index)}
-                <div className={styles.button_submit}>
-                    {index !== 0 && (
-                        <div className={styles.button_prev}>
-                            <ArrowBackOutlinedIcon className={styles.icon_prev} />
-                            Previous
-                        </div>
-                    )}
-                    <div className={styles.button_next} style={index === 0 ? { borderBottomLeftRadius: 24, justifyContent: 'center' } : null}>
-                        {index < forms.length - 1 ? 'Next' : 'Submit'} <ArrowForwardOutlinedIcon className={styles.icon_next} />
-                    </div>
-                </div>
-                {forms_status === 'edit' && (
-                    <button className={styles.button_delete}>
+                <div className={styles.element_action_area}>
+                    <button className={styles.element_action_area__edit}>
+                        <EditIcon className={styles.button_delete_icon} onClick={() => onEditElementClick(item)} />
+                    </button>
+                    <button className={styles.element_action_area__delete}>
                         <DeleteForeverOutlinedIcon className={styles.button_delete_icon} onClick={() => onDeleteElement(index)} />
                     </button>
-                )}
+                </div>
+                {/* <div className={styles.element_bg}></div> */}
             </div>
-        );
-    };
-
-    const renderModalSaveSuccess = () => {
-        return (
-            <>
-                {/* <div className={styles.modal_label + ' ' + styles.margin_top}>Your form has been successfully saved.</div> */}
-                <div className={styles.modal_label}>Do you want to publish right now?</div>
-                <div className={styles.modal_row}>
-                    <button className={styles.modal_button_publish}>Cancel</button>
-                    <button className={styles.modal_button_publish}>Publish</button>
-                </div>
-            </>
-        );
-    };
-
-    const renderModalSaving = () => {
-        return (
-            <>
-                <div className={styles.modal_label + ' ' + styles.margin_top}>Please wait while saving your form.</div>
-                <div className={styles.modal_content}>
-                    <img src={'/loading.svg'} className={styles.modal_loading_icon} />
-                </div>
-                <div className={styles.modal_content_text}>
-                    Processing: {processing}/{executing} completed.
-                </div>
-            </>
         );
     };
 
@@ -535,59 +367,24 @@ const CreateForm = () => {
         <>
             <Notify openLoading={openLoading} openSnack={openSnack} alertType={alertType} snackMsg={snackMsg} onClose={onCloseSnack} />
             <div className={styles.root}>
-                {forms_status === 'edit' && (
-                    <div className={styles.nav}>
-                        <div className={styles.label}>Form Elements</div>
-                        <div className={styles.element}>
-                            {listElement?.map?.((item, index) => {
-                                return renderElements(item, index);
-                            })}
-                        </div>
-                    </div>
-                )}
                 <div className={styles.container}>
                     <div className={styles.button_area}>
-                        {forms_status === 'edit' && (
-                            <button className={styles.button} onClick={onPublishForm}>
-                                Publish
-                            </button>
-                        )}
-                        <button className={styles.button} onClick={onPreviewClick}>
-                            Preview Form
-                        </button>
-                        {forms_status === 'edit' && hasUpdate && (
-                            <button className={styles.button_save} onClick={onSaveFormClicked}>
-                                Save
-                            </button>
-                        )}
+                        {actions?.map((action, index) => {
+                            return (
+                                <button className={styles.button} onClick={action.onClick} key={index}>
+                                    {action.title}
+                                </button>
+                            );
+                        })}
                     </div>
+                    <div className={styles.root__title}>{form?.title}</div>
+                    <div className={styles.root__description}>{form?.description}</div>
                     <div className={styles.content}>
-                        <div className={styles.welcome}>
-                            <div className={styles.welcome_title}>Welcome!</div>
-                            <input className={styles.welcome_text} value={welcomeText} onChange={onWelcomeTextChange} />
-                            <button className={styles.welcome_button}>
-                                Start <ArrowForwardOutlinedIcon className={styles.icon_next} />
-                            </button>
-                        </div>
-                        {forms?.map?.((item, index) => {
+                        {elements?.map?.((item, index) => {
                             return renderForms(item, index);
                         })}
-                        <div className={styles.end}>
-                            <div className={styles.welcome_title}>Thank You!</div>
-                            <input className={styles.welcome_text} value={thanksText} onChange={onThanksTextChange} />
-                        </div>
                     </div>
                 </div>
-
-                <Modal open={modalSave} onClose={onCloseModalSave} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
-                    <Box sx={style}>
-                        <Typography id="modal-modal-title" variant="h5" component="h2">
-                            Saved Form
-                        </Typography>
-                        <div className={styles.line} />
-                        {isSuccess ? renderModalSaveSuccess() : renderModalSaving()}
-                    </Box>
-                </Modal>
 
                 <Modal open={modalPreview} onClose={onCloseModalPreview} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
                     <Box sx={{ width: '100vw', height: '100vh' }}>
@@ -605,6 +402,23 @@ const CreateForm = () => {
                             <div className={styles.preview_content}>
                                 <PreviewForm />
                             </div>
+                        </div>
+                    </Box>
+                </Modal>
+                <Modal open={modalEdit} onClose={onCloseModalEdit} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+                    <Box sx={{ width: '100vw', height: '100vh' }}>
+                        <div className={styles.modal_preview_content}>
+                            <div className={styles.modal_preview_content_title}>
+                                <Typography id="modal-modal-title" variant="h6" component="h2">
+                                    Edit question
+                                </Typography>
+                                <div className={styles.line} />
+                            </div>
+                            <div className="form_bg" />
+                            <div className={styles.modal_preview_close} onClick={onCloseModalEdit}>
+                                <CloseIcon />
+                            </div>
+                            <div className={styles.element_content}>{renderElement(editingElement)}</div>
                         </div>
                     </Box>
                 </Modal>
