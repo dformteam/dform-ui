@@ -6,7 +6,7 @@ import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 
 const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
-    const initValue = {
+    let initValue = {
         title: ['Type a question'],
         meta: [
             { content: 'Type option 1', check: false },
@@ -26,11 +26,12 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
+        const metaAnswer = aAnswers?.filter((x) => x.content !== '')?.map((x) => x.content);
         type === 'edit' &&
             onChange?.({
                 index,
                 title: [e.target.value],
-                meta: [...aAnswers],
+                meta: [...metaAnswer],
             });
     };
 
@@ -38,37 +39,38 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
         let copyAnswers = [...aAnswers];
         copyAnswers[indexz].content = value;
         setAnswers(copyAnswers);
+        const metaAnswer = copyAnswers?.filter((x) => x.content !== '')?.map((x) => x.content);
         type === 'edit' &&
             onChange?.({
                 index,
                 title: [title],
-                meta: [...aAnswers],
+                meta: [...metaAnswer],
                 isRequired: false,
             });
     };
 
     const onAddOption = () => {
         let copyAnswers = [...aAnswers];
-        copyAnswers.push({ content: 'Type option ' + (aAnswers.length + 1), check: false });
+        copyAnswers.push({ content: '', placeholder: 'Type option ' + (aAnswers.length + 1), check: false });
         setAnswers(copyAnswers);
-        type === 'edit' &&
-            onChange?.({
-                index,
-                title: [title],
-                meta: [...aAnswers],
-                isRequired: false,
-            });
     };
 
     const onDeleteOption = (indexz) => {
         let copyAnswers = [...aAnswers];
         copyAnswers.splice(indexz, 1);
         setAnswers(copyAnswers);
+        const metaAnswer = copyAnswers?.filter((x) => x.content !== '')?.map((x) => x.content);
+        setAnswers([
+            ...copyAnswers.map((x, aIndex) => {
+                x.placeholder = 'Type option ' + (aIndex + 1);
+                return x;
+            }),
+        ]);
         type === 'edit' &&
             onChange?.({
                 index,
                 title: [title],
-                meta: [...aAnswers],
+                meta: [...metaAnswer],
                 isRequired: false,
             });
     };
@@ -98,9 +100,9 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
                                 <input
                                     className={styles.multi_choice_input}
                                     value={item.content}
-                                    placeholder={'Type an option'}
+                                    placeholder={item.placeholder}
                                     onChange={(e) => onOptionChange(e.target.value, index)}
-                                    disabled={type === 'edit' ? false : true}
+                                    disabled={type !== 'edit' ? true : false}
                                 />
                                 <div
                                     className={index % 2 === 0 ? styles.multi_choice_delete_left : styles.multi_choice_delete_right}
@@ -111,7 +113,7 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
                             </div>
                         );
                     })}
-                    <div className={styles.multi_choice_form_add} onClick={onAddOption}>
+                    <div className={styles.multi_choice_form_add} onClick={onAddOption} disabled={type !== 'edit' ? true : false}>
                         <AddOutlinedIcon className={styles.multi_choice_checked_left} />
                         <div className={styles.multi_choice_add}>Add Option</div>
                     </div>

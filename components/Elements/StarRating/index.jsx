@@ -3,7 +3,7 @@ import styles from './StarRating.module.scss';
 import StarOutlinedIcon from '@mui/icons-material/StarOutlined';
 
 const StarRating = ({ index, onChange, defaultValue, type = '' }) => {
-    const initValue = {
+    let initValue = {
         title: ['Type a question'],
         meta: [],
         isRequired: false,

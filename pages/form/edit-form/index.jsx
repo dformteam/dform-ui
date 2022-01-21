@@ -217,6 +217,7 @@ const CreateForm = () => {
     };
 
     const onElementChanged = ({ index, title, meta, isRequired }) => {
+        console.log(meta);
         forms[index] = {
             ...forms[index],
             defaultValue: {
@@ -330,9 +331,9 @@ const CreateForm = () => {
     };
 
     const renderElement = (el, index) => {
-        const { type, editable, id, defaultValue } = el;
+        const { type, id, defaultValue } = el;
 
-        const editableType = editable ? 'edit' : 'view';
+        const editableType = 'edit';
 
         switch (id) {
             case 'header':

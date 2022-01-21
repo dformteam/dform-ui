@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styles from './Address.module.scss';
 
 const Address = ({ index, onChange, defaultValue, type = '' }) => {
-    const initValue = {
+    let initValue = {
         title: 'Address',
         meta: [],
         isRequire: false,
