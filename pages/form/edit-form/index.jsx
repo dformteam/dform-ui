@@ -16,6 +16,7 @@ import StarOutlineOutlinedIcon from '@mui/icons-material/StarOutlineOutlined';
 import ArrowForwardOutlinedIcon from '@mui/icons-material/ArrowForwardOutlined';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
+import UploadIcon from '@mui/icons-material/Upload';
 import CloseIcon from '@mui/icons-material/Close';
 import Header from '../../../components/Elements/Header';
 import FullName from '../../../components/Elements/FullName';
@@ -66,15 +67,15 @@ const CreateForm = () => {
     const [executing, setExecuting] = useState(0);
     const [processing, setProcessing] = useState(0);
     const [modalPreview, setModalPreview] = useState(false);
-    const [forms_upload_failure, setFormUploadFailure] = useState([]);
-    const [forms_status, setFormStatus] = useState('');
     const [openLoading, setOpenLoading] = useState(false);
     const [openSnack, setOpenSnack] = useState(false);
     const [alertType, setAlertType] = useState('success');
     const [snackMsg, setSnackMsg] = useState('');
-    const [forms_deleted, setFormDeleted] = useState([]);
-    const [hasUpdate, setHasUpdate] = useState(false);
     const [raw_forms, setRawForms] = useState([]);
+
+    const seph = new Semaphore({
+        max: 4,
+    });
 
     const onCloseSnack = () => {
         setOpenSnack(false);
@@ -91,50 +92,41 @@ const CreateForm = () => {
         onGetFormDetail();
     }, []);
 
-    useLayoutEffect(() => {
-        onGetMaxElement();
-    }, [forms_status]);
-
     const onGetFormDetail = () => {
         const { contract, walletConnection } = wallet;
         const { id } = query;
-        const content = 'Could not found any object have that id!';
-        const encoded_content = encodeURIComponent(content);
+        console.log(id);
+        let content = '';
+        let encoded_content = encodeURIComponent(content);
+
         if (id === null || id === '' || typeof id === 'undefined') {
+            content = 'Could not found any object have that id!';
             router.push(`/error?content=${encoded_content}`);
         }
+
         contract
             ?.get_form_status?.({
                 formId: id,
             })
             .then((res) => {
                 if (res) {
-                    const { status, owner } = res;
-                    const content = '';
+                    const { owner } = res;
                     const userId = walletConnection.getAccountId();
                     if (userId !== owner) {
                         content = 'You do not have permssion to edit this form!';
                     }
 
                     if (content !== '') {
-                        const encoded_content = encodeURIComponent(content);
+                        encoded_content = encodeURIComponent(content);
                         router.push(`/error?content=${encoded_content}`);
                     }
 
-                    onCastFormStatus(res);
+                    onGetMaxElement();
                 }
             })
             .catch((err) => {
                 console.log(err);
             });
-    };
-
-    const onCastFormStatus = (form) => {
-        const { status } = form;
-        if (status === 0) {
-            return setFormStatus('edit');
-        }
-        setFormStatus('view');
     };
 
     const onGetMaxElement = () => {
@@ -180,28 +172,25 @@ const CreateForm = () => {
                                 if (a.page > b.page) return 1;
                                 return 0;
                             });
-                            let forms = [];
+                            let temp_forms = [];
                             raws.map((raw) => {
-                                const transform_form = raw?.data?.map((data) => {
+                                const transform_form = raw?.data?.map((form_data) => {
                                     return {
-                                        bId: data.id,
-                                        id: listElement?.[data.type]?.id,
-                                        type: data.type,
-                                        label: listElement?.[data.type]?.label,
+                                        bId: form_data.id,
+                                        id: listElement?.[form_data.type]?.id,
+                                        type: form_data.type,
+                                        label: listElement?.[form_data.type]?.label,
                                         icon: ShortTextOutlinedIcon,
                                         defaultValue: {
-                                            title: data?.title,
-                                            meta: data?.meta,
-                                            isRequire: data?.isRequired,
+                                            title: form_data?.title,
+                                            meta: form_data?.meta,
+                                            isRequire: form_data?.isRequired,
                                         },
-                                        edited: false,
-                                        editable: forms_status === 'view' ? false : true,
                                     };
                                 });
-                                forms = [...forms, ...(transform_form || [])];
+                                temp_forms = [...temp_forms, ...(transform_form || [])];
                             });
-                            setRawForms([...forms]);
-                            setForms([...forms]);
+                            setRawForms([...temp_forms]);
                         }
                     }
                 });
@@ -216,21 +205,15 @@ const CreateForm = () => {
         setThanksText(e.target.value);
     };
 
-    const onAddNewElement = (item) => {
+    const onAddNewElement = (item, index) => {
         forms.push({
             ...item,
         });
         setForms([...forms]);
-        setHasUpdate(true);
         onShowResult({
             type: 'success',
             msg: `Added new ${item.label} to form`,
         });
-    };
-
-    const onPublishForm = () => {
-        const id = query.id;
-        router.push(`/form/edit-form/publish?id=${id}`);
     };
 
     const onElementChanged = ({ index, title, meta, isRequired }) => {
@@ -241,95 +224,54 @@ const CreateForm = () => {
                 meta,
                 isRequired,
             },
-            edited: true,
         };
-        
-        if (JSON.stringify(forms) !== JSON.stringify(raw_forms)) {
-            setHasUpdate(true);
-        } else {
-            setHasUpdate(false);
-        }
 
         setForms([...forms]);
     };
 
     const onDeleteElement = (index) => {
-        const element = forms.splice(index, 1);
+        forms.splice(index, 1);
         setForms([...forms]);
-
-        if (element.bId !== '' && typeof element.bId !== 'undefined') {
-            setFormDeleted([...forms_deleted, { ...element?.[0] }]);
-        }
-        console.log(raw_forms, forms);
-        console.log(JSON.stringify(raw_forms));
-        console.log(JSON.stringify(forms));
-        console.log(JSON.stringify(raw_forms) !== JSON.stringify(forms));
-
-        if (JSON.stringify(raw_forms) !== JSON.stringify(forms)) {
-            setHasUpdate(true);
-        } else {
-            setHasUpdate(false);
-        }
     };
 
     const onSaveFormClicked = async () => {
-        const edit_excecute_count = forms.filter((x) => {
-            const { bId, edited } = x;
-            return typeof bId === 'undefined' || bId === '' || bId === null || edited;
-        }).length;
-
-        const delete_execute_count = forms_deleted.length;
-
-        const execute_count = edit_excecute_count + delete_execute_count;
-
-        if (execute_count === 0) {
-            return onShowResult({
-                type: 'error',
-                msg: 'There is no change to be saved',
-            });
-        }
-
         setSuccess(false);
         setModalSave(true);
-        setExecuting(execute_count);
-        const seph = new Semaphore({
-            max: 4,
-        });
-
-        await Promise.all[
-            forms?.map(async (element) => {
-                const { bId, edited } = element;
-                if (typeof bId === 'undefined' || bId === '' || bId === null) {
-                    await seph.acquire();
-                    await uploadNewElement(element, seph);
-                } else if (edited) {
-                    await seph.acquire();
-                    await updateElement(element, seph);
-                }
-            })
-        ];
-
-        await Promise.all[
-            forms_deleted?.map(async (element) => {
-                const { bId } = element;
-                if (typeof bId !== 'undefined' && bId !== '') {
-                    await seph.acquire();
-                    await deleteElement(element, seph);
-                }
-            })
-        ];
-
-        if (forms_upload_failure.length === 0) {
-            setSuccess(true);
+        setProcessing(0);
+        const executing_list = forms?.filter?.((x) => typeof bId === 'undefined' || bId === null || bId === '');
+        if (executing_list.length === 0) {
+            return;
         }
+
+        setExecuting(executing_list.length);
+
+        await Promise.all(
+            forms?.map(async (element) => {
+                const { bId } = element;
+                if (typeof bId === 'undefined' || bId === null || bId === '') {
+                    await seph.acquire();
+                    const bId_result = await uploadNewElement(element);
+                    element.bId = bId_result;
+                }
+            }),
+        )
+            .then(() => {
+                setForms([...forms]);
+                if (forms_upload_failure.length === 0) {
+                    setSuccess(true);
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+            });
     };
 
-    const uploadNewElement = async (element, seph) => {
+    const uploadNewElement = async (element) => {
         const { contract } = wallet;
         const { id } = query;
         const { type, defaultValue } = element;
 
-        await contract
+        return contract
             .new_element({
                 formId: id,
                 type,
@@ -339,79 +281,24 @@ const CreateForm = () => {
             })
             .then((res) => {
                 setProcessing(processing + 1);
-                if (!res) {
-                    setFormUploadFailure([...forms_upload_failure, { ...element }]);
-                } else {
-                    element = {
-                        ...element,
-                        bId: res.bId,
-                    };
-                }
                 seph.release();
-                return;
+                return res?.id;
             })
             .catch((err) => {
-                console.log(err);
-                setFormUploadFailure([...forms_upload_failure, { ...element }]);
+                setProcessing(processing + 1);
                 seph.release();
+                return undefined;
             });
     };
 
-    const updateElement = async (element, seph) => {
-        const { contract } = wallet;
-        const { id } = query;
-        const { defaultValue, bId } = element;
-        await contract
-            .update_element({
-                formId: id,
-                id: bId,
-                title: defaultValue.title,
-                meta: defaultValue.meta,
-                isRequired: defaultValue.isRequired,
-            })
-            .then((res) => {
-                setProcessing(processing + 1);
-                if (!res) {
-                    setFormUploadFailure([...forms_upload_failure, { ...element }]);
-                } else {
-                    element = {
-                        ...element,
-                        bId: res.bId,
-                    };
-                }
-                seph.release();
-                return;
-            })
-            .catch((err) => {
-                console.log(err);
-                setFormUploadFailure([...forms_upload_failure, { ...element }]);
-                seph.release();
-            });
-    };
-
-    const deleteElement = async (element, seph) => {
-        const { contract } = wallet;
-        const { id } = query;
-        const { bId } = element;
-        console.log(element);
-        contract
-            ?.delete_element?.({
-                formId: id,
-                id: bId,
-            })
-            .then((res) => {
-                setProcessing(processing + 1);
-                if (!res) {
-                    setFormUploadFailure([...forms_upload_failure, { ...element }]);
-                }
-                seph.release();
-                return;
-            })
-            .catch((err) => {
-                console.log(err);
-                setFormUploadFailure([...forms_upload_failure, { ...element }]);
-                seph.release();
-            });
+    const onUploadElementClick = async (element) => {
+        setExecuting(1);
+        setProcessing(0);
+        setModalSave(true);
+        const bId = await uploadNewElement(element);
+        element.bId = bId;
+        setForms([...forms]);
+        setModalSave(false);
     };
 
     const onCloseModalSave = () => {
@@ -425,7 +312,7 @@ const CreateForm = () => {
 
     const onPreviewClick = () => {
         setModalPreview(true);
-        localStorage.setItem('myForms', JSON.stringify(forms));
+        localStorage.setItem('myForms', JSON.stringify([...raw_forms, ...forms]));
     };
 
     const renderElements = (item, index) => {
@@ -495,11 +382,19 @@ const CreateForm = () => {
                         {index < forms.length - 1 ? 'Next' : 'Submit'} <ArrowForwardOutlinedIcon className={styles.icon_next} />
                     </div>
                 </div>
-                {forms_status === 'edit' && (
-                    <button className={styles.button_delete}>
-                        <DeleteForeverOutlinedIcon className={styles.button_delete_icon} onClick={() => onDeleteElement(index)} />
-                    </button>
-                )}
+
+                <div className={styles.element_action_area}>
+                    {(typeof item.bId === 'undefined' || item.bId === '') && (
+                        <button className={styles.element_action_area__edit}>
+                            <UploadIcon className={styles.button_delete_icon} onClick={() => onUploadElementClick(item)} />
+                        </button>
+                    )}
+                    {(typeof item.bId === 'undefined' || item.bId === '') && (
+                        <button className={styles.element_action_area__delete}>
+                            <DeleteForeverOutlinedIcon className={styles.button_delete_icon} onClick={() => onDeleteElement(index)} />
+                        </button>
+                    )}
+                </div>
             </div>
         );
     };
@@ -535,31 +430,22 @@ const CreateForm = () => {
         <>
             <Notify openLoading={openLoading} openSnack={openSnack} alertType={alertType} snackMsg={snackMsg} onClose={onCloseSnack} />
             <div className={styles.root}>
-                {forms_status === 'edit' && (
-                    <div className={styles.nav}>
-                        <div className={styles.label}>Form Elements</div>
-                        <div className={styles.element}>
-                            {listElement?.map?.((item, index) => {
-                                return renderElements(item, index);
-                            })}
-                        </div>
+                <div className={styles.nav}>
+                    <div className={styles.label}>Form Elements</div>
+                    <div className={styles.element}>
+                        {listElement?.map?.((item, index) => {
+                            return renderElements(item, index);
+                        })}
                     </div>
-                )}
+                </div>
                 <div className={styles.container}>
                     <div className={styles.button_area}>
-                        {forms_status === 'edit' && (
-                            <button className={styles.button} onClick={onPublishForm}>
-                                Publish
-                            </button>
-                        )}
                         <button className={styles.button} onClick={onPreviewClick}>
                             Preview Form
                         </button>
-                        {forms_status === 'edit' && hasUpdate && (
-                            <button className={styles.button_save} onClick={onSaveFormClicked}>
-                                Save
-                            </button>
-                        )}
+                        <button className={styles.button_save} onClick={onSaveFormClicked}>
+                            Save All
+                        </button>
                     </div>
                     <div className={styles.content}>
                         <div className={styles.welcome}>

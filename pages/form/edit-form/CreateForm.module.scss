@@ -1,6 +1,6 @@
 .root {
-    width: 100%;
-    flex: 1;
+    width: 70%;
+    // flex: 1;
     display: flex;
     padding: 20px 0 20px 300px;
 }
@@ -34,6 +34,7 @@
     flex-direction: column;
     overflow: auto;
 }
+
 
 .element_item {
     width: 100%;
@@ -228,6 +229,44 @@
     background: var(--color-background);
     box-shadow: var(--color-boxshadow);
     position: relative;
+}
+
+.element_action_area {
+    position: absolute;
+    right: -50px;
+    // width: 40px;
+    // height: 40px;
+    // border-radius: 50%;
+    // background: var(--color-danger);
+    color: var(--color-text-button);
+    // box-shadow: var(--color-boxshadow);
+    // display: flex;
+    // align-items: center;
+    // justify-content: center;
+
+    &__edit {
+        @extend .button_action;
+        background: var(--color-link);
+    }
+
+    &__delete {
+        @extend .button_action;
+        background: var(--color-danger);
+    }
+}
+
+.button_action {
+    // position: absolute;
+    // right: -50px;
+    margin: 20px 0px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    color: var(--color-text-button);
+    box-shadow: var(--color-boxshadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .button_submit {
