@@ -222,6 +222,11 @@ const CreateForm = () => {
         setModalEdit(true);
     };
 
+    const onAddNewQuestion = () => {
+        const id = query.id;
+        router.push(`/form/edit-form?id=${id}`);
+    };
+
     const onEditElementClick = (item) => {
         setEditingElement({
             ...item,
@@ -239,8 +244,8 @@ const CreateForm = () => {
         if (status === 0) {
             action = [
                 {
-                    title: 'Edit',
-                    onClick: onEditFormClick,
+                    title: 'Add new question',
+                    onClick: onAddNewQuestion,
                 },
                 {
                     title: 'Preview',
