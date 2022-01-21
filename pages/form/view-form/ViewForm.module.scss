@@ -5,7 +5,7 @@
     display: flex;
     padding: 20px 0px;
 
-    &__title{
+    &__title {
         font-size: 34px;
         font-weight: 600;
     }
@@ -104,6 +104,9 @@
     margin: 8px;
     background: var(--color-background);
     box-shadow: var(--color-boxshadow);
+    display: flex;
+    align-items: center;
+    font-weight: 600;
 }
 
 .button_save {
@@ -117,7 +120,7 @@
 }
 
 .button:hover {
-    color: var(--color-active);
+    color: var(--color-link);
 }
 
 .content {
@@ -125,6 +128,7 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+    max-width: 800px;
 }
 
 .welcome {
@@ -169,7 +173,7 @@
     border-radius: 0;
 }
 
-.welcome_button:hover>svg {
+.welcome_button:hover > svg {
     animation: slideOutRight 1s infinite;
 }
 
@@ -229,7 +233,7 @@
 
 .element_content {
     width: 100%;
-    min-height: 220px;
+    min-height: 250px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -238,6 +242,7 @@
     background: var(--color-background);
     box-shadow: var(--color-boxshadow);
     position: relative;
+    max-width: 800px;
 }
 
 .button_submit {
@@ -263,7 +268,7 @@
     border-bottom-left-radius: 0;
 }
 
-.button_next:hover>svg {
+.button_next:hover > svg {
     animation: slideOutRight 1s infinite;
 }
 
@@ -277,7 +282,7 @@
     border-bottom-left-radius: 24px;
 }
 
-.button_prev:hover>svg {
+.button_prev:hover > svg {
     animation: slideOutLeft 1s infinite;
 }
 
@@ -296,7 +301,7 @@
 
     &__edit {
         @extend .button_action;
-        background: var(--color-link);
+        background: var(--color-gradient);
     }
 
     &__delete {
@@ -397,16 +402,17 @@
 }
 
 .modal_preview_content {
-    width: 100vw;
-    height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     background: #fff;
     position: relative;
-    padding: 5% 10%;
+    padding: 30px 5%;
     overflow: auto;
+    width: 900px;
+    border-radius: 24px;
+    max-height: 90vh;
 }
 
 .modal_preview_close {
@@ -418,7 +424,8 @@
 }
 
 .modal_preview_content_title {
-    color: var(--color-primary);
+    z-index: 1;
+    margin-bottom: 20px;
 }
 
 .preview_content {
@@ -426,4 +433,36 @@
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.modal_edit_title {
+    font-weight: 600 !important;
+    font-family: 'DM Sans', sans-serif !important;
+}
+
+.modal_edit_row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+.modal_edit_button {
+    width: 150px;
+    height: 48px;
+    border: 1px solid var(--color-border);
+    margin: 10px;
+}
+
+.modal_edit_button_save {
+    width: 150px;
+    height: 48px;
+    border: none;
+    background: var(--color-gradient);
+    color: var(--color-text-button);
+}
+
+.button_area_icon {
+    margin-right: 10px;
 }
