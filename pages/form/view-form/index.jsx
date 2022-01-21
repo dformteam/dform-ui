@@ -15,6 +15,7 @@ import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 import StarOutlineOutlinedIcon from '@mui/icons-material/StarOutlineOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
+import PublishIcon from '@mui/icons-material/Publish';
 import UnpublishedOutlinedIcon from '@mui/icons-material/UnpublishedOutlined';
 import InsertChartOutlinedOutlinedIcon from '@mui/icons-material/InsertChartOutlinedOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
@@ -436,6 +437,8 @@ const CreateForm = () => {
                 return <InsertChartOutlinedOutlinedIcon className={styles.button_area_icon} />;
             case 'Add new question':
                 return <AddOutlinedIcon className={styles.button_area_icon} />;
+            case 'Publish':
+                return <PublishIcon className={styles.button_area_icon} />;
 
             default:
                 break;
