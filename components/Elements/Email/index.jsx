@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styles from './Email.module.scss';
 
 const Email = ({ index, onChange, defaultValue, type = '' }) => {
-    const initValue = {
+    let initValue = {
         title: ['Email', 'We collect your email to bla bla bla...', 'Email.'],
         meta: [],
         isRequired: false,

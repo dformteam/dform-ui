@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styles from './LongText.module.scss';
 
 const LongText = ({ index, onChange, defaultValue, type = '' }) => {
-    const initValue = {
+    let initValue = {
         title: ['Type a question'],
     };
 

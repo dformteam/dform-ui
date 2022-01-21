@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styles from './Phone.module.scss';
 
 const Phone = ({ index, onChange, defaultValue, type = '' }) => {
-    const initValue = {
+    let initValue = {
         title: ['Phone Number', 'Please enter a valid phone number.'],
         meta: [],
     };

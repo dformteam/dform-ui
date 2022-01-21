@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styles from './FullName.module.scss';
 
 const FullName = ({ index, onChange, defaultValue, type = '' }) => {
-    const initValue = {
+    let initValue = {
         title: ['Name', 'First Name', 'Last Name'],
     };
 
