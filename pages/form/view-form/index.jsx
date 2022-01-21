@@ -368,7 +368,7 @@ const CreateForm = () => {
     const renderElement = (el, index) => {
         const { type, editable, id, defaultValue } = el;
 
-        const editableType = editable ? 'edit' : 'view';
+        const editableType = 'view';
 
         switch (id) {
             case 'header':
