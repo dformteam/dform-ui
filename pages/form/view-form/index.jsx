@@ -1,4 +1,4 @@
-import { Fragment, useLayoutEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import styles from './ViewForm.module.scss';
 import TitleOutlinedIcon from '@mui/icons-material/TitleOutlined';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
@@ -13,8 +13,6 @@ import AdjustOutlinedIcon from '@mui/icons-material/AdjustOutlined';
 import CheckBoxOutlinedIcon from '@mui/icons-material/CheckBoxOutlined';
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 import StarOutlineOutlinedIcon from '@mui/icons-material/StarOutlineOutlined';
-import ArrowForwardOutlinedIcon from '@mui/icons-material/ArrowForwardOutlined';
-import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
 import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
@@ -32,13 +30,13 @@ import SingleChoice from '../../../components/Elements/SingleChoice';
 import MultiChoice from '../../../components/Elements/MultiChoice';
 import FillBlank from '../../../components/Elements/FillBlank';
 import PreviewForm from '../../../components/PreviewForm';
-import Semaphore from '../../../backed/semaphore';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Notify from '../../../components/Notify';
+import Confirmation from '../../../components/Confirmation';
 
 const style = {
     position: 'absolute',
@@ -70,6 +68,8 @@ const CreateForm = () => {
     const [alertType, setAlertType] = useState('success');
     const [snackMsg, setSnackMsg] = useState('');
     const [editingElement, setEditingElement] = useState({});
+    const [openConfirmation, setOpenConfirmation] = useState(false);
+    const [currentElement, setCurrentElement] = useState({});
 
     const onCloseSnack = () => {
         setOpenSnack(false);
@@ -82,23 +82,24 @@ const CreateForm = () => {
         setSnackMsg(msg);
     };
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         onGetFormDetail();
         return () => {
             localStorage.removeItem('myForms');
         };
     }, []);
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         onGetMaxElement();
     }, [forms_status]);
 
     const onGetFormDetail = () => {
         const { contract, walletConnection } = wallet;
         const { id } = query;
-        const content = 'Could not found any object have that id!';
-        const encoded_content = encodeURIComponent(content);
+        let content = '';
+        let encoded_content = encodeURIComponent(content);
         if (id === null || id === '' || typeof id === 'undefined') {
+            content = 'Could not found any object have that id!';
             router.push(`/error?content=${encoded_content}`);
         }
         contract
@@ -107,15 +108,14 @@ const CreateForm = () => {
             })
             .then((res) => {
                 if (res) {
-                    const { status, owner } = res;
-                    const content = '';
+                    const { owner } = res;
                     const userId = walletConnection.getAccountId();
                     if (userId !== owner) {
                         content = 'You do not have permssion to edit this form!';
                     }
 
                     if (content !== '') {
-                        const encoded_content = encodeURIComponent(content);
+                        encoded_content = encodeURIComponent(content);
                         router.push(`/error?content=${encoded_content}`);
                     }
 
@@ -171,7 +171,7 @@ const CreateForm = () => {
                                 if (a.page > b.page) return 1;
                                 return 0;
                             });
-                            let elements = [];
+                            let temp_elements = [];
                             raws.map((raw) => {
                                 const transform_form = raw?.data?.map((data) => {
                                     return {
@@ -182,16 +182,21 @@ const CreateForm = () => {
                                         icon: ShortTextOutlinedIcon,
                                         defaultValue: {
                                             title: data?.title,
-                                            meta: data?.meta,
+                                            meta: data?.meta?.map((x) => {
+                                                return {
+                                                    content: x,
+                                                    checked: false,
+                                                };
+                                            }),
                                             isRequire: data?.isRequired,
                                         },
                                         edited: false,
                                         editable: false,
                                     };
                                 });
-                                elements = [...elements, ...(transform_form || [])];
+                                temp_elements = [...temp_elements, ...(transform_form || [])];
                             });
-                            setElements([...elements]);
+                            setElements([...temp_elements]);
                         }
                     }
                 });
@@ -201,6 +206,11 @@ const CreateForm = () => {
     const onPublishForm = () => {
         const id = query.id;
         router.push(`/form/edit-form/publish?id=${id}`);
+    };
+
+    const onDeleteElement = (element) => {
+        setCurrentElement(element);
+        setOpenConfirmation(true);
     };
 
     const onCloseModalPreview = () => {
@@ -236,8 +246,8 @@ const CreateForm = () => {
 
     const onAnalysisClick = () => {};
 
-    const renderAction = (form) => {
-        const { status, start_date, end_date } = form;
+    const renderAction = (element) => {
+        const { status, start_date, end_date } = element;
         const cTimestamp = Date.now();
         let action = [];
         if (status === 0) {
@@ -249,6 +259,10 @@ const CreateForm = () => {
                 {
                     title: 'Preview',
                     onClick: onPreviewClick,
+                },
+                {
+                    title: 'Publish',
+                    onClick: onPublishForm,
                 },
             ];
         } else if (status === 1 && cTimestamp < start_date) {
@@ -313,6 +327,44 @@ const CreateForm = () => {
         setForms([...forms]);
     };
 
+    const onAcceptDeleteElement = () => {
+        const { contract } = wallet;
+        const { bId } = currentElement;
+        setOpenConfirmation(false);
+        setOpenLoading(true);
+
+        return contract
+            .delete_element({
+                formId: query.id,
+                id: bId,
+            })
+            .then((res) => {
+                console.log(res);
+                if (res) {
+                    onGetMaxElement();
+                    onShowResult({
+                        type: 'success',
+                        msg: 'Delete element successfully',
+                    });
+                } else {
+                    onShowResult({
+                        type: 'error',
+                        msg: 'Something went wrong, please try again!',
+                    });
+                }
+            })
+            .catch((err) => {
+                onShowResult({
+                    type: 'error',
+                    msg: String(err),
+                });
+            });
+    };
+
+    const onDenyDeleteElement = () => {
+        setOpenConfirmation(false);
+    };
+
     const renderElement = (el, index) => {
         const { type, editable, id, defaultValue } = el;
 
@@ -360,7 +412,7 @@ const CreateForm = () => {
                         <EditIcon className={styles.button_delete_icon} onClick={() => onEditElementClick(item)} />
                     </button>
                     <button className={styles.element_action_area__delete}>
-                        <DeleteForeverOutlinedIcon className={styles.button_delete_icon} onClick={() => onDeleteElement(index)} />
+                        <DeleteForeverOutlinedIcon className={styles.button_delete_icon} onClick={() => onDeleteElement(item)} />
                     </button>
                 </div>
                 {/* <div className={styles.element_bg}></div> */}
@@ -368,8 +420,11 @@ const CreateForm = () => {
         );
     };
 
+    console.log(elements);
+
     return (
         <>
+            {openConfirmation && <Confirmation label={confirmationLabel} onAccept={onAcceptDeleteElement} onCancel={onDenyDeleteElement} />}
             <Notify openLoading={openLoading} openSnack={openSnack} alertType={alertType} snackMsg={snackMsg} onClose={onCloseSnack} />
             <div className={styles.root}>
                 <div className={styles.container}>
@@ -592,3 +647,10 @@ const listElement = [
         },
     },
 ];
+
+const confirmationLabel = {
+    title: 'Confirmation',
+    desc: 'Are you sure to delete this question?',
+    accept: 'Accept',
+    cancel: 'Deny',
+};

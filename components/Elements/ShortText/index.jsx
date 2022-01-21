@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styles from './ShortText.module.scss';
 
 const ShortText = ({ index, onChange, defaultValue, type = '' }) => {
-    const initValue = {
+    let initValue = {
         title: ['Type a question'],
         meta: [],
         isRequired: false,

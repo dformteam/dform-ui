@@ -3,7 +3,7 @@ import styles from './FillBlank.module.scss';
 import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
 
 const FillBlank = ({ index, onChange, defaultValue, type = '' }) => {
-    const initValue = {
+    let initValue = {
         title: 'Type a question',
         meta: [],
     };

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styles from './Time.module.scss';
 
 const Time = ({ index, onChange, defaultValue, type = '' }) => {
-    const initValue = {
+    let initValue = {
         title: ['Type a question'],
         meta: [],
         isRequired: false,

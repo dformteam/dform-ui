@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styles from './DatePicker.module.scss';
 
 const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
-    const initValue = {
+    let initValue = {
         title: ['Date Picker', 'Please pick a date.'],
         meta: [],
     };
