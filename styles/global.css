@@ -9,6 +9,7 @@
     --color-gradient: linear-gradient(135deg, #3b71fe, #0bd7f7);
     --color-gradient-secondary: linear-gradient(135deg, #2cc9ff, #57eae9);
     --color-gradient-secondary-mirror: linear-gradient(135deg, #57eae9, #2cc9ff);
+    --color-gradient-third: linear-gradient(180deg, #ff881f 0%, #fb6d23 100%, #fb6d23 100%);
     --color-boxshadow: rgb(0 0 0 / 8%) 0px 20px 27px 0px;
     --color-background: rgba(255, 255, 255, 0.5);
 }

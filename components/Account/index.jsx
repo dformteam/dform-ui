@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef, Fragment } from 'react';
 import styles from './Account.module.scss';
 import { useSelector } from 'react-redux';
 import { Popover } from '@mui/material';
-import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
-import ArrowDropDownCircleSharpIcon from '@mui/icons-material/ArrowDropDownCircleSharp';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import LogoutSharpIcon from '@mui/icons-material/LogoutSharp';
 import { useRouter } from 'next/router';
 
@@ -88,13 +88,9 @@ const UserAccount = () => {
         return (
             <div className={styles.signIn_area} ref={wrapperRef}>
                 <button className={styles.account_button} onClick={onOpenAccountPopover}>
-                    <div className={styles.account_button_icon_area}>
-                        <AccountCircleOutlinedIcon className={styles.account_button_icon} />
-                    </div>
+                    <AccountCircleIcon className={styles.account_button_icon} />
                     <div className={styles.account_button_accountId_area}>{accountId}</div>
-                    <div>
-                        <ArrowDropDownCircleSharpIcon className={styles.account_button_drop_icon} />
-                    </div>
+                    <ArrowDropDownIcon className={styles.account_button_drop_icon} />
                 </button>
                 {popoverVisible && (
                     <div className={styles.account_popover}>
