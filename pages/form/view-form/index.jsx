@@ -17,6 +17,7 @@ import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
 import UnpublishedOutlinedIcon from '@mui/icons-material/UnpublishedOutlined';
 import InsertChartOutlinedOutlinedIcon from '@mui/icons-material/InsertChartOutlinedOutlined';
+import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
 import Header from '../../../components/Elements/Header';
@@ -379,6 +380,8 @@ const CreateForm = () => {
                 return <UnpublishedOutlinedIcon className={styles.button_area_icon} />;
             case 'Analysis':
                 return <InsertChartOutlinedOutlinedIcon className={styles.button_area_icon} />;
+            case 'Add new question':
+                return <AddOutlinedIcon className={styles.button_area_icon} />;
 
             default:
                 break;
@@ -429,7 +432,7 @@ const CreateForm = () => {
                     </Box>
                 </Modal>
                 <Modal open={modalEdit} onClose={onCloseModalEdit} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
-                    <Box sx={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Box sx={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={onCloseModalEdit}>
                         <div className={styles.modal_preview_content}>
                             <div className={styles.modal_preview_content_title}>
                                 <Typography className={styles.modal_edit_title} variant="h5" component="h2">
@@ -443,7 +446,9 @@ const CreateForm = () => {
                             </div>
                             <div className={styles.element_content}>{renderElement(editingElement)}</div>
                             <div className={styles.modal_edit_row}>
-                                <button className={styles.modal_edit_button}>Cancel</button>
+                                <button className={styles.modal_edit_button} onClick={onCloseModalEdit}>
+                                    Cancel
+                                </button>
                                 <button className={styles.modal_edit_button_save}>Save</button>
                             </div>
                         </div>

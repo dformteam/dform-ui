@@ -128,7 +128,6 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    max-width: 800px;
 }
 
 .welcome {
@@ -242,7 +241,6 @@
     background: var(--color-background);
     box-shadow: var(--color-boxshadow);
     position: relative;
-    max-width: 800px;
 }
 
 .button_submit {
