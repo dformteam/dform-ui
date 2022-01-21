@@ -487,7 +487,7 @@ const CreateForm = () => {
                     </Box>
                 </Modal>
                 <Modal open={modalEdit} onClose={onCloseModalEdit} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
-                    <Box sx={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={onCloseModalEdit}>
+                    <Box sx={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <div className={styles.modal_preview_content}>
                             <div className={styles.modal_preview_content_title}>
                                 <Typography className={styles.modal_edit_title} variant="h5" component="h2">
