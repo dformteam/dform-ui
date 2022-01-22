@@ -361,12 +361,12 @@ const MyForm = () => {
                         <TableHead>
                             <TableRow>
                                 <TableCell className={styles.cell_select_area}>
-                                    {aRowSelected.length === rows.length ? (
+                                    {aRowSelected.length === rows.length && aRowSelected.length > 0 ? (
                                         <CheckBoxIcon className={styles.table_icon_select} onClick={() => onSelectAllRow(false)} />
                                     ) : (
                                         <CheckBoxOutlineBlankIcon className={styles.table_icon_select} onClick={() => onSelectAllRow(true)} />
                                     )}
-                                    {aRowFavorite.length === rows.length ? (
+                                    {aRowFavorite.length === rows.length && aRowSelected.length > 0 ? (
                                         <FavoriteOutlinedIcon className={styles.table_icon_favor} onClick={() => onAddAllFavorite(false)} />
                                     ) : (
                                         <FavoriteBorderOutlinedIcon className={styles.table_icon_favor} onClick={() => onAddAllFavorite(true)} />

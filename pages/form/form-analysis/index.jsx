@@ -71,6 +71,8 @@ const FormAnalysis = () => {
         },
     ];
     const forms = JSON.parse(localStorage.getItem('myForms'));
+    const [participants, setParticipant] = useState([]);
+    const [answers, setAnswers] = useState();
     const [openModal, setOpenModal] = useState(false);
 
     const onRenderParticipant = (participant, index) => {
@@ -86,7 +88,7 @@ const FormAnalysis = () => {
     };
 
     const onParticipantDetailClicked = () => {
-        setOpenModal(true);
+        // setOpenModal(true);
     };
 
     const onRandomColorBg = () => {
