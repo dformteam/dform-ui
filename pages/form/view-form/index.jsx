@@ -38,19 +38,6 @@ import Typography from '@mui/material/Typography';
 import Notify from '../../../components/Notify';
 import Confirmation from '../../../components/Confirmation';
 
-const style = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    minWidth: 400,
-    bgcolor: '#fff',
-    borderRadius: '24px',
-    boxShadow: 24,
-    p: 4,
-    outline: 'none',
-};
-
 const CreateForm = () => {
     const raws = [];
     const wallet = useSelector((state) => state.wallet);
@@ -69,6 +56,7 @@ const CreateForm = () => {
     const [snackMsg, setSnackMsg] = useState('');
     const [editingElement, setEditingElement] = useState({});
     const [openConfirmation, setOpenConfirmation] = useState(false);
+    const [openConfirmUnpublish, setOpenConfirmUnpublish] = useState(false);
     const [currentElement, setCurrentElement] = useState({});
 
     const onCloseSnack = () => {
@@ -102,6 +90,7 @@ const CreateForm = () => {
             content = 'Could not found any object have that id!';
             router.push(`/error?content=${encoded_content}`);
         }
+
         contract
             ?.get_form?.({
                 id: id,
@@ -155,7 +144,7 @@ const CreateForm = () => {
         const userId = walletConnection.getAccountId();
         const { id } = query;
         page_arr.map((page, index) => {
-            contract
+            return contract
                 .get_elements({
                     userId,
                     formId: id,
@@ -173,28 +162,29 @@ const CreateForm = () => {
                             });
                             let temp_elements = [];
                             raws.map((raw) => {
-                                const transform_form = raw?.data?.map((data) => {
+                                const transform_form = raw?.data?.map((tmp_data) => {
                                     return {
-                                        bId: data.id,
-                                        id: listElement?.[data.type]?.id,
-                                        type: data.type,
-                                        label: listElement?.[data.type]?.label,
+                                        bId: tmp_data.id,
+                                        id: listElement?.[tmp_data.type]?.id,
+                                        type: tmp_data.type,
+                                        label: listElement?.[tmp_data.type]?.label,
                                         icon: ShortTextOutlinedIcon,
                                         defaultValue: {
-                                            title: data?.title,
-                                            meta: data?.meta?.map((x) => {
+                                            title: tmp_data?.title,
+                                            meta: tmp_data?.meta?.map((x) => {
                                                 return {
                                                     content: x,
                                                     checked: false,
                                                 };
                                             }),
-                                            isRequire: data?.isRequired,
+                                            isRequire: tmp_data?.isRequired,
                                         },
                                         edited: false,
                                         editable: false,
                                     };
                                 });
                                 temp_elements = [...temp_elements, ...(transform_form || [])];
+                                return '';
                             });
                             setElements([...temp_elements]);
                         }
@@ -205,7 +195,7 @@ const CreateForm = () => {
 
     const onPublishForm = () => {
         const id = query.id;
-        router.push(`/form/edit-form/publish?id=${id}`);
+        router.push(`/form/publish-form?id=${id}`);
     };
 
     const onDeleteElement = (element) => {
@@ -244,6 +234,45 @@ const CreateForm = () => {
         setModalEdit(true);
     };
 
+    const onUnPublishFormClick = () => {
+        setOpenConfirmUnpublish(true);
+    };
+
+    const onAcceptUnPublishForm = () => {
+        const { contract } = wallet;
+        setOpenConfirmUnpublish(false);
+        setOpenLoading(true);
+
+        return contract
+            .unpublish_form({
+                formId: query.id,
+            })
+            .then((res) => {
+                if (res) {
+                    onShowResult({
+                        type: 'success',
+                        msg: 'Unpublish form successfully',
+                    });
+                    onGetFormDetail();
+                } else {
+                    onShowResult({
+                        type: 'error',
+                        msg: 'Something went wrong, please try again!',
+                    });
+                }
+            })
+            .catch((err) => {
+                onShowResult({
+                    type: 'error',
+                    msg: String(err),
+                });
+            });
+    };
+
+    const onDenyUnPublishForm = () => {
+        setOpenConfirmUnpublish(false);
+    };
+
     const onAnalysisClick = () => {};
 
     const renderAction = (element) => {
@@ -269,7 +298,7 @@ const CreateForm = () => {
             action = [
                 {
                     title: 'Unpublish',
-                    onClick: onEditFormClick,
+                    onClick: onUnPublishFormClick,
                 },
                 {
                     title: 'Preview',
@@ -280,7 +309,7 @@ const CreateForm = () => {
             action = [
                 {
                     title: 'Unpublish',
-                    onClick: onEditFormClick,
+                    onClick: onUnPublishFormClick,
                 },
                 {
                     title: 'Preview',
@@ -308,8 +337,8 @@ const CreateForm = () => {
     };
 
     const onElementChanged = ({ index, title, meta, isRequired }) => {
-        forms[index] = {
-            ...forms[index],
+        elements[index] = {
+            ...elements[index],
             defaultValue: {
                 title,
                 meta,
@@ -318,13 +347,7 @@ const CreateForm = () => {
             edited: true,
         };
 
-        if (JSON.stringify(forms) !== JSON.stringify(raw_forms)) {
-            setHasUpdate(true);
-        } else {
-            setHasUpdate(false);
-        }
-
-        setForms([...forms]);
+        setElements([...elements]);
     };
 
     const onAcceptDeleteElement = () => {
@@ -339,7 +362,6 @@ const CreateForm = () => {
                 id: bId,
             })
             .then((res) => {
-                console.log(res);
                 if (res) {
                     onGetMaxElement();
                     onShowResult({
@@ -366,7 +388,7 @@ const CreateForm = () => {
     };
 
     const renderElement = (el, index) => {
-        const { type, editable, id, defaultValue } = el;
+        const { type, id, defaultValue } = el;
 
         const editableType = 'view';
 
@@ -420,11 +442,10 @@ const CreateForm = () => {
         );
     };
 
-    console.log(elements);
-
     return (
         <>
             {openConfirmation && <Confirmation label={confirmationLabel} onAccept={onAcceptDeleteElement} onCancel={onDenyDeleteElement} />}
+            {openConfirmUnpublish && <Confirmation label={confirmationLabel} onAccept={onAcceptUnPublishForm} onCancel={onDenyUnPublishForm} />}
             <Notify openLoading={openLoading} openSnack={openSnack} alertType={alertType} snackMsg={snackMsg} onClose={onCloseSnack} />
             <div className={styles.root}>
                 <div className={styles.container}>

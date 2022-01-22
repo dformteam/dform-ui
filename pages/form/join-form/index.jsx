@@ -4,13 +4,30 @@ import { useRouter } from 'next/router';
 import { useLayoutEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Typography from '@mui/material/Typography';
+import Notify from '../../../components/Notify';
 
 const JoinForm = () => {
     const wallet = useSelector((state) => state.wallet);
     const router = useRouter();
-    const [fee, setFee] = useState(0);
-    const [joined, setJoined] = useState(false);
     const { query } = router;
+
+    const [form, setForm] = useState({});
+    const [joined, setJoined] = useState(false);
+    const [openLoading, setOpenLoading] = useState(false);
+    const [openSnack, setOpenSnack] = useState(false);
+    const [alertType, setAlertType] = useState('success');
+    const [snackMsg, setSnackMsg] = useState('');
+
+    const onCloseSnack = () => {
+        setOpenSnack(false);
+    };
+
+    const onShowResult = ({ type, msg }) => {
+        setOpenSnack(true);
+        setOpenLoading(false);
+        setAlertType(type);
+        setSnackMsg(msg);
+    };
 
     useLayoutEffect(() => {
         onGetFormDetail();
@@ -30,9 +47,10 @@ const JoinForm = () => {
             })
             .then((res) => {
                 if (res) {
-                    const { enroll_fee, start_date, end_date, participants, limit_participants, owner } = res;
+                    const { start_date, end_date, participants, limit_participants, owner } = res;
                     const content = '';
-                    const currentTimestamp = Date.now();
+                    const currentTimestamp = Date.now().toString();
+                    console.log(currentTimestamp, start_date);
                     if (0 === owner) {
                         return redirectError('This form has not been published!');
                     } else if (currentTimestamp > end_date) {
@@ -48,7 +66,7 @@ const JoinForm = () => {
                         router.push(`/error?content=${encoded_content}`);
                     }
 
-                    setFee(enroll_fee);
+                    setForm(res);
                     getParticipantFormDetail();
                 }
             })
@@ -72,9 +90,9 @@ const JoinForm = () => {
                 formId: id,
             })
             .then((res) => {
-                if (res) {
-                    const { joined } = res;
-                    setJoined(joined);
+                console.log(res);
+                if (res && res.joined) {
+                    router.push(`/form/form-answer?id=${id}`);
                 }
             })
             .catch((err) => {
@@ -83,12 +101,14 @@ const JoinForm = () => {
     };
 
     const onJoinForm = () => {
-        const { contract, walletConnection } = wallet;
+        const { contract } = wallet;
         const { id } = query;
-        const userId = walletConnection.getAccountId();
-        if (joined) {
-            router.push(`/form/form-answer?id=${id}`);
-        } else if (fee === 0) {
+        const { enroll_fee: fee } = form;
+        setOpenLoading(true);
+
+        console.log(fee === 0);
+
+        if (fee === '0') {
             contract
                 ?.join_form(
                     {
@@ -97,14 +117,23 @@ const JoinForm = () => {
                     100000000000000,
                 )
                 .then((res) => {
+                    console.log(res);
                     if (res) {
                         router.push(`/form/form-answer?id=${id}`);
+                    } else {
+                        onShowResult({
+                            type: 'error',
+                            msg: 'Somethings went wrong, try again later!',
+                        });
                     }
                 })
                 .catch((err) => {
-                    console.log(err);
+                    onShowResult({
+                        type: 'error',
+                        msg: String(err),
+                    });
                 });
-        } else if (fee !== 0) {
+        } else if (fee !== '0') {
             const yoctoNear = utils.format.parseNearAmount(`${fee}`);
             contract
                 ?.join_form(
@@ -117,10 +146,18 @@ const JoinForm = () => {
                 .then((res) => {
                     if (res) {
                         router.push(`/form/form-answer?id=${id}`);
+                    } else {
+                        onShowResult({
+                            type: 'error',
+                            msg: 'Somethings went wrong, try again later!',
+                        });
                     }
                 })
                 .catch((err) => {
-                    console.log(err);
+                    onShowResult({
+                        type: 'error',
+                        msg: 'Somethings went wrong, try again later!',
+                    });
                 });
         }
     };
@@ -131,36 +168,49 @@ const JoinForm = () => {
     };
 
     return (
-        <div className={styles.root}>
-            <div className={styles.content}>
-                <Typography id="modal-modal-title" variant="h6" component="h2">
-                    Form Detail
-                </Typography>
-                <div className={styles.form_row}>
-                    <div className={styles.form_label}>Name</div>
-                    <div className={styles.form_input}>{'form_title'}</div>
-                </div>
-                <div className={styles.form_row}>
-                    <div className={styles.form_label}>Description</div>
-                    <div className={styles.form_input}>{'form_description'}</div>
-                </div>
-                <div className={styles.fee_row}>
-                    <div className={styles.fee_label}>Joining Fee</div>
-                    <div className={styles.fee_input}>{fee > 0 ? fee + ' NEAR' : 'FREE'}</div>
-                </div>
-                <div className={styles.fee_row}>
-                    <div className={styles.fee_label}>Starting time</div>
-                    <input className={styles.fee_input_date} type={'datetime-local'} onChange={() => {}} />
-                    <div className={styles.fee_label_paid}>Ending time</div>
-                    <input className={styles.fee_input_date} type={'datetime-local'} onChange={() => {}} />
-                </div>
-                <div className={styles.form_row_button}>
-                    <button className={styles.form_create_button} onClick={onJoinForm}>
-                        Join form
-                    </button>
+        <>
+            <Notify openLoading={openLoading} openSnack={openSnack} alertType={alertType} snackMsg={snackMsg} onClose={onCloseSnack} />
+            <div className={styles.root}>
+                <div className={styles.content}>
+                    <Typography id="modal-modal-title" variant="h6" component="h2">
+                        Form Detail
+                    </Typography>
+                    <div className={styles.form_row}>
+                        <div className={styles.form_label}>Name</div>
+                        <div className={styles.form_input}>{form.title}</div>
+                    </div>
+                    <div className={styles.form_row}>
+                        <div className={styles.form_label}>Description</div>
+                        <div className={styles.form_input}>{form.description}</div>
+                    </div>
+                    <div className={styles.fee_row}>
+                        <div className={styles.fee_label}>Joining Fee</div>
+                        <div className={styles.fee_input}>{form?.fee > 0 ? form?.fee + ' NEAR' : 'FREE'}</div>
+                    </div>
+                    <div className={styles.fee_row}>
+                        <div className={styles.fee_label}>Starting time</div>
+                        <input
+                            className={styles.fee_input_date}
+                            disabled
+                            type={'datetime-local'}
+                            value={new Date(parseInt(form?.start_date || 0)).toISOString().replace('Z', '')}
+                        />
+                        <div className={styles.fee_label_paid}>Ending time</div>
+                        <input
+                            className={styles.fee_input_date}
+                            disabled
+                            type={'datetime-local'}
+                            value={new Date(parseInt(form?.end_date || 0)).toISOString().replace('Z', '')}
+                        />
+                    </div>
+                    <div className={styles.form_row_button}>
+                        <button className={styles.form_create_button} onClick={onJoinForm}>
+                            Join form
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 

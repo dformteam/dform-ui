@@ -58,6 +58,10 @@ const CreateForm = () => {
     const wallet = useSelector((state) => state.wallet);
     const router = useRouter();
     const { query } = router;
+    
+    const seph = new Semaphore({
+        max: 4,
+    });
 
     const [welcomeText, setWelcomeText] = useState('Please fill out and submit this form.');
     const [thanksText, setThanksText] = useState('Your submission has been received.');
@@ -72,10 +76,6 @@ const CreateForm = () => {
     const [alertType, setAlertType] = useState('success');
     const [snackMsg, setSnackMsg] = useState('');
     const [raw_forms, setRawForms] = useState([]);
-
-    const seph = new Semaphore({
-        max: 4,
-    });
 
     const onCloseSnack = () => {
         setOpenSnack(false);
@@ -95,7 +95,6 @@ const CreateForm = () => {
     const onGetFormDetail = () => {
         const { contract, walletConnection } = wallet;
         const { id } = query;
-        console.log(id);
         let content = '';
         let encoded_content = encodeURIComponent(content);
 
@@ -189,6 +188,7 @@ const CreateForm = () => {
                                     };
                                 });
                                 temp_forms = [...temp_forms, ...(transform_form || [])];
+                                return '';
                             });
                             setRawForms([...temp_forms]);
                         }
@@ -217,7 +217,6 @@ const CreateForm = () => {
     };
 
     const onElementChanged = ({ index, title, meta, isRequired }) => {
-        console.log(meta);
         forms[index] = {
             ...forms[index],
             defaultValue: {
@@ -239,12 +238,13 @@ const CreateForm = () => {
         setSuccess(false);
         setModalSave(true);
         setProcessing(0);
-        const executing_list = forms?.filter?.((x) => typeof bId === 'undefined' || bId === null || bId === '');
+        const executing_list = forms?.filter?.((x) => typeof x.bId === 'undefined' || x.bId === null || x.bId === '');
         if (executing_list.length === 0) {
             return;
         }
 
         setExecuting(executing_list.length);
+        let saveError = false;
 
         await Promise.all(
             forms?.map(async (element) => {
@@ -252,14 +252,17 @@ const CreateForm = () => {
                 if (typeof bId === 'undefined' || bId === null || bId === '') {
                     await seph.acquire();
                     const bId_result = await uploadNewElement(element);
+                    if (typeof bId_result === 'undefined' || bId_result === null || bId_result === '') {
+                        saveError = true;
+                    }
                     element.bId = bId_result;
                 }
             }),
         )
             .then(() => {
                 setForms([...forms]);
-                if (forms_upload_failure.length === 0) {
-                    setSuccess(true);
+                if (saveError) {
+                    //
                 }
             })
             .catch((err) => {
@@ -418,7 +421,7 @@ const CreateForm = () => {
             <>
                 <div className={styles.modal_label + ' ' + styles.margin_top}>Please wait while saving your form.</div>
                 <div className={styles.modal_content}>
-                    <img src={'/loading.svg'} className={styles.modal_loading_icon} />
+                    <img src={'/loading.svg'} alt="error" className={styles.modal_loading_icon} />
                 </div>
                 <div className={styles.modal_content_text}>
                     Processing: {processing}/{executing} completed.

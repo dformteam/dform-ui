@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import styles from './FormAnswer.module.scss';
 import Header from '../../../components/Elements/Header';
 import FullName from '../../../components/Elements/FullName';
@@ -16,8 +16,14 @@ import FillBlank from '../../../components/Elements/FillBlank';
 import ArrowForwardOutlinedIcon from '@mui/icons-material/ArrowForwardOutlined';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { useSelector } from 'react-redux';
+import { useRouter } from 'next/router';
 
 const FormAnswer = () => {
+    const wallet = useSelector((state) => state.wallet);
+    const router = useRouter();
+    const { query } = router;
+
     let forms = JSON.parse(localStorage.getItem('myForms'));
     forms = [
         {
@@ -30,7 +36,7 @@ const FormAnswer = () => {
                 isRequire: false,
             },
         },
-        ...forms,
+        ...(forms || []),
         {
             id: 'thanks',
             type: 2,
@@ -44,6 +50,83 @@ const FormAnswer = () => {
     ];
 
     const [activeIndex, setActiveIndex] = useState(0);
+    const [form, setForm] = useState();
+
+    useLayoutEffect(() => {
+        onGetFormDetail();
+    }, []);
+
+    const onGetFormDetail = () => {
+        const { contract } = wallet;
+        const { id } = query;
+
+        if (id === null || id === '' || typeof id === 'undefined') {
+            return redirectError('Could not found any object have that id!');
+        }
+
+        contract
+            ?.get_form?.({
+                id,
+            })
+            .then((res) => {
+                if (res) {
+                    const { start_date, end_date, owner, status } = res;
+                    const content = '';
+                    const currentTimestamp = Date.now();
+                    if (status === 0) {
+                        return redirectError('This form has not been published!');
+                    } else if (currentTimestamp > end_date) {
+                        return redirectError('This form has been ended');
+                    } else if (currentTimestamp < start_date) {
+                        return redirectError('This form has not been started');
+                    }
+
+                    if (content !== '') {
+                        return redirectError(content);
+                    }
+
+                    setForm(res);
+                    getParticipantFormDetail();
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+
+    const getParticipantFormDetail = () => {
+        const { contract, walletConnection } = wallet;
+        const { id } = query;
+        const userId = walletConnection.getAccountId();
+
+        if (id === null || id === '' || typeof id === 'undefined') {
+            return redirectError('Could not found any object have that id!');
+        }
+
+        contract
+            ?.get_participant_form_status?.({
+                userId,
+                formId: id,
+            })
+            .then((res) => {
+                if (res) {
+                    if (!res.joined) {
+                        router.push(`/form/join-form?id=${id}`);
+                    }
+                } else {
+                    router.push(`/form/join-form?id=${id}`);
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+                router.push(`/form/join-form?id=${id}`);
+            });
+    };
+
+    const redirectError = (content) => {
+        const encoded_content = encodeURIComponent(content);
+        router.push(`/error?content=${encoded_content}`);
+    };
 
     const renderElement = (el, index) => {
         const { type, id, defaultValue } = el;
