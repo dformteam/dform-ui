@@ -81,3 +81,9 @@ button {
 ::-webkit-scrollbar-thumb:hover {
     background: #f0eef8;
 }
+
+.MuiDialog-paper {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border-radius: 24px !important;
+}

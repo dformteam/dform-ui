@@ -123,6 +123,13 @@ const Form = ({ wallet }) => {
         <>
             <Notify openLoading={openLoading} openSnack={openSnack} alertType={alertType} snackMsg={snackMsg} onClose={onCloseSnack} />
             <div className={styles.root}>
+                <div className={styles.join_form}>
+                    <div className={styles.join_form_title}>Join a form now</div>
+                    <div className={styles.join_form_row}>
+                        <input className={styles.join_form_row_input} placeholder={'Enter your form ID here'} />
+                        <button className={styles.join_form_row_button}>Join Form</button>
+                    </div>
+                </div>
                 <div className={styles.label}>
                     <div className={styles.label_title}>Start a new form</div>
                     <div className={styles.label_text}>

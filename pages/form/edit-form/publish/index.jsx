@@ -196,9 +196,9 @@ const Publish = () => {
                 })}
                 <div className={styles.publish_row_input} style={{ height: status === 'private' ? 64 : 0 }}>
                     <input className={styles.publish_black_input} placeholder={'Enter black list'} />
-                    <div className={styles.publish_black_button}>Add to Black List</div>
+                    <div className={styles.publish_black_button}>+ Add to Black List</div>
                     <input className={styles.publish_black_input} placeholder={'Enter white list'} />
-                    <div className={styles.publish_white_button}>Add to White List</div>
+                    <div className={styles.publish_white_button}>+ Add to White List</div>
                 </div>
                 <div className={styles.publish_fee_row + ' ' + styles.margin_top}>
                     <div className={styles.publish_fee_label}>Limit participant</div>
