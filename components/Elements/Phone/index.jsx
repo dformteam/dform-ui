@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import styles from './Phone.module.scss';
 import Switch from '@mui/material/Switch';
@@ -6,6 +7,7 @@ const Phone = ({ index, onChange, defaultValue, type = '' }) => {
     let initValue = {
         title: ['Phone Number', 'Please enter a valid phone number.'],
         meta: [],
+        isRequired: false,
     };
 
     if (typeof defaultValue !== 'undefined') {
@@ -15,7 +17,7 @@ const Phone = ({ index, onChange, defaultValue, type = '' }) => {
     const [title, setTitle] = useState(initValue?.title?.[0] || 'Phone Number');
     const [first_field, setFirstField] = useState(initValue?.first_field?.[1] || 'Please enter a valid phone number.');
     const [phone, setPhone] = useState('');
-    const [required, setRequired] = React.useState(true);
+    const [required, setRequired] = useState(initValue.isRequired || false);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -24,7 +26,7 @@ const Phone = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [e.target.value, first_field],
                 meta: [],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
@@ -35,7 +37,7 @@ const Phone = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, e.target.value],
                 meta: [],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
@@ -46,7 +48,7 @@ const Phone = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, first_field],
                 meta: [e.target.value],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
@@ -60,8 +62,15 @@ const Phone = ({ index, onChange, defaultValue, type = '' }) => {
         onFillValue();
     }, []);
 
-    const onChangeRequired = (event) => {
-        setRequired(event.target.checked);
+    const onChangeRequired = (e) => {
+        setRequired(e.target.checked);
+        type === 'edit' &&
+            onChange?.({
+                index,
+                title: [title, first_field],
+                meta: [],
+                isRequired: e.target.checked,
+            });
     };
 
     return (
@@ -69,13 +78,15 @@ const Phone = ({ index, onChange, defaultValue, type = '' }) => {
             <div className={styles.phone_content}>
                 <input className={styles.phone_title} value={title} onChange={onTitleChange} placeholder={'Type a title'} />
                 <input className={styles.phone_description} placeholder={'Type a description'} />
-                <div className={styles.phone_require}>
-                    Question required: <Switch checked={required} onChange={onChangeRequired} />
-                </div>
+                {type === 'edit' && (
+                    <div className={styles.phone_require}>
+                        Question required: <Switch checked={required} onChange={onChangeRequired} />
+                    </div>
+                )}
                 <div className={styles.phone}>
                     <div className={styles.phone_form}>
                         <input className={styles.phone_label} value={first_field} onChange={onFirstFieldChange} placeholder={'Type a field'} />
-                        <input className={styles.phone_input} type={'tel'} onChange={onPhoneChange} disabled={type === 'answer' ? false : true} />
+                        <input className={styles.phone_input} type={'tel'} value={phone} onChange={onPhoneChange} disabled={type === 'answer' ? false : true} />
                         <div className={styles.text_error}>Error</div>
                     </div>
                 </div>

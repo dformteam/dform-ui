@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import styles from './MyForm.module.scss';
+import { Fragment, useLayoutEffect, useRef, useState } from 'react';
+import styles from './JoinedForm.module.scss';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -9,14 +9,11 @@ import TableRow from '@mui/material/TableRow';
 import FavoriteOutlinedIcon from '@mui/icons-material/FavoriteOutlined';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
 
 const MyForm = () => {
     const raws = [];
     const wallet = useSelector((state) => state.wallet);
     const router = useRouter();
-    const { query } = router;
     const mouted = useRef(false);
     const aNav = [
         { id: 'all-form', label: 'All Form', url: '/form/my-form', icon: null },
@@ -24,18 +21,11 @@ const MyForm = () => {
         { id: 'favorites', label: 'Favorites', icon: FavoriteOutlinedIcon },
     ];
 
-    const headers = ['Form name', 'Submissions', 'Type', 'Created at', 'status'];
+    const headers = ['Form name', 'Type', 'Last summited'];
     const [rows, setRows] = useState([]);
-    const [filter, setFilter] = useState(query.filter || 'editable');
-    const [unfiltered, setUnfilterd] = useState([]);
 
     useLayoutEffect(() => {
         mouted.current = true;
-        const my_filter = query.filter;
-        if (my_filter === null || my_filter === '' || typeof my_filter === 'undefined') {
-            router.push(`?filter=editable`);
-        }
-
         onGetMaxRows();
         return () => {
             mouted.current = false;
@@ -46,7 +36,7 @@ const MyForm = () => {
         const { contract, walletConnection } = wallet;
         const userId = walletConnection.getAccountId();
         contract
-            ?.get_form_count?.({
+            ?.get_joined_forms_count?.({
                 userId: userId,
             })
             .then((total) => {
@@ -66,7 +56,7 @@ const MyForm = () => {
         await Promise.all(
             page_arr.map(async (page, index) => {
                 await contract
-                    .get_forms({
+                    .get_joined_forms({
                         userId,
                         page: index + 1,
                     })
@@ -83,9 +73,10 @@ const MyForm = () => {
                                 let forms = [];
                                 raws.map((raw) => {
                                     forms = [...forms, ...(raw?.data || [])];
-                                    return raw
+                                    return raw;
                                 });
-                                mouted && setUnfilterd([...forms]);
+
+                                setRows([...forms]);
                             }
                         }
                     });
@@ -93,28 +84,12 @@ const MyForm = () => {
         );
     };
 
-    const onViewForm = (item) => {
-        router.push(`/form/view-form?id=${item.id}`);
-    };
-
-    const onDeleteForm = (item) => {
-        const { contract } = wallet;
-        contract
-            ?.delete_form?.({
-                id: item?.id,
-            })
-            .then((ret) => {
-                if (ret) {
-                    onGetMaxRows();
-                }
-            })
-            .catch((err) => {
-                console.log(err);
-            });
-    };
-
     const onExportDateTime = (datetime) => {
         try {
+            if (datetime === '0') {
+                return 'unknown';
+            }
+
             const timestamp = parseFloat(datetime);
             const date = new Date(timestamp);
             const localDate = date.toLocaleDateString();
@@ -125,94 +100,12 @@ const MyForm = () => {
         }
     };
 
-    const onExportFormStatus = (item) => {
-        const { cast_status } = item;
-        switch (cast_status) {
-            case 0:
-                return 'Editable';
-            case 1:
-                return 'Waiting for publish';
-            case 2:
-                return 'Publishing';
-            case 3:
-                return 'Finished';
-            default:
-                return 'unknown';
-        }
+    const onAnalysisForm = (item) => {
+        router.push(`form-analysis?id=${item.form_id}`);
     };
 
     const onNavItemClicked = (item) => {
         router.push(item.url);
-    };
-
-    useEffect(() => {
-        onFillterTable();
-    }, [filter]);
-
-    useEffect(() => {
-        onCastFormStatus();
-        onFillterTable();
-    }, [unfiltered]);
-
-    const onFillterTable = () => {
-        const my_filter = query.filter;
-        if (my_filter === 'editable') {
-            const filterd = unfiltered.filter((x) => {
-                return x.status === 0;
-            });
-
-            setRows([...filterd]);
-        } else if (my_filter === 'publishing') {
-            const currenTimeStamp = Date.now();
-            const filterd = unfiltered.filter((x) => {
-                return x.status === 1 && x.end_date > currenTimeStamp;
-            });
-
-            setRows([...filterd]);
-        } else if (my_filter === 'finished') {
-            const currenTimeStamp = Date.now();
-            const filterd = unfiltered.filter((x) => {
-                return (x.status === 1 && x.end_date < currenTimeStamp) || x.status === 2;
-            });
-
-            setRows([...filterd]);
-        } else {
-            setRows([...unfiltered]);
-        }
-    };
-
-    const onCastFormStatus = () => {
-        unfiltered?.map((item) => {
-            const { status, start_date, end_date } = item;
-            const cTimestamp = Date.now();
-            if (status === 0) {
-                item['cast_status'] = 0;
-            }
-            if (status === 1 && cTimestamp < start_date) {
-                item['cast_status'] = 1;
-            }
-            if (status === 1 && cTimestamp > start_date && cTimestamp < end_date) {
-                item['cast_status'] = 2;
-            }
-            if ((status === 1 && cTimestamp > end_date) || status === 2) {
-                item['cast_status'] = 3;
-            }
-
-            return item;
-        });
-    };
-
-    const onFilterChange = (event) => {
-        router
-            .push(`?filter=${event.target.value}`)
-            .then((res) => {
-                if (res) {
-                    setFilter(event.target.value);
-                }
-            })
-            .catch((err) => {
-                console.log(err);
-            });
     };
 
     return (
@@ -233,6 +126,7 @@ const MyForm = () => {
             </div>
             <div className={styles.content}>
                 <div className={styles.content_row}>
+                    Your joined form
                     {/* <button
                         className={`${styles.content_button} ${aRowSelected.length !== 1 && styles.disabled}`}
                         disabled={aRowSelected.length !== 1}
@@ -243,19 +137,6 @@ const MyForm = () => {
                     <button className={`${styles.content_button_delete} ${aRowSelected.length === 0 && styles.disabled}`} disabled={aRowSelected.length === 0}>
                         Delete Selected
                     </button> */}
-                    <div className={styles.filter}>Filter:</div>
-                    <Select
-                        value={filter}
-                        onChange={onFilterChange}
-                        className={styles.content_button_filter}
-                        inputProps={{ 'aria-label': 'Without label' }}
-                        displayEmpty
-                    >
-                        <MenuItem value={'all'}>All</MenuItem>
-                        <MenuItem value={'editable'}>Editable</MenuItem>
-                        <MenuItem value={'publishing'}>Publishing</MenuItem>
-                        <MenuItem value={'finished'}>Finished</MenuItem>
-                    </Select>
                 </div>
                 <div className={styles.line} />
                 <div className={styles.table}>
@@ -301,17 +182,12 @@ const MyForm = () => {
                                             )}
                                         </span>
                                     </TableCell> */}
-                                    <TableCell className={styles.cell}>{item.title}</TableCell>
-                                    <TableCell className={styles.cell}>{item.participants?.length}</TableCell>
+                                    <TableCell className={styles.cell}>{item.form_title}</TableCell>
                                     <TableCell className={styles.cell}>{item.type === 0 ? 'Basic' : 'Card'}</TableCell>
-                                    <TableCell className={styles.cell}>{onExportDateTime(item.created_at)}</TableCell>
-                                    <TableCell className={styles.cell}>{onExportFormStatus(item)}</TableCell>
+                                    <TableCell className={styles.cell}>{onExportDateTime(item.last_summited)}</TableCell>
                                     <TableCell className={styles.cell_action}>
-                                        <button className={styles.table_button_edit} onClick={() => onViewForm(item)}>
-                                            View form
-                                        </button>
-                                        <button className={styles.table_button_delete} onClick={() => onDeleteForm(item)}>
-                                            Delete Form
+                                        <button className={styles.table_button_edit} onClick={() => onAnalysisForm(item)}>
+                                            View Analysis
                                         </button>
                                     </TableCell>
                                 </TableRow>

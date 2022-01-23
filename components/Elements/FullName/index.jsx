@@ -7,7 +7,7 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
     let initValue = {
         title: ['Name', 'First Name', 'Last Name'],
         meta: [],
-        isRequired: defaultValue?.isRequired,
+        isRequired: false,
     };
 
     if (typeof defaultValue !== 'undefined') {
@@ -19,7 +19,7 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
     const [second_field, setSecondField] = useState(initValue?.title?.[2] || 'Last Name');
     const [first_name, setFirstName] = useState('');
     const [last_name, setLastName] = useState('');
-    const [required, setRequired] = React.useState(true);
+    const [required, setRequired] = useState(initValue.isRequired || false);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -28,7 +28,7 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [e.target.value, first_field, second_field],
                 meta: [],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
@@ -39,7 +39,7 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, e.target.value, second_field],
                 meta: [],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
@@ -50,7 +50,7 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, first_field, e.target.value],
                 meta: [],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
@@ -61,7 +61,7 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, first_field, second_field],
                 meta: [e.target.value, last_name],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
@@ -72,7 +72,7 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, first_field, second_field],
                 meta: [first_name, e.target.value],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
@@ -87,8 +87,15 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
         onFillValue();
     }, []);
 
-    const onChangeRequired = (event) => {
-        setRequired(event.target.checked);
+    const onChangeRequired = (e) => {
+        setRequired(e.target.checked);
+        type === 'edit' &&
+            onChange?.({
+                index,
+                title: [title, first_field, second_field],
+                meta: [],
+                isRequired: e.target.checked,
+            });
     };
 
     return (
@@ -102,9 +109,11 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
                     disabled={type === 'edit' ? false : true}
                 />
                 <input className={styles.full_name_description} placeholder={'Type a description'} disabled={type === 'edit' ? false : true} />
-                <div className={styles.full_name_require}>
-                    Question required: <Switch checked={required} onChange={onChangeRequired} />
-                </div>
+                {type === 'edit' && (
+                    <div className={styles.full_name_require}>
+                        Question required: <Switch checked={required} onChange={onChangeRequired} />
+                    </div>
+                )}
                 <div className={styles.full_name_form}>
                     <div className={styles.full_name_form_left}>
                         <input

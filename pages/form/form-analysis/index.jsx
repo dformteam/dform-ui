@@ -189,7 +189,6 @@ const FormAnalysis = () => {
                                 tmp_answers = [];
                                 raw_answers.map((raw) => {
                                     const transform_form = raw?.data?.map((form_data) => {
-                                        console.log(form_data);
                                         return {
                                             bId: form_data.id,
                                             id: listElement?.[form_data.type]?.id,
@@ -206,7 +205,6 @@ const FormAnalysis = () => {
                                     return '';
                                 });
 
-                                console.log(tmp_answers);
                                 setAnswers([...tmp_answers]);
                             }
                         }
@@ -276,7 +274,6 @@ const FormAnalysis = () => {
     };
 
     const renderAnswer = () => {
-        console.log(answers);
         if (answers?.length === 0) {
             return cStauts;
         } else {

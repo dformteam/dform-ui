@@ -59,7 +59,7 @@ const CreateForm = () => {
     const { query } = router;
 
     const seph = new Semaphore({
-        max: 4,
+        max: 1,
     });
 
     const [welcomeText, setWelcomeText] = useState('Please fill out and submit this form.');
@@ -216,7 +216,6 @@ const CreateForm = () => {
     };
 
     const onElementChanged = ({ index, title, meta, isRequired }) => {
-        console.log(meta);
         forms[index] = {
             ...forms[index],
             defaultValue: {
@@ -301,7 +300,6 @@ const CreateForm = () => {
 
     const onValidateQuestion = (elements) => {
         for (let element of elements) {
-            console.log(element);
             if (element.id === 'multiChoice' || element.id === 'singleChoice') {
                 const meta = element?.defaultValue?.meta;
                 if (meta.length < 2) {

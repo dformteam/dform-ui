@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import styles from './DatePicker.module.scss';
 import Switch from '@mui/material/Switch';
@@ -15,7 +16,7 @@ const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
     const [title, setTitle] = useState(initValue?.title?.[0] || 'Date Picker');
     const [first_field, setFirstField] = useState(initValue?.title?.[1] || 'Please pick a date.');
     const [date, setDate] = useState('');
-    const [required, setRequired] = React.useState(true);
+    const [required, setRequired] = useState(initValue.isRequired || false);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -24,7 +25,7 @@ const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [e.target.value, first_field],
                 meta: [],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
@@ -35,7 +36,7 @@ const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, e.target.value],
                 meta: [],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
@@ -46,7 +47,7 @@ const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, first_field],
                 meta: [e.target.value],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
@@ -60,8 +61,15 @@ const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
         onFillValue();
     }, []);
 
-    const onChangeRequired = (event) => {
-        setRequired(event.target.checked);
+    const onChangeRequired = (e) => {
+        setRequired(e.target.checked);
+        type === 'edit' &&
+            onChange?.({
+                index,
+                title: [title, first_field],
+                meta: [],
+                isRequired: e.target.checked,
+            });
     };
 
     return (
@@ -75,9 +83,11 @@ const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
                     disabled={type === 'edit' ? false : true}
                 />
                 <input className={styles.date_picker_description} placeholder={'Type a description'} disabled={type === 'edit' ? false : true} />
-                <div className={styles.date_picker_require}>
-                    Question required: <Switch checked={required} onChange={onChangeRequired} />
-                </div>
+                {type === 'edit' && (
+                    <div className={styles.date_picker_require}>
+                        Question required: <Switch checked={required} onChange={onChangeRequired} />
+                    </div>
+                )}
                 <div className={styles.date_picker}>
                     <div className={styles.date_picker_form}>
                         <input

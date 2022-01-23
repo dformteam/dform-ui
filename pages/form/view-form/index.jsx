@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from 'react';
 import styles from './ViewForm.module.scss';
 import TitleOutlinedIcon from '@mui/icons-material/TitleOutlined';
@@ -65,6 +66,7 @@ const CreateForm = () => {
     const [openConfirmUnpublish, setOpenConfirmUnpublish] = useState(false);
     const [currentElement, setCurrentElement] = useState({});
     const [sharedLink, setSharedLink] = useState('');
+    const [can_edit, setCanEdit] = useState(false);
 
     const onCloseSnack = () => {
         setOpenSnack(false);
@@ -286,6 +288,7 @@ const CreateForm = () => {
         const cTimestamp = Date.now();
         let action = [];
         if (status === 0) {
+            setCanEdit(true);
             action = [
                 {
                     title: 'Add new question',
@@ -301,6 +304,8 @@ const CreateForm = () => {
                 },
             ];
         } else if (status === 1 && cTimestamp < start_date) {
+            setCanEdit(false);
+            onSetShareLink();
             action = [
                 {
                     title: 'Unpublish',
@@ -312,6 +317,8 @@ const CreateForm = () => {
                 },
             ];
         } else if (status === 1 && cTimestamp > start_date && cTimestamp < end_date) {
+            setCanEdit(false);
+            onSetShareLink();
             action = [
                 {
                     title: 'Unpublish',
@@ -327,6 +334,7 @@ const CreateForm = () => {
                 },
             ];
         } else if ((status === 1 && cTimestamp > end_date) || status === 2) {
+            setCanEdit(false);
             action = [
                 {
                     title: 'Preview',
@@ -340,6 +348,13 @@ const CreateForm = () => {
         }
 
         setAction([...action]);
+    };
+
+    const onSetShareLink = () => {
+        const uri = new URL(window.location.href);
+        const { origin } = uri;
+        const { id } = query;
+        setSharedLink(`${origin}/form/form-answer?id=${id}`);
     };
 
     const onElementChanged = ({ index, title, meta, isRequired }) => {
@@ -435,14 +450,16 @@ const CreateForm = () => {
         return (
             <div className={styles.element_content} key={index}>
                 {renderElement(item, index)}
-                <div className={styles.element_action_area}>
-                    <button className={styles.element_action_area__edit}>
-                        <EditIcon className={styles.button_delete_icon} onClick={() => onEditElementClick(item)} />
-                    </button>
-                    <button className={styles.element_action_area__delete}>
-                        <DeleteForeverOutlinedIcon className={styles.button_delete_icon} onClick={() => onDeleteElement(item)} />
-                    </button>
-                </div>
+                {can_edit && (
+                    <div className={styles.element_action_area}>
+                        <button className={styles.element_action_area__edit} onClick={() => onEditElementClick(item)}>
+                            <EditIcon className={styles.button_delete_icon} />
+                        </button>
+                        <button className={styles.element_action_area__delete} onClick={() => onDeleteElement(item)}>
+                            <DeleteForeverOutlinedIcon className={styles.button_delete_icon} />
+                        </button>
+                    </div>
+                )}
                 {/* <div className={styles.element_bg}></div> */}
             </div>
         );
@@ -468,7 +485,13 @@ const CreateForm = () => {
         }
     };
 
-    const onGetSharedLink = () => {};
+    const onGetSharedLink = () => {
+        navigator.clipboard.writeText(sharedLink);
+        onShowResult({
+            type: 'success',
+            msg: 'copied',
+        });
+    };
 
     return (
         <>
@@ -487,14 +510,18 @@ const CreateForm = () => {
                             );
                         })}
                     </div>
-                    <div className={styles.root_share_label}>Link to share:</div>
-                    <div className={styles.root_row}>
-                        <LinkOutlinedIcon className={styles.root_icon_link} />
-                        <div className={styles.root_link_input}>{sharedLink}</div>
-                        <div className={styles.root_link_copy} onClick={onGetSharedLink}>
-                            Copy link
-                        </div>
-                    </div>
+                    {sharedLink !== '' && (
+                        <>
+                            <div className={styles.root_share_label}>Link to share:</div>
+                            <div className={styles.root_row}>
+                                <LinkOutlinedIcon className={styles.root_icon_link} />
+                                <div className={styles.root_link_input}>{sharedLink}</div>
+                                <div className={styles.root_link_copy} onClick={onGetSharedLink}>
+                                    Copy link
+                                </div>
+                            </div>
+                        </>
+                    )}
                     <div className={styles.root__title}>{form?.title}</div>
                     <div className={styles.root__description}>{form?.description}</div>
                     <div className={styles.content}>

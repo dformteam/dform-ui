@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import styles from './Publish.module.scss';
 import LockOpenOutlinedIcon from '@mui/icons-material/LockOpenOutlined';
@@ -147,9 +148,17 @@ const Publish = () => {
 
     const onAddToBlackList = () => {
         if (white_list.includes(black_account)) {
+            onShowResult({
+                type: 'error',
+                msg: 'This account has been already defined in white list',
+            });
             return;
         }
 
+        onShowResult({
+            type: 'success',
+            msg: `Added ${black_account} into white list`,
+        });
         black_list.push(black_account);
         setBlackList([...black_list]);
         setBlackAccount('');
@@ -161,9 +170,17 @@ const Publish = () => {
 
     const onAddToWhiteList = () => {
         if (black_list.includes(white_account)) {
+            onShowResult({
+                type: 'error',
+                msg: 'This account has been already defined in black list',
+            });
             return;
         }
 
+        onShowResult({
+            type: 'success',
+            msg: `Added ${white_account} into black list`,
+        });
         white_list.push(white_account);
         setWhiteList([...white_list]);
         setWhiteAccount('');
@@ -178,6 +195,10 @@ const Publish = () => {
     };
 
     const onPublishForm = () => {
+        if (!onValidate()) {
+            return;
+        }
+
         const { contract } = wallet;
         let black_list_set = new Set(black_list);
         let white_list_set = new Set(white_list);
@@ -224,6 +245,41 @@ const Publish = () => {
                     msg: String(err),
                 });
             });
+    };
+
+    const onValidate = () => {
+        if (fee < 0) {
+            onShowResult({
+                type: 'error',
+                msg: 'enroll fee could be negative',
+            });
+            return false;
+        }
+
+        if (participant < 0) {
+            onShowResult({
+                type: 'error',
+                msg: 'limited participant could be negative',
+            });
+            return false;
+        }
+
+        if (start_date === '' || typeof start_date === 'undefined' || start_date === null) {
+            onShowResult({
+                type: 'error',
+                msg: 'starting time could not be empty',
+            });
+            return false;
+        }
+
+        if (end_date === '' || typeof end_date === 'undefined' || end_date === null) {
+            onShowResult({
+                type: 'error',
+                msg: 'ending date could not be empty',
+            });
+            return false;
+        }
+        return true;
     };
 
     const renderStatus = () => {

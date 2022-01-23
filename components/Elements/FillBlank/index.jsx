@@ -21,7 +21,7 @@ const FillBlank = ({ index, onChange, defaultValue, type = '' }) => {
     ]);
 
     const [title, setTitle] = useState(initValue?.title?.[0] || 'Type a question');
-    const [required, setRequired] = React.useState(true);
+    const [required, setRequired] = useState(initValue.isRequired || false);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -30,17 +30,17 @@ const FillBlank = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [e.target.value],
                 meta: [],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
-    const onChangeInput = (e, index) => {
-        aInputs[index].content = e.currentTarget.textContent;
+    const onChangeInput = (e, indexz) => {
+        aInputs[indexz].content = e.currentTarget.textContent;
     };
 
-    const onDeleteInput = (index) => {
+    const onDeleteInput = (indexn) => {
         let copyInputs = [...aInputs];
-        copyInputs.splice(index, 1);
+        copyInputs.splice(indexn, 1);
         setInputs(copyInputs);
     };
 
@@ -56,20 +56,20 @@ const FillBlank = ({ index, onChange, defaultValue, type = '' }) => {
         setInputs(copyInputs);
     };
 
-    const renderInput = (item, index) => {
+    const renderInput = (item, indexx) => {
         switch (item.type) {
             case 'label':
                 return (
                     <>
                         <p
                             contentEditable={true}
-                            onInput={(e) => onChangeInput(e, index)}
+                            onInput={(e) => onChangeInput(e, indexx)}
                             suppressContentEditableWarning={true}
                             className={styles.fill_blank_input_label}
                         >
                             {item.content}
                         </p>
-                        <div className={styles.fill_blank_input_clear} onClick={() => onDeleteInput(index)}>
+                        <div className={styles.fill_blank_input_clear} onClick={() => onDeleteInput(indexx)}>
                             <ClearOutlinedIcon className={styles.fill_blank_input_icon} />
                         </div>
                     </>
@@ -97,8 +97,15 @@ const FillBlank = ({ index, onChange, defaultValue, type = '' }) => {
         }
     };
 
-    const onChangeRequired = (event) => {
-        setRequired(event.target.checked);
+    const onChangeRequired = (e) => {
+        setRequired(e.target.checked);
+        type === 'edit' &&
+            onChange?.({
+                index,
+                title: [title],
+                meta: [],
+                isRequired: e.target.checked,
+            });
     };
 
     return (
@@ -112,15 +119,17 @@ const FillBlank = ({ index, onChange, defaultValue, type = '' }) => {
                     disabled={type === 'edit' ? false : true}
                 />
                 <input className={styles.fill_blank_description} placeholder={'Type a description'} disabled={type === 'edit' ? false : true} />
-                <div className={styles.fill_blank_require}>
-                    Question required: <Switch checked={required} onChange={onChangeRequired} />
-                </div>
+                {type === 'edit' && (
+                    <div className={styles.fill_blank_require}>
+                        Question required: <Switch checked={required} onChange={onChangeRequired} />
+                    </div>
+                )}
                 <div className={styles.fill_blank}>
                     <div className={styles.fill_blank_form}>
-                        {aInputs?.map?.((item, index) => {
+                        {aInputs?.map?.((item, indexy) => {
                             return (
-                                <div className={styles.fill_blank_input} key={index}>
-                                    {renderInput(item, index)}
+                                <div className={styles.fill_blank_input} key={indexy}>
+                                    {renderInput(item, indexy)}
                                 </div>
                             );
                         })}
