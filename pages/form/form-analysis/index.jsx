@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from 'react';
 import styles from './FormAnalysis.module.scss';
 import Modal from '@mui/material/Modal';
@@ -15,7 +16,6 @@ import Time from '../../../components/Elements/Time';
 import StarRating from '../../../components/Elements/StarRating';
 import SingleChoice from '../../../components/Elements/SingleChoice';
 import MultiChoice from '../../../components/Elements/MultiChoice';
-import FillBlank from '../../../components/Elements/FillBlank';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import Notify from '../../../components/Notify';
@@ -176,12 +176,11 @@ const FormAnalysis = () => {
                         },
                         50000000000000,
                     )
-                    .then((data) => {
-                        console.log(data);
-                        if (data) {
-                            const pIndex = raw_answers.findIndex((x) => x?.page === data?.page);
+                    .then((datax) => {
+                        if (datax) {
+                            const pIndex = raw_answers.findIndex((x) => x?.page === datax?.page);
                             if (pIndex === -1) {
-                                raw_answers.push(data);
+                                raw_answers.push(datax);
                                 raw_answers.sort((a, b) => {
                                     if (a.page < b.page) return -1;
                                     if (a.page > b.page) return 1;

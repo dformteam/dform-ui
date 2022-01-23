@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Fragment, useLayoutEffect, useState } from 'react';
 import styles from './CreateForm.module.scss';
 import TitleOutlinedIcon from '@mui/icons-material/TitleOutlined';
@@ -6,7 +7,6 @@ import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
 import LocalPhoneOutlinedIcon from '@mui/icons-material/LocalPhoneOutlined';
 import DateRangeOutlinedIcon from '@mui/icons-material/DateRangeOutlined';
-import FormatSizeOutlinedIcon from '@mui/icons-material/FormatSizeOutlined';
 import ShortTextOutlinedIcon from '@mui/icons-material/ShortTextOutlined';
 import ChromeReaderModeOutlinedIcon from '@mui/icons-material/ChromeReaderModeOutlined';
 import AdjustOutlinedIcon from '@mui/icons-material/AdjustOutlined';
@@ -30,7 +30,6 @@ import Time from '../../../components/Elements/Time';
 import StarRating from '../../../components/Elements/StarRating';
 import SingleChoice from '../../../components/Elements/SingleChoice';
 import MultiChoice from '../../../components/Elements/MultiChoice';
-import FillBlank from '../../../components/Elements/FillBlank';
 import PreviewForm from '../../../components/PreviewForm';
 import Semaphore from '../../../backed/semaphore';
 import { useSelector } from 'react-redux';
@@ -155,7 +154,7 @@ const CreateForm = () => {
         const userId = walletConnection.getAccountId();
         const { id } = query;
         page_arr.map((page, index) => {
-            contract
+            return contract
                 .get_elements({
                     userId,
                     formId: id,

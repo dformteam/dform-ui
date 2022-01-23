@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useLayoutEffect, useState } from 'react';
 import styles from './FormAnswer.module.scss';
 import Header from '../../../components/Elements/Header';
@@ -29,9 +30,7 @@ const FormAnswer = () => {
     const [form_type, setType] = useState('basi');
     const [form, setForm] = useState({});
     const [elements, setElements] = useState([]);
-    const [start, setStart] = useState(false);
     const [total_element, setTotalElement] = useState([]);
-    const [overview, setOverview] = useState(false);
 
     useLayoutEffect(() => {
         onGetFormDetail();
@@ -66,7 +65,6 @@ const FormAnswer = () => {
                 //     },
                 // },
             ]);
-            setStart(true);
         }
     }, [elements]);
 
