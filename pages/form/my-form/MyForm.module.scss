@@ -52,12 +52,24 @@
 .nav_label {
     display: flex;
     align-items: center;
-    padding: 20px 10px;
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 12px;
     cursor: pointer;
 }
 
 .nav_label:hover {
     color: var(--color-link);
+}
+
+.nav_label_active {
+    @extend .nav_label;
+    background: var(--color-gradient);
+    color: var(--color-text-button);
+}
+
+.nav_label_active:hover {
+    color: var(--color-text-button);
 }
 
 .nav_icon {
@@ -86,21 +98,43 @@
     width: 220px;
 }
 
+.cell_title {
+    @extend .cell;
+    font-size: 16px !important;
+    color: var(--color-link) !important;
+    cursor: pointer;
+}
+
+.cell_title:hover {
+    text-decoration: underline;
+}
+
+.action_button_area {
+    width: 220px;
+    display: flex;
+    align-items: center;
+}
+
 .table_button_edit {
     height: 30px;
     font-size: 13px;
     padding: 0 10px;
-    background-color: rgb(237, 242, 255);
-    border: 1px solid rgba(66, 119, 255, 0.53);
-    color: rgb(66, 119, 255);
+    background: var(--color-gradient);
+    color: var(--color-text-button);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .table_button_delete {
     @extend .table_button_edit;
-    background-color: rgb(255, 237, 237);
-    border: 1px solid #ff3c3c79;
-    color: var(--color-danger);
+    background: var(--color-danger);
     margin-left: 10px;
+}
+
+.table_button_icon {
+    margin-right: 5px;
+    font-size: 18px !important;
 }
 
 .cell_select_area {

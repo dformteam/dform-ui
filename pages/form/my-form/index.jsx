@@ -7,12 +7,14 @@ import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import FavoriteOutlinedIcon from '@mui/icons-material/FavoriteOutlined';
+import PreviewOutlinedIcon from '@mui/icons-material/PreviewOutlined';
+import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import { useSelector } from 'react-redux';
-import { useRouter } from 'next/router';
+import { useRouter, withRouter } from 'next/router';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 
-const MyForm = () => {
+const MyForm = (props) => {
     const raws = [];
     const wallet = useSelector((state) => state.wallet);
     const router = useRouter();
@@ -41,6 +43,12 @@ const MyForm = () => {
             mouted.current = false;
         };
     }, []);
+
+    const getActiveClassName = () => {
+        const { router } = props;
+        return router.pathname;
+    };
+    const navActive = getActiveClassName();
 
     const onGetMaxRows = () => {
         const { contract, walletConnection } = wallet;
@@ -83,7 +91,7 @@ const MyForm = () => {
                                 let forms = [];
                                 raws.map((raw) => {
                                     forms = [...forms, ...(raw?.data || [])];
-                                    return raw
+                                    return raw;
                                 });
                                 mouted && setUnfilterd([...forms]);
                             }
@@ -215,6 +223,8 @@ const MyForm = () => {
             });
     };
 
+    console.log(rows);
+
     return (
         <div className={styles.root}>
             <div className={styles.nav}>
@@ -222,7 +232,7 @@ const MyForm = () => {
                 {aNav.map((item, index) => {
                     return (
                         <Fragment key={index}>
-                            <div className={styles.nav_label} onClick={() => onNavItemClicked(item)}>
+                            <div className={navActive === item.url ? styles.nav_label_active : styles.nav_label} onClick={() => onNavItemClicked(item)}>
                                 {item.icon && <item.icon className={styles.nav_icon} />}
                                 {item.label}
                             </div>
@@ -301,18 +311,22 @@ const MyForm = () => {
                                             )}
                                         </span>
                                     </TableCell> */}
-                                    <TableCell className={styles.cell}>{item.title}</TableCell>
+                                    <TableCell className={styles.cell_title} onClick={() => onViewForm(item)}>
+                                        {item.title}
+                                    </TableCell>
                                     <TableCell className={styles.cell}>{item.participants?.length}</TableCell>
                                     <TableCell className={styles.cell}>{item.type === 0 ? 'Basic' : 'Card'}</TableCell>
                                     <TableCell className={styles.cell}>{onExportDateTime(item.created_at)}</TableCell>
                                     <TableCell className={styles.cell}>{onExportFormStatus(item)}</TableCell>
                                     <TableCell className={styles.cell_action}>
-                                        <button className={styles.table_button_edit} onClick={() => onViewForm(item)}>
-                                            View form
-                                        </button>
-                                        <button className={styles.table_button_delete} onClick={() => onDeleteForm(item)}>
-                                            Delete Form
-                                        </button>
+                                        <div className={styles.action_button_area}>
+                                            <button className={styles.table_button_edit} onClick={() => onViewForm(item)}>
+                                                <PreviewOutlinedIcon className={styles.table_button_icon} /> View
+                                            </button>
+                                            <button className={styles.table_button_delete} onClick={() => onDeleteForm(item)}>
+                                                <DeleteOutlinedIcon className={styles.table_button_icon} /> Delete
+                                            </button>
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             ))}
@@ -324,4 +338,4 @@ const MyForm = () => {
     );
 };
 
-export default MyForm;
+export default withRouter(MyForm);
