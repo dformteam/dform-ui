@@ -110,6 +110,9 @@
     padding: 0 10px 0 45px;
     display: flex;
     align-items: center;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .publish_link_copy {
@@ -117,6 +120,7 @@
     margin: 0 0 0 5%;
     cursor: pointer;
 }
+
 .publish_link_copy:hover {
     text-decoration: underline;
 }

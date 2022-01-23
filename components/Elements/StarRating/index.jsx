@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './StarRating.module.scss';
 import StarOutlinedIcon from '@mui/icons-material/StarOutlined';
 
@@ -6,7 +6,7 @@ const StarRating = ({ index, onChange, defaultValue, type = '' }) => {
     let initValue = {
         title: ['Type a question'],
         meta: [],
-        isRequired: false,
+        isRequired: defaultValue?.isRequired,
     };
 
     if (typeof defaultValue !== 'undefined') {
@@ -19,17 +19,35 @@ const StarRating = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
-        onChange?.({
-            index,
-            title: [e.target.value],
-            meta: [],
-            isRequired: false,
-        });
+        type === 'edit' &&
+            onChange?.({
+                index,
+                title: [e.target.value],
+                meta: [],
+                isRequired: defaultValue?.isRequired,
+            });
     };
 
     const onStarClicked = (star) => {
         setActive(star);
+        type === 'answer' &&
+            onChange?.({
+                index,
+                title: [title],
+                meta: [star],
+                isRequired: defaultValue?.isRequired,
+            });
     };
+
+    const onFillValue = () => {
+        if (type === 'analysis') {
+            setActive(initValue?.meta?.[0] || -1);
+        }
+    };
+
+    useEffect(() => {
+        onFillValue();
+    }, []);
 
     return (
         <div className={styles.root_star_rating}>

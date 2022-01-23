@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useEffect, useState } from 'react';
 import styles from './Address.module.scss';
 
 const Address = ({ index, onChange, defaultValue, type = '' }) => {
     let initValue = {
         title: 'Address',
         meta: [],
-        isRequire: false,
+        isRequired: defaultValue?.isRequired,
     };
 
     if (typeof defaultValue !== 'undefined') {
@@ -18,6 +19,11 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
     const [third_field, setThirdField] = useState(initValue?.title?.[3] || 'City');
     const [fourth_field, setFourthField] = useState(initValue?.title?.[4] || 'State / Province');
     const [fifth_field, setFifthField] = useState(initValue?.title?.[5] || 'Postal / Zip Code');
+    const [streetAddress, setStreetAddress] = useState('');
+    const [streetLine2, setStreetLine2] = useState('');
+    const [city, setCity] = useState('');
+    const [state, setState] = useState('');
+    const [postal, setPostal] = useState('');
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -26,7 +32,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [e.target.value, first_field, second_field, third_field, fourth_field, fifth_field],
                 meta: [],
-                isRequire: false,
+                isRequired: defaultValue?.isRequired,
             });
     };
 
@@ -37,7 +43,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, e.target.value, second_field, third_field, fourth_field, fifth_field],
                 meta: [],
-                isRequire: false,
+                isRequired: defaultValue?.isRequired,
             });
     };
 
@@ -48,7 +54,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, first_field, e.target.value, third_field, fourth_field, fifth_field],
                 meta: [],
-                isRequire: false,
+                isRequired: defaultValue?.isRequired,
             });
     };
 
@@ -59,7 +65,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, first_field, second_field, e.target.value, fourth_field, fifth_field],
                 meta: [],
-                isRequire: false,
+                isRequired: defaultValue?.isRequired,
             });
     };
 
@@ -70,7 +76,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, first_field, second_field, third_field, e.target.value, fifth_field],
                 meta: [],
-                isRequire: false,
+                isRequired: defaultValue?.isRequired,
             });
     };
 
@@ -81,9 +87,78 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, first_field, second_field, third_field, fourth_field, e.target.value],
                 meta: [],
-                isRequire: false,
+                isRequired: defaultValue?.isRequired,
             });
     };
+
+    const onStreetChange = (e) => {
+        setStreetAddress(e.target.value);
+        type === 'answer' &&
+            onChange?.({
+                index,
+                title: [title, first_field, second_field, third_field, fourth_field, fifth_field],
+                meta: [e.target.value, streetLine2, city, state, postal],
+                isRequired: defaultValue?.isRequired,
+            });
+    };
+
+    const onStreet2Change = (e) => {
+        setStreetLine2(e.target.value);
+        type === 'answer' &&
+            onChange?.({
+                index,
+                title: [title, first_field, second_field, third_field, fourth_field, fifth_field],
+                meta: [streetAddress, e.target.value, city, state, postal],
+                isRequired: defaultValue?.isRequired,
+            });
+    };
+
+    const onCityChange = (e) => {
+        setCity(e.target.value);
+        type === 'answer' &&
+            onChange?.({
+                index,
+                title: [title, first_field, second_field, third_field, fourth_field, fifth_field],
+                meta: [streetAddress, streetLine2, e.target.value, state, postal],
+                isRequired: defaultValue?.isRequired,
+            });
+    };
+
+    const onStateChange = (e) => {
+        setState(e.target.value);
+        type === 'answer' &&
+            onChange?.({
+                index,
+                title: [title, first_field, second_field, third_field, fourth_field, fifth_field],
+                meta: [streetAddress, streetLine2, city, e.target.value, postal],
+                isRequired: defaultValue?.isRequired,
+            });
+    };
+
+    const onPostalChange = (e) => {
+        setPostal(e.target.value);
+        type === 'answer' &&
+            onChange?.({
+                index,
+                title: [title, first_field, second_field, third_field, fourth_field, fifth_field],
+                meta: [streetAddress, streetLine2, city, state, e.target.value],
+                isRequired: defaultValue?.isRequired,
+            });
+    };
+
+    const onFillValue = () => {
+        if (type !== 'edit') {
+            setStreetAddress(initValue?.meta?.[0] || '');
+            setStreetLine2(initValue?.meta?.[1] || '');
+            setCity(initValue?.meta?.[2] || '');
+            setState(initValue?.meta?.[3] || '');
+            setPostal(initValue?.meta?.[4] || '');
+        }
+    };
+
+    useEffect(() => {
+        onFillValue();
+    }, []);
 
     return (
         <div className={styles.root_address}>
@@ -95,7 +170,6 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                     placeholder={'Type a title'}
                     disabled={type === 'edit' ? false : true}
                 />
-                <input className={styles.address_description} placeholder={'Type a description'} disabled={type === 'edit' ? false : true} />
                 <div className={styles.address}>
                     <div className={styles.address_form}>
                         <input
@@ -105,7 +179,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                             placeholder={'Type a field'}
                             disabled={type === 'edit' ? false : true}
                         />
-                        <input className={styles.address_input} disabled={type === 'answer' ? false : true} />
+                        <input className={styles.address_input} disabled={type === 'answer' ? false : true} value={streetAddress} onChange={onStreetChange} />
                     </div>
                     <div className={styles.address_form}>
                         <input
@@ -115,7 +189,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                             placeholder={'Type a field'}
                             disabled={type === 'edit' ? false : true}
                         />
-                        <input className={styles.address_input} disabled={type === 'answer' ? false : true} />
+                        <input className={styles.address_input} disabled={type === 'answer' ? false : true} value={streetLine2} onChange={onStreet2Change} />
                     </div>
                     <div className={styles.address_row}>
                         <div className={styles.address_form_left}>
@@ -126,7 +200,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                                 placeholder={'Type a field'}
                                 disabled={type === 'edit' ? false : true}
                             />
-                            <input className={styles.address_input} disabled={type === 'answer' ? false : true} />
+                            <input className={styles.address_input} disabled={type === 'answer' ? false : true} value={city} onChange={onCityChange} />
                         </div>
                         <div className={styles.address_form_right}>
                             <input
@@ -136,7 +210,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                                 placeholder={'Type a field'}
                                 disabled={type === 'edit' ? false : true}
                             />
-                            <input className={styles.address_input} disabled={type === 'answer' ? false : true} />
+                            <input className={styles.address_input} disabled={type === 'answer' ? false : true} value={state} onChange={onStateChange} />
                         </div>
                     </div>
                     <div className={styles.address_row}>
@@ -148,7 +222,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                                 placeholder={'Type a field'}
                                 disabled={type === 'edit' ? false : true}
                             />
-                            <input className={styles.address_input} disabled={type === 'answer' ? false : true} />
+                            <input className={styles.address_input} disabled={type === 'answer' ? false : true} value={postal} onChange={onPostalChange} />
                         </div>
                         <div className={styles.address_form_right}></div>
                     </div>

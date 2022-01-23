@@ -65,6 +65,14 @@
     overflow: auto;
 }
 
+.participant_notify {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+}
+
 .element_content {
     width: 100%;
     min-width: 600px;
@@ -122,7 +130,7 @@
     text-overflow: ellipsis;
 }
 
-.participant_area:hover > .participant_area_name {
+.participant_area:hover>.participant_area_name {
     text-decoration: underline;
 }
 

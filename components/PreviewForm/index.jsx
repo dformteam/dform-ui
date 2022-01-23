@@ -31,7 +31,7 @@ const PreviewForm = () => {
             defaultValue: {
                 title: ['Welcome', 'Please fill out and submit this form.'],
                 meta: [],
-                isRequire: false,
+                isRequired: false,
             },
         },
         ...(forms || {}),
@@ -42,7 +42,7 @@ const PreviewForm = () => {
             defaultValue: {
                 title: ['Thank You!', 'Your submission has been received.'],
                 meta: [],
-                isRequire: false,
+                isRequired: false,
             },
         },
     ];

@@ -8,13 +8,8 @@ import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
     let initValue = {
         title: ['Type a question'],
-        meta: [
-            { content: 'Type option 1', check: false },
-            { content: 'Type option 2', check: false },
-            { content: 'Type option 3', check: false },
-            { content: 'Type option 4', check: false },
-        ],
-        isRequired: false,
+        meta: ['Type option 1', 'Type option 2', 'Type option 3', 'Type option 4'],
+        isRequired: defaultValue?.isRequired,
     };
 
     if (typeof defaultValue !== 'undefined') {
@@ -45,7 +40,7 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title],
                 meta: [...metaAnswer],
-                isRequired: false,
+                isRequired: defaultValue?.isRequired,
             });
     };
 
@@ -71,7 +66,7 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title],
                 meta: [...metaAnswer],
-                isRequired: false,
+                isRequired: defaultValue?.isRequired,
             });
     };
 
@@ -87,36 +82,38 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
                 />
                 <input className={styles.multi_choice_description} placeholder={'Type a description'} disabled={type === 'edit' ? false : true} />
                 <div className={styles.multi_choice}>
-                    {aAnswers?.map?.((item, index) => {
+                    {aAnswers?.map?.((item, indexx) => {
                         return (
-                            <div className={index % 2 === 0 ? styles.multi_choice_form_left : styles.multi_choice_form_right} key={index}>
+                            <div className={indexx % 2 === 0 ? styles.multi_choice_form_left : styles.multi_choice_form_right} key={indexx}>
                                 {item.check ? (
-                                    <CheckBoxOutlinedIcon className={index % 2 === 0 ? styles.multi_choice_checked_left : styles.multi_choice_checked_right} />
+                                    <CheckBoxOutlinedIcon className={indexx % 2 === 0 ? styles.multi_choice_checked_left : styles.multi_choice_checked_right} />
                                 ) : (
                                     <CheckBoxOutlineBlankOutlinedIcon
-                                        className={index % 2 === 0 ? styles.multi_choice_checked_left : styles.multi_choice_checked_right}
+                                        className={indexx % 2 === 0 ? styles.multi_choice_checked_left : styles.multi_choice_checked_right}
                                     />
                                 )}
                                 <input
                                     className={styles.multi_choice_input}
                                     value={item.content}
                                     placeholder={item.placeholder}
-                                    onChange={(e) => onOptionChange(e.target.value, index)}
+                                    onChange={(e) => onOptionChange(e.target.value, indexx)}
                                     disabled={type !== 'edit' ? true : false}
                                 />
                                 <div
-                                    className={index % 2 === 0 ? styles.multi_choice_delete_left : styles.multi_choice_delete_right}
-                                    onClick={() => onDeleteOption(index)}
+                                    className={indexx % 2 === 0 ? styles.multi_choice_delete_left : styles.multi_choice_delete_right}
+                                    onClick={() => onDeleteOption(indexx)}
                                 >
                                     <DeleteOutlinedIcon className={styles.multi_choice_delete_icon} />
                                 </div>
                             </div>
                         );
                     })}
-                    <div className={styles.multi_choice_form_add} onClick={onAddOption} disabled={type !== 'edit' ? true : false}>
-                        <AddOutlinedIcon className={styles.multi_choice_checked_left} />
-                        <div className={styles.multi_choice_add}>Add Option</div>
-                    </div>
+                    {type === 'edit' && (
+                        <div className={styles.multi_choice_form_add} onClick={onAddOption} disabled={type !== 'edit' ? true : false}>
+                            <AddOutlinedIcon className={styles.multi_choice_checked_left} />
+                            <div className={styles.multi_choice_add}>Add Option</div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

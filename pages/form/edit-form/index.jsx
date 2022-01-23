@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Fragment, useLayoutEffect, useState } from 'react';
 import styles from './CreateForm.module.scss';
 import TitleOutlinedIcon from '@mui/icons-material/TitleOutlined';
@@ -6,7 +7,6 @@ import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
 import LocalPhoneOutlinedIcon from '@mui/icons-material/LocalPhoneOutlined';
 import DateRangeOutlinedIcon from '@mui/icons-material/DateRangeOutlined';
-import FormatSizeOutlinedIcon from '@mui/icons-material/FormatSizeOutlined';
 import ShortTextOutlinedIcon from '@mui/icons-material/ShortTextOutlined';
 import ChromeReaderModeOutlinedIcon from '@mui/icons-material/ChromeReaderModeOutlined';
 import AdjustOutlinedIcon from '@mui/icons-material/AdjustOutlined';
@@ -30,7 +30,6 @@ import Time from '../../../components/Elements/Time';
 import StarRating from '../../../components/Elements/StarRating';
 import SingleChoice from '../../../components/Elements/SingleChoice';
 import MultiChoice from '../../../components/Elements/MultiChoice';
-import FillBlank from '../../../components/Elements/FillBlank';
 import PreviewForm from '../../../components/PreviewForm';
 import Semaphore from '../../../backed/semaphore';
 import { useSelector } from 'react-redux';
@@ -59,6 +58,10 @@ const CreateForm = () => {
     const router = useRouter();
     const { query } = router;
 
+    const seph = new Semaphore({
+        max: 4,
+    });
+
     const [welcomeText, setWelcomeText] = useState('Please fill out and submit this form.');
     const [thanksText, setThanksText] = useState('Your submission has been received.');
     const [forms, setForms] = useState([]);
@@ -72,10 +75,6 @@ const CreateForm = () => {
     const [alertType, setAlertType] = useState('success');
     const [snackMsg, setSnackMsg] = useState('');
     const [raw_forms, setRawForms] = useState([]);
-
-    const seph = new Semaphore({
-        max: 4,
-    });
 
     const onCloseSnack = () => {
         setOpenSnack(false);
@@ -95,7 +94,6 @@ const CreateForm = () => {
     const onGetFormDetail = () => {
         const { contract, walletConnection } = wallet;
         const { id } = query;
-        console.log(id);
         let content = '';
         let encoded_content = encodeURIComponent(content);
 
@@ -156,7 +154,7 @@ const CreateForm = () => {
         const userId = walletConnection.getAccountId();
         const { id } = query;
         page_arr.map((page, index) => {
-            contract
+            return contract
                 .get_elements({
                     userId,
                     formId: id,
@@ -189,6 +187,7 @@ const CreateForm = () => {
                                     };
                                 });
                                 temp_forms = [...temp_forms, ...(transform_form || [])];
+                                return '';
                             });
                             setRawForms([...temp_forms]);
                         }
@@ -236,15 +235,20 @@ const CreateForm = () => {
     };
 
     const onSaveFormClicked = async () => {
+        const valid = onValidateQuestion(forms);
+        if (!valid) {
+            return;
+        }
         setSuccess(false);
         setModalSave(true);
         setProcessing(0);
-        const executing_list = forms?.filter?.((x) => typeof bId === 'undefined' || bId === null || bId === '');
+        const executing_list = forms?.filter?.((x) => typeof x.bId === 'undefined' || x.bId === null || x.bId === '');
         if (executing_list.length === 0) {
             return;
         }
 
         setExecuting(executing_list.length);
+        let saveError = false;
 
         await Promise.all(
             forms?.map(async (element) => {
@@ -252,14 +256,17 @@ const CreateForm = () => {
                 if (typeof bId === 'undefined' || bId === null || bId === '') {
                     await seph.acquire();
                     const bId_result = await uploadNewElement(element);
+                    if (typeof bId_result === 'undefined' || bId_result === null || bId_result === '') {
+                        saveError = true;
+                    }
                     element.bId = bId_result;
                 }
             }),
         )
             .then(() => {
                 setForms([...forms]);
-                if (forms_upload_failure.length === 0) {
-                    setSuccess(true);
+                if (saveError) {
+                    //
                 }
             })
             .catch((err) => {
@@ -292,7 +299,39 @@ const CreateForm = () => {
             });
     };
 
+    const onValidateQuestion = (elements) => {
+        for (let element of elements) {
+            console.log(element);
+            if (element.id === 'multiChoice' || element.id === 'singleChoice') {
+                const meta = element?.defaultValue?.meta;
+                if (meta.length < 2) {
+                    onShowResult({
+                        type: 'error',
+                        msg: 'Multi choise / Single choice question need to have at least 2 options.',
+                    });
+
+                    return false;
+                }
+                const meta_set = new Set(meta);
+                if (meta.length !== meta_set) {
+                    onShowResult({
+                        type: 'error',
+                        msg: 'Multi choise / Single choice options could not be duplicated',
+                    });
+
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    };
+
     const onUploadElementClick = async (element) => {
+        const valid = onValidateQuestion([element]);
+        if (!valid) {
+            return;
+        }
         setExecuting(1);
         setProcessing(0);
         setModalSave(true);
@@ -360,8 +399,8 @@ const CreateForm = () => {
                 return <SingleChoice index={index} onChange={onElementChanged} elType={type} type={editableType} defaultValue={defaultValue} />;
             case 'multiChoice':
                 return <MultiChoice index={index} onChange={onElementChanged} elType={type} type={editableType} defaultValue={defaultValue} />;
-            case 'fillBlank':
-                return <FillBlank index={index} onChange={onElementChanged} elType={type} type={editableType} defaultValue={defaultValue} />;
+            // case 'fillBlank':
+            //     return <FillBlank index={index} onChange={onElementChanged} elType={type} type={editableType} defaultValue={defaultValue} />;
 
             default:
                 break;
@@ -418,7 +457,7 @@ const CreateForm = () => {
             <>
                 <div className={styles.modal_label + ' ' + styles.margin_top}>Please wait while saving your form.</div>
                 <div className={styles.modal_content}>
-                    <img src={'/loading.svg'} className={styles.modal_loading_icon} />
+                    <img src={'/loading.svg'} alt="error" className={styles.modal_loading_icon} />
                 </div>
                 <div className={styles.modal_content_text}>
                     Processing: {processing}/{executing} completed.
@@ -575,18 +614,18 @@ const listElement = [
             isRequired: false,
         },
     },
-    {
-        bId: '',
-        id: 'fillBlank',
-        type: 6,
-        label: 'Fill in the Blank',
-        icon: FormatSizeOutlinedIcon,
-        defaultValue: {
-            title: ['Type a question'],
-            meta: [],
-            isRequired: false,
-        },
-    },
+    // {
+    //     bId: '',
+    //     id: 'fillBlank',
+    //     type: 6,
+    //     label: 'Fill in the Blank',
+    //     icon: FormatSizeOutlinedIcon,
+    //     defaultValue: {
+    //         title: ['Type a question'],
+    //         meta: [],
+    //         isRequired: false,
+    //     },
+    // },
     {
         bId: '',
         id: 'shortText',
