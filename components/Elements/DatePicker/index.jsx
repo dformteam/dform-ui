@@ -94,6 +94,7 @@ const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
                             value={date}
                             onChange={onDateChange}
                         />
+                        <div className={styles.text_error}>Error</div>
                     </div>
                 </div>
             </div>
