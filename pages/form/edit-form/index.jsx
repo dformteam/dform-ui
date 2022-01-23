@@ -216,6 +216,7 @@ const CreateForm = () => {
     };
 
     const onElementChanged = ({ index, title, meta, isRequired }) => {
+        console.log(meta);
         forms[index] = {
             ...forms[index],
             defaultValue: {
@@ -234,6 +235,10 @@ const CreateForm = () => {
     };
 
     const onSaveFormClicked = async () => {
+        const valid = onValidateQuestion(forms);
+        if (!valid) {
+            return;
+        }
         setSuccess(false);
         setModalSave(true);
         setProcessing(0);
@@ -294,7 +299,39 @@ const CreateForm = () => {
             });
     };
 
+    const onValidateQuestion = (elements) => {
+        for (let element of elements) {
+            console.log(element);
+            if (element.id === 'multiChoice' || element.id === 'singleChoice') {
+                const meta = element?.defaultValue?.meta;
+                if (meta.length < 2) {
+                    onShowResult({
+                        type: 'error',
+                        msg: 'Multi choise / Single choice question need to have at least 2 options.',
+                    });
+
+                    return false;
+                }
+                const meta_set = new Set(meta);
+                if (meta.length !== meta_set) {
+                    onShowResult({
+                        type: 'error',
+                        msg: 'Multi choise / Single choice options could not be duplicated',
+                    });
+
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    };
+
     const onUploadElementClick = async (element) => {
+        const valid = onValidateQuestion([element]);
+        if (!valid) {
+            return;
+        }
         setExecuting(1);
         setProcessing(0);
         setModalSave(true);

@@ -108,10 +108,12 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
                             </div>
                         );
                     })}
-                    <div className={styles.multi_choice_form_add} onClick={onAddOption} disabled={type !== 'edit' ? true : false}>
-                        <AddOutlinedIcon className={styles.multi_choice_checked_left} />
-                        <div className={styles.multi_choice_add}>Add Option</div>
-                    </div>
+                    {type === 'edit' && (
+                        <div className={styles.multi_choice_form_add} onClick={onAddOption} disabled={type !== 'edit' ? true : false}>
+                            <AddOutlinedIcon className={styles.multi_choice_checked_left} />
+                            <div className={styles.multi_choice_add}>Add Option</div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

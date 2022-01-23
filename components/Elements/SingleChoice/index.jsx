@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import styles from './SingleChoice.module.scss';
 import RadioButtonCheckedOutlinedIcon from '@mui/icons-material/RadioButtonCheckedOutlined';
@@ -33,26 +34,20 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
         let copyAnswers = [...aAnswers];
         copyAnswers[indexz].content = value;
         setAnswers(copyAnswers);
+        const metaAnswer = copyAnswers?.filter((x) => x.content !== '')?.map((x) => x.content);
         type === 'edit' &&
             onChange?.({
                 index,
                 title: [value],
-                meta: [...copyAnswers],
+                meta: [...metaAnswer],
                 isRequired: defaultValue?.isRequired,
             });
     };
 
     const onAddOption = (e) => {
         let copyAnswers = [...aAnswers];
-        copyAnswers.push({ id: aAnswers.length, content: 'Type option ' + (aAnswers.length + 1), check: false });
+        copyAnswers.push({ id: aAnswers.length, placeholder: 'Type option ' + (aAnswers.length + 1), content: '', check: false });
         setAnswers(copyAnswers);
-        type === 'edit' &&
-            onChange?.({
-                index,
-                title: [e.target.value],
-                meta: [...copyAnswers],
-                isRequired: defaultValue?.isRequired,
-            });
     };
 
     const onDeleteOption = (e, indexz) => {
@@ -76,24 +71,26 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
     };
 
     const onOptionClick = (item, indexx) => {
-        const check = item.check;
-        aAnswers?.map?.((answ) => {
-            answ.check = false;
-        });
+        if (type === 'answer') {
+            const check = item.check;
+            aAnswers?.map?.((answ) => {
+                answ.check = false;
+                return answ;
+            });
 
-        if (!check) {
-            aAnswers[indexx].check = true;
-        }
-        setAnswers([...aAnswers]);
-        const choosen = aAnswers?.filter((x) => x.check).map((x) => x.content);
+            if (!check) {
+                aAnswers[indexx].check = true;
+            }
+            setAnswers([...aAnswers]);
+            const choosen = aAnswers?.filter((x) => x.check).map((x) => x.content);
 
-        type === 'edit' &&
             onChange?.({
                 index,
                 title: [title],
                 meta: [...choosen],
                 isRequired: defaultValue?.isRequired,
             });
+        }
     };
 
     const onFillValue = () => {
@@ -150,10 +147,12 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
                             </div>
                         );
                     })}
-                    <div className={styles.single_choice_form_add} onClick={onAddOption}>
-                        <AddOutlinedIcon className={styles.single_choice_checked_left} />
-                        <div className={styles.single_choice_add}>Add Option</div>
-                    </div>
+                    {type === 'edit' && (
+                        <div className={styles.single_choice_form_add} onClick={onAddOption}>
+                            <AddOutlinedIcon className={styles.single_choice_checked_left} />
+                            <div className={styles.single_choice_add}>Add Option</div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
