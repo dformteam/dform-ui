@@ -37,6 +37,7 @@ export async function initContract() {
             'get_joined_forms',
             'get_form_status',
             'get_participant_form_status',
+            'get_passed_element_count',
         ],
         changeMethods: [
             'init_new_form',

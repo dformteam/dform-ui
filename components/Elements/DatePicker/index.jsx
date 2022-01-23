@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './DatePicker.module.scss';
 
 const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
@@ -13,6 +13,7 @@ const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
 
     const [title, setTitle] = useState(initValue?.title?.[0] || 'Date Picker');
     const [first_field, setFirstField] = useState(initValue?.title?.[1] || 'Please pick a date.');
+    const [date, setDate] = useState('');
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -21,9 +22,9 @@ const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [e.target.value, first_field],
                 meta: [],
-        isRequire: false,
-    })
-};
+                isRequired: defaultValue?.isRequired,
+            });
+    };
 
     const onFirstFieldChange = (e) => {
         setFirstField(e.target.value);
@@ -32,9 +33,30 @@ const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, e.target.value],
                 meta: [],
-        isRequire: false,
-    })
-};
+                isRequired: defaultValue?.isRequired,
+            });
+    };
+
+    const onDateChange = (e) => {
+        setDate(e.target.value);
+        type === 'answer' &&
+            onChange?.({
+                index,
+                title: [title, first_field],
+                meta: [e.target.value],
+                isRequired: defaultValue?.isRequired,
+            });
+    };
+
+    const onFillValue = () => {
+        if (type === 'analysis') {
+            setDate(initValue?.meta?.[0] || '');
+        }
+    };
+
+    useEffect(() => {
+        onFillValue();
+    }, []);
 
     return (
         <div className={styles.root_date_picker}>
@@ -56,7 +78,13 @@ const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
                             placeholder={'Type a field'}
                             disabled={type === 'edit' ? false : true}
                         />
-                        <input className={styles.date_picker_input} type={'date'} disabled={type === 'answer' ? false : true} />
+                        <input
+                            className={styles.date_picker_input}
+                            type={'date'}
+                            disabled={type === 'answer' ? false : true}
+                            value={date}
+                            onChange={onDateChange}
+                        />
                     </div>
                 </div>
             </div>

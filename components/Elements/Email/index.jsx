@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './Email.module.scss';
 
 const Email = ({ index, onChange, defaultValue, type = '' }) => {
     let initValue = {
         title: ['Email', 'We collect your email to bla bla bla...', 'Email.'],
         meta: [],
-        isRequired: false,
+        isRequired: defaultValue?.isRequired,
     };
 
     if (typeof defaultValue !== 'undefined') {
@@ -15,6 +15,7 @@ const Email = ({ index, onChange, defaultValue, type = '' }) => {
     const [title, setTitle] = useState(initValue?.title?.[0] || 'Email');
     const [first_field, setFirstField] = useState(initValue?.title?.[1] || 'We collect your email to bla bla bla...');
     const [second_field, setSecondField] = useState(initValue?.title?.[2] || 'Email');
+    const [email, setEmail] = useState('');
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -23,7 +24,7 @@ const Email = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [e.target.value, first_field, second_field],
                 meta: [],
-                isRequired: false,
+                isRequired: defaultValue?.isRequired,
             });
     };
 
@@ -34,7 +35,7 @@ const Email = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, e.target.value, second_field],
                 meta: [],
-                isRequired: false,
+                isRequired: defaultValue?.isRequired,
             });
     };
 
@@ -45,9 +46,30 @@ const Email = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, first_field, e.target.value],
                 meta: [],
-                isRequired: false,
+                isRequired: defaultValue?.isRequired,
             });
     };
+
+    const onEmailChange = (e) => {
+        setEmail(e.target.value);
+        type === 'answer' &&
+            onChange?.({
+                index,
+                title: [title, first_field, e.target.value],
+                meta: [e.target.value],
+                isRequired: defaultValue?.isRequired,
+            });
+    };
+
+    const onFillValue = () => {
+        if (type === 'analysis') {
+            setEmail(initValue?.meta?.[0] || '');
+        }
+    };
+
+    useEffect(() => {
+        onFillValue();
+    }, []);
 
     return (
         <div className={styles.root_email}>
@@ -77,7 +99,14 @@ const Email = ({ index, onChange, defaultValue, type = '' }) => {
                             placeholder={'Type a field'}
                             disabled={type === 'edit' ? false : true}
                         />
-                        <input className={styles.email_input} type={'email'} placeholder={'example@example.com'} disabled={type === 'answer' ? false : true} />
+                        <input
+                            className={styles.email_input}
+                            type={'email'}
+                            placeholder={'example@example.com'}
+                            disabled={type === 'answer' ? false : true}
+                            value={email}
+                            onChange={onEmailChange}
+                        />
                     </div>
                 </div>
             </div>

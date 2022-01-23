@@ -58,7 +58,7 @@ const CreateForm = () => {
     const wallet = useSelector((state) => state.wallet);
     const router = useRouter();
     const { query } = router;
-    
+
     const seph = new Semaphore({
         max: 4,
     });
@@ -363,8 +363,8 @@ const CreateForm = () => {
                 return <SingleChoice index={index} onChange={onElementChanged} elType={type} type={editableType} defaultValue={defaultValue} />;
             case 'multiChoice':
                 return <MultiChoice index={index} onChange={onElementChanged} elType={type} type={editableType} defaultValue={defaultValue} />;
-            case 'fillBlank':
-                return <FillBlank index={index} onChange={onElementChanged} elType={type} type={editableType} defaultValue={defaultValue} />;
+            // case 'fillBlank':
+            //     return <FillBlank index={index} onChange={onElementChanged} elType={type} type={editableType} defaultValue={defaultValue} />;
 
             default:
                 break;
@@ -578,18 +578,18 @@ const listElement = [
             isRequired: false,
         },
     },
-    {
-        bId: '',
-        id: 'fillBlank',
-        type: 6,
-        label: 'Fill in the Blank',
-        icon: FormatSizeOutlinedIcon,
-        defaultValue: {
-            title: ['Type a question'],
-            meta: [],
-            isRequired: false,
-        },
-    },
+    // {
+    //     bId: '',
+    //     id: 'fillBlank',
+    //     type: 6,
+    //     label: 'Fill in the Blank',
+    //     icon: FormatSizeOutlinedIcon,
+    //     defaultValue: {
+    //         title: ['Type a question'],
+    //         meta: [],
+    //         isRequired: false,
+    //     },
+    // },
     {
         bId: '',
         id: 'shortText',

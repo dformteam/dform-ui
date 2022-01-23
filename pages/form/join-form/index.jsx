@@ -13,6 +13,7 @@ const JoinForm = () => {
 
     const [form, setForm] = useState({});
     const [joined, setJoined] = useState(false);
+    
     const [openLoading, setOpenLoading] = useState(false);
     const [openSnack, setOpenSnack] = useState(false);
     const [alertType, setAlertType] = useState('success');

@@ -28,7 +28,7 @@ const FillBlank = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [e.target.value],
                 meta: [],
-        isRequire: false,
+        isRequired: defaultValue?.isRequired,
     })
 };
 
