@@ -78,6 +78,7 @@ const LongText = ({ index, onChange, defaultValue, type = '' }) => {
                 <div className={styles.long_text}>
                     <div className={styles.long_text_form}>
                         <textarea className={styles.long_text_input} disabled={type === 'answer' ? false : true} value={text} onChange={onTextChange} />
+                        <div className={styles.text_error}>Error</div>
                     </div>
                 </div>
             </div>

@@ -134,6 +134,7 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
                         </div>
                     )}
                 </div>
+                <div className={styles.text_error}>Error</div>
             </div>
         </div>
     );

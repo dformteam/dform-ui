@@ -244,6 +244,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                         </div>
                         <div className={styles.address_form_right}></div>
                     </div>
+                    <div className={styles.text_error}>Error</div>
                 </div>
             </div>
         </div>

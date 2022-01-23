@@ -126,6 +126,7 @@ const Email = ({ index, onChange, defaultValue, type = '' }) => {
                             value={email}
                             onChange={onEmailChange}
                         />
+                        <div className={styles.text_error}>Error</div>
                     </div>
                 </div>
             </div>

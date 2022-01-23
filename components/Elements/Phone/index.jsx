@@ -87,6 +87,7 @@ const Phone = ({ index, onChange, defaultValue, type = '' }) => {
                     <div className={styles.phone_form}>
                         <input className={styles.phone_label} value={first_field} onChange={onFirstFieldChange} placeholder={'Type a field'} />
                         <input className={styles.phone_input} type={'tel'} value={phone} onChange={onPhoneChange} disabled={type === 'answer' ? false : true} />
+                        <div className={styles.text_error}>Error</div>
                     </div>
                 </div>
             </div>
