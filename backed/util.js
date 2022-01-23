@@ -15,8 +15,6 @@ export async function initContract() {
 
     let currentUser;
 
-    // Account.state();
-
     if (walletConnection.getAccountId()) {
         currentUser = {
             accountId: walletConnection.getAccountId(),
@@ -38,6 +36,7 @@ export async function initContract() {
             'get_form_status',
             'get_participant_form_status',
             'get_passed_element_count',
+            'get_joined_forms_count',
         ],
         changeMethods: [
             'init_new_form',

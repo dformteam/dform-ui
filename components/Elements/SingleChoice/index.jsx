@@ -11,7 +11,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
     let initValue = {
         title: ['Type a question'],
         meta: ['Type option 1', 'Type option 2', 'Type option 3', 'Type option 4'],
-        isRequired: defaultValue?.isRequired,
+        isRequired: false,
     };
 
     if (typeof defaultValue !== 'undefined') {
@@ -19,7 +19,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
     }
     const [title, setTitle] = useState(initValue?.title?.[0] || 'Type a question');
     const [aAnswers, setAnswers] = useState([]);
-    const [required, setRequired] = React.useState(true);
+    const [required, setRequired] = useState(initValue.isRequired || false);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -28,7 +28,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [e.target.value],
                 meta: [...aAnswers],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
@@ -42,7 +42,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [value],
                 meta: [...metaAnswer],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
@@ -68,7 +68,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [e.target.value],
                 meta: [...metaAnswer],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
@@ -83,14 +83,14 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
             if (!check) {
                 aAnswers[indexx].check = true;
             }
-            setAnswers([...aAnswers]);
             const choosen = aAnswers?.filter((x) => x.check).map((x) => x.content);
+            setAnswers([...aAnswers]);
 
             onChange?.({
                 index,
                 title: [title],
                 meta: [...choosen],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
         }
     };
@@ -112,8 +112,16 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
         onFillValue();
     }, []);
 
-    const onChangeRequired = (event) => {
-        setRequired(event.target.checked);
+    const onChangeRequired = (e) => {
+        setRequired(e.target.checked);
+        const metaAnswer = aAnswers?.filter((x) => x.content !== '')?.map((x) => x.content);
+        type === 'edit' &&
+            onChange?.({
+                index,
+                title: [title],
+                meta: [...metaAnswer],
+                isRequired: e.target.checked,
+            });
     };
 
     return (
@@ -121,9 +129,11 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
             <div className={styles.single_choice_content}>
                 <input className={styles.single_choice_title} value={title} onChange={onTitleChange} placeholder={'Type a title'} />
                 <input className={styles.single_choice_description} placeholder={'Type a description'} />
-                <div className={styles.single_choicerequire}>
-                    Question required: <Switch checked={required} onChange={onChangeRequired} />
-                </div>
+                {type === 'edit' && (
+                    <div className={styles.single_choicerequire}>
+                        Question required: <Switch checked={required} onChange={onChangeRequired} />
+                    </div>
+                )}
                 <div className={styles.single_choice}>
                     {aAnswers?.map?.((item, indexx) => {
                         return (
@@ -144,7 +154,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
                                 <input
                                     className={styles.single_choice_input}
                                     value={item.content}
-                                    placeholder={'Type an option'}
+                                    placeholder={item.placeholder}
                                     onChange={(e) => onOptionChange(e.target.value, indexx)}
                                 />
                                 <div

@@ -281,7 +281,6 @@ const FormAnswer = () => {
 
     const onNextClick = () => {
         setActiveIndex(activeIndex + 1 > total_element.length - 1 ? total_element.length - 1 : activeIndex + 1);
-        console.log(activeIndex, elements.length);
         if (activeIndex === elements.length - 1) {
             setType('basic');
         }
@@ -292,7 +291,6 @@ const FormAnswer = () => {
     };
 
     const onElementChanged = ({ index, title, meta, isRequired }) => {
-        console.log({ index, title, meta, isRequired });
         total_element[index] = {
             ...total_element[index],
             defaultValue: {

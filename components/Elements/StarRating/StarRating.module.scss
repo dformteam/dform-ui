@@ -95,3 +95,11 @@
 .star_rating_input:last-child {
     text-align: right;
 }
+
+
+.rating_choicerequire {
+    display: flex;
+    align-items: center;
+    color: var(--color-secondary);
+    margin: 10px 10% 0;
+}

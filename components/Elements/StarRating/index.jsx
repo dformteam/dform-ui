@@ -1,12 +1,14 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import styles from './StarRating.module.scss';
 import StarOutlinedIcon from '@mui/icons-material/StarOutlined';
+import { Switch } from '@mui/material';
 
 const StarRating = ({ index, onChange, defaultValue, type = '' }) => {
     let initValue = {
         title: ['Type a question'],
         meta: [],
-        isRequired: defaultValue?.isRequired,
+        isRequired: false,
     };
 
     if (typeof defaultValue !== 'undefined') {
@@ -16,6 +18,7 @@ const StarRating = ({ index, onChange, defaultValue, type = '' }) => {
     const star = [1, 2, 3, 4, 5];
     const [title, setTitle] = useState(initValue?.title?.[0] || 'Type a question');
     const [active, setActive] = useState(null);
+    const [required, setRequired] = useState(initValue.isRequired || false);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -24,18 +27,18 @@ const StarRating = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [e.target.value],
                 meta: [],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
-    const onStarClicked = (star) => {
-        setActive(star);
+    const onStarClicked = (starx) => {
+        setActive(starx);
         type === 'answer' &&
             onChange?.({
                 index,
                 title: [title],
-                meta: [star],
-                isRequired: defaultValue?.isRequired,
+                meta: [starx],
+                isRequired: required,
             });
     };
 
@@ -49,11 +52,27 @@ const StarRating = ({ index, onChange, defaultValue, type = '' }) => {
         onFillValue();
     }, []);
 
+    const onChangeRequired = (e) => {
+        setRequired(e.target.checked);
+        type === 'edit' &&
+            onChange?.({
+                index,
+                title: [title],
+                meta: [],
+                isRequired: e.target.checked,
+            });
+    };
+
     return (
         <div className={styles.root_star_rating}>
             <div className={styles.star_rating_content}>
                 <input className={styles.star_rating_title} value={title} onChange={onTitleChange} placeholder={'Type a title'} />
                 <input className={styles.star_rating_description} placeholder={'Type a description'} />
+                {type === 'edit' && (
+                    <div className={styles.rating_choicerequire}>
+                        Question required: <Switch checked={required} onChange={onChangeRequired} />
+                    </div>
+                )}
                 <div className={styles.star_rating}>
                     <div className={styles.star_rating_form}>
                         {star.map((item) => {

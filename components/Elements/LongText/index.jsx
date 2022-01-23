@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import styles from './LongText.module.scss';
 import Switch from '@mui/material/Switch';
@@ -13,7 +14,7 @@ const LongText = ({ index, onChange, defaultValue, type = '' }) => {
 
     const [title, setTitle] = useState(initValue?.title?.[0] || 'Type a question');
     const [text, setText] = useState('');
-    const [required, setRequired] = React.useState(true);
+    const [required, setRequired] = useState(initValue.isRequired || false);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -22,7 +23,7 @@ const LongText = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [e.target.value],
                 meta: [],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
@@ -33,7 +34,7 @@ const LongText = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title],
                 meta: [e.target.value],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
@@ -47,10 +48,16 @@ const LongText = ({ index, onChange, defaultValue, type = '' }) => {
         onFillValue();
     }, []);
 
-    const onChangeRequired = (event) => {
-        setRequired(event.target.checked);
+    const onChangeRequired = (e) => {
+        setRequired(e.target.checked);
+        type === 'edit' &&
+            onChange?.({
+                index,
+                title: [title],
+                meta: [],
+                isRequired: e.target.checked,
+            });
     };
-
 
     return (
         <div className={styles.root_long_text}>
@@ -63,9 +70,11 @@ const LongText = ({ index, onChange, defaultValue, type = '' }) => {
                     disabled={type === 'edit' ? false : true}
                 />
                 <input className={styles.long_text_description} placeholder={'Type a description'} disabled={type === 'edit' ? false : true} />
-                <div className={styles.long_text_require}>
-                    Question required: <Switch checked={required} onChange={onChangeRequired} />
-                </div>
+                {type === 'edit' && (
+                    <div className={styles.long_text_require}>
+                        Question required: <Switch checked={required} onChange={onChangeRequired} />
+                    </div>
+                )}
                 <div className={styles.long_text}>
                     <div className={styles.long_text_form}>
                         <textarea className={styles.long_text_input} disabled={type === 'answer' ? false : true} value={text} onChange={onTextChange} />

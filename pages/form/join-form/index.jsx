@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import styles from './JoinForm.module.scss';
 import { utils } from 'near-api-js';
 import { useRouter } from 'next/router';
@@ -12,7 +13,6 @@ const JoinForm = () => {
     const { query } = router;
 
     const [form, setForm] = useState({});
-    const [joined, setJoined] = useState(false);
     
     const [openLoading, setOpenLoading] = useState(false);
     const [openSnack, setOpenSnack] = useState(false);
@@ -51,7 +51,6 @@ const JoinForm = () => {
                     const { start_date, end_date, participants, limit_participants, owner } = res;
                     const content = '';
                     const currentTimestamp = Date.now().toString();
-                    console.log(currentTimestamp, start_date);
                     if (0 === owner) {
                         return redirectError('This form has not been published!');
                     } else if (currentTimestamp > end_date) {
@@ -106,8 +105,6 @@ const JoinForm = () => {
         const { id } = query;
         const { enroll_fee: fee } = form;
         setOpenLoading(true);
-
-        console.log(fee === 0);
 
         if (fee === '0') {
             contract

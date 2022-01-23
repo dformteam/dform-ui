@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import styles from './Email.module.scss';
 import Switch from '@mui/material/Switch';
@@ -6,7 +7,7 @@ const Email = ({ index, onChange, defaultValue, type = '' }) => {
     let initValue = {
         title: ['Email', 'We collect your email to bla bla bla...', 'Email.'],
         meta: [],
-        isRequired: defaultValue?.isRequired,
+        isRequired: false,
     };
 
     if (typeof defaultValue !== 'undefined') {
@@ -17,7 +18,7 @@ const Email = ({ index, onChange, defaultValue, type = '' }) => {
     const [first_field, setFirstField] = useState(initValue?.title?.[1] || 'We collect your email to bla bla bla...');
     const [second_field, setSecondField] = useState(initValue?.title?.[2] || 'Email');
     const [email, setEmail] = useState('');
-    const [required, setRequired] = React.useState(true);
+    const [required, setRequired] = useState(initValue.isRequired || false);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -26,7 +27,7 @@ const Email = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [e.target.value, first_field, second_field],
                 meta: [],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
@@ -37,7 +38,7 @@ const Email = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, e.target.value, second_field],
                 meta: [],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
@@ -48,7 +49,7 @@ const Email = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, first_field, e.target.value],
                 meta: [],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
@@ -57,9 +58,9 @@ const Email = ({ index, onChange, defaultValue, type = '' }) => {
         type === 'answer' &&
             onChange?.({
                 index,
-                title: [title, first_field, e.target.value],
+                title: [title, first_field, second_field],
                 meta: [e.target.value],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
@@ -73,8 +74,15 @@ const Email = ({ index, onChange, defaultValue, type = '' }) => {
         onFillValue();
     }, []);
 
-    const onChangeRequired = (event) => {
-        setRequired(event.target.checked);
+    const onChangeRequired = (e) => {
+        setRequired(e.target.checked);
+        type === 'edit' &&
+            onChange?.({
+                index,
+                title: [title, first_field, second_field],
+                meta: [],
+                isRequired: e.target.checked,
+            });
     };
 
     return (
@@ -96,9 +104,11 @@ const Email = ({ index, onChange, defaultValue, type = '' }) => {
                         disabled={type === 'edit' ? false : true}
                     />
                 )}
-                <div className={styles.email_require}>
-                    Question required: <Switch checked={required} onChange={onChangeRequired} />
-                </div>
+                {type === 'edit' && (
+                    <div className={styles.email_require}>
+                        Question required: <Switch checked={required} onChange={onChangeRequired} />
+                    </div>
+                )}
                 <div className={styles.email}>
                     <div className={styles.email_form}>
                         <input

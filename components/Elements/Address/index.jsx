@@ -7,7 +7,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
     let initValue = {
         title: 'Address',
         meta: [],
-        isRequired: defaultValue?.isRequired,
+        isRequired: false,
     };
 
     if (typeof defaultValue !== 'undefined') {
@@ -25,7 +25,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
     const [city, setCity] = useState('');
     const [state, setState] = useState('');
     const [postal, setPostal] = useState('');
-    const [required, setRequired] = React.useState(true);
+    const [required, setRequired] = useState(initValue.isRequired || false);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -34,7 +34,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [e.target.value, first_field, second_field, third_field, fourth_field, fifth_field],
                 meta: [],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
@@ -45,7 +45,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, e.target.value, second_field, third_field, fourth_field, fifth_field],
                 meta: [],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
@@ -56,7 +56,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, first_field, e.target.value, third_field, fourth_field, fifth_field],
                 meta: [],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
@@ -67,7 +67,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, first_field, second_field, e.target.value, fourth_field, fifth_field],
                 meta: [],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
@@ -78,7 +78,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, first_field, second_field, third_field, e.target.value, fifth_field],
                 meta: [],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
@@ -89,7 +89,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, first_field, second_field, third_field, fourth_field, e.target.value],
                 meta: [],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
@@ -100,7 +100,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, first_field, second_field, third_field, fourth_field, fifth_field],
                 meta: [e.target.value, streetLine2, city, state, postal],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
@@ -111,7 +111,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, first_field, second_field, third_field, fourth_field, fifth_field],
                 meta: [streetAddress, e.target.value, city, state, postal],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
@@ -122,7 +122,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, first_field, second_field, third_field, fourth_field, fifth_field],
                 meta: [streetAddress, streetLine2, e.target.value, state, postal],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
@@ -133,7 +133,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, first_field, second_field, third_field, fourth_field, fifth_field],
                 meta: [streetAddress, streetLine2, city, e.target.value, postal],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
@@ -144,7 +144,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [title, first_field, second_field, third_field, fourth_field, fifth_field],
                 meta: [streetAddress, streetLine2, city, state, e.target.value],
-                isRequired: defaultValue?.isRequired,
+                isRequired: required,
             });
     };
 
@@ -162,8 +162,15 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
         onFillValue();
     }, []);
 
-    const onChangeRequired = (event) => {
-        setRequired(event.target.checked);
+    const onChangeRequired = (e) => {
+        setRequired(e.target.checked);
+        type === 'edit' &&
+            onChange?.({
+                index,
+                title: [title, first_field, second_field, third_field, fourth_field, fifth_field],
+                meta: [],
+                isRequired: e.target.checked,
+            });
     };
 
     return (
@@ -176,9 +183,11 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                     placeholder={'Type a title'}
                     disabled={type === 'edit' ? false : true}
                 />
-                <div className={styles.address_require}>
-                    Question required: <Switch checked={required} onChange={onChangeRequired} />
-                </div>
+                {type === 'edit' && (
+                    <div className={styles.address_require}>
+                        Question required: <Switch checked={required} onChange={onChangeRequired} />
+                    </div>
+                )}
                 <div className={styles.address}>
                     <div className={styles.address_form}>
                         <input
