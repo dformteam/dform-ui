@@ -4,6 +4,7 @@ import CheckBoxOutlineBlankOutlinedIcon from '@mui/icons-material/CheckBoxOutlin
 import CheckBoxOutlinedIcon from '@mui/icons-material/CheckBoxOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
+import Switch from '@mui/material/Switch';
 
 const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
     let initValue = {
@@ -18,6 +19,7 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
 
     const [title, setTitle] = useState(initValue?.title?.[0] || 'Type a question');
     const [aAnswers, setAnswers] = useState(initValue?.meta);
+    const [required, setRequired] = React.useState(true);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -70,6 +72,10 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
             });
     };
 
+    const onChangeRequired = (event) => {
+        setRequired(event.target.checked);
+    };
+
     return (
         <div className={styles.root_multi_choice}>
             <div className={styles.multi_choice_content}>
@@ -81,6 +87,9 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
                     disabled={type === 'edit' ? false : true}
                 />
                 <input className={styles.multi_choice_description} placeholder={'Type a description'} disabled={type === 'edit' ? false : true} />
+                <div className={styles.multi_choice_require}>
+                    Question required: <Switch checked={required} onChange={onChangeRequired} />
+                </div>
                 <div className={styles.multi_choice}>
                     {aAnswers?.map?.((item, indexx) => {
                         return (

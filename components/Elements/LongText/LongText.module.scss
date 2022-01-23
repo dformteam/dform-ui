@@ -52,3 +52,10 @@
     border: 1px solid var(--color-border);
     resize: none;
 }
+
+.long_text_require {
+    display: flex;
+    align-items: center;
+    color: var(--color-secondary);
+    margin: 10px 10% 0;
+}

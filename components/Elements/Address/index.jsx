@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import styles from './Address.module.scss';
+import Switch from '@mui/material/Switch';
 
 const Address = ({ index, onChange, defaultValue, type = '' }) => {
     let initValue = {
@@ -24,6 +25,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
     const [city, setCity] = useState('');
     const [state, setState] = useState('');
     const [postal, setPostal] = useState('');
+    const [required, setRequired] = React.useState(true);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -160,6 +162,10 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
         onFillValue();
     }, []);
 
+    const onChangeRequired = (event) => {
+        setRequired(event.target.checked);
+    };
+
     return (
         <div className={styles.root_address}>
             <div className={styles.address_content}>
@@ -170,6 +176,9 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                     placeholder={'Type a title'}
                     disabled={type === 'edit' ? false : true}
                 />
+                <div className={styles.address_require}>
+                    Question required: <Switch checked={required} onChange={onChangeRequired} />
+                </div>
                 <div className={styles.address}>
                     <div className={styles.address_form}>
                         <input

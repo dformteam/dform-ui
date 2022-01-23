@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styles from './ShortText.module.scss';
+import Switch from '@mui/material/Switch';
 
 const ShortText = ({ index, onChange, defaultValue, type = '' }) => {
     let initValue = {
@@ -13,6 +14,7 @@ const ShortText = ({ index, onChange, defaultValue, type = '' }) => {
     }
     const [title, setTitle] = useState(initValue?.title?.[0] || 'Type a question');
     const [text, setText] = useState('');
+    const [required, setRequired] = React.useState(true);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -47,11 +49,18 @@ const ShortText = ({ index, onChange, defaultValue, type = '' }) => {
         onFillValue();
     }, []);
 
+    const onChangeRequired = (event) => {
+        setRequired(event.target.checked);
+    };
+
     return (
         <div className={styles.root_short_text}>
             <div className={styles.short_text_content}>
                 <input className={styles.short_text_title} value={title} onChange={onTitleChange} placeholder={'Type a title'} />
                 <input className={styles.short_text_description} placeholder={'Type a description'} />
+                <div className={styles.short_textrequire}>
+                    Question required: <Switch checked={required} onChange={onChangeRequired} />
+                </div>
                 <div className={styles.short_text}>
                     <div className={styles.short_text_form}>
                         <input className={styles.short_text_input} disabled={type === 'answer' ? false : true} value={text} onChange={onTextChange} />

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styles from './Phone.module.scss';
+import Switch from '@mui/material/Switch';
 
 const Phone = ({ index, onChange, defaultValue, type = '' }) => {
     let initValue = {
@@ -14,6 +15,7 @@ const Phone = ({ index, onChange, defaultValue, type = '' }) => {
     const [title, setTitle] = useState(initValue?.title?.[0] || 'Phone Number');
     const [first_field, setFirstField] = useState(initValue?.first_field?.[1] || 'Please enter a valid phone number.');
     const [phone, setPhone] = useState('');
+    const [required, setRequired] = React.useState(true);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -58,11 +60,18 @@ const Phone = ({ index, onChange, defaultValue, type = '' }) => {
         onFillValue();
     }, []);
 
+    const onChangeRequired = (event) => {
+        setRequired(event.target.checked);
+    };
+
     return (
         <div className={styles.root_phone}>
             <div className={styles.phone_content}>
                 <input className={styles.phone_title} value={title} onChange={onTitleChange} placeholder={'Type a title'} />
                 <input className={styles.phone_description} placeholder={'Type a description'} />
+                <div className={styles.phone_require}>
+                    Question required: <Switch checked={required} onChange={onChangeRequired} />
+                </div>
                 <div className={styles.phone}>
                     <div className={styles.phone_form}>
                         <input className={styles.phone_label} value={first_field} onChange={onFirstFieldChange} placeholder={'Type a field'} />

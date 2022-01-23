@@ -195,17 +195,18 @@ const Form = ({ wallet }) => {
                         </div>
                         <div className={styles.modal_row}>
                             <div className={styles.modal_label}>Form type</div>
-                            <button
-                                className={new_form_type === 'card' ? styles.modal_button_active : styles.modal_button}
-                                onClick={() => setNewFormType('card')}
-                            >
-                                Card Form
-                            </button>
+                            <div className={new_form_type === 'card' ? styles.modal_button_active : styles.modal_button} onClick={() => setNewFormType('card')}>
+                                <img src={'/card_form.svg'} className={styles.modal_card_img} />
+                                <div className={styles.line} />
+                                <span>Card Form</span>
+                            </div>
                             <button
                                 className={(new_form_type === 'basic' ? styles.modal_button_active : styles.modal_button) + ' ' + styles.margin_left}
                                 onClick={() => setNewFormType('basic')}
                             >
-                                Basic Form
+                                <img src={'/basic_form.svg'} className={styles.modal_card_img} />
+                                <div className={styles.line} />
+                                <span>Basic Form</span>
                             </button>
                         </div>
                         <div className={styles.modal_row_button}>

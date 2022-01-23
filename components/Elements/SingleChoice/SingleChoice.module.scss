@@ -115,3 +115,10 @@
 .single_choice_delete_icon {
     color: var(--color-secondary);
 }
+
+.single_choicerequire {
+    display: flex;
+    align-items: center;
+    color: var(--color-secondary);
+    margin: 10px 10% 0;
+}
