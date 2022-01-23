@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styles from './FillBlank.module.scss';
 import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
+import Switch from '@mui/material/Switch';
 
 const FillBlank = ({ index, onChange, defaultValue, type = '' }) => {
     let initValue = {
@@ -20,6 +21,7 @@ const FillBlank = ({ index, onChange, defaultValue, type = '' }) => {
     ]);
 
     const [title, setTitle] = useState(initValue?.title?.[0] || 'Type a question');
+    const [required, setRequired] = React.useState(true);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -28,9 +30,9 @@ const FillBlank = ({ index, onChange, defaultValue, type = '' }) => {
                 index,
                 title: [e.target.value],
                 meta: [],
-        isRequired: defaultValue?.isRequired,
-    })
-};
+                isRequired: defaultValue?.isRequired,
+            });
+    };
 
     const onChangeInput = (e, index) => {
         aInputs[index].content = e.currentTarget.textContent;
@@ -95,6 +97,10 @@ const FillBlank = ({ index, onChange, defaultValue, type = '' }) => {
         }
     };
 
+    const onChangeRequired = (event) => {
+        setRequired(event.target.checked);
+    };
+
     return (
         <div className={styles.root_fill_blank}>
             <div className={styles.fill_blank_content}>
@@ -106,6 +112,9 @@ const FillBlank = ({ index, onChange, defaultValue, type = '' }) => {
                     disabled={type === 'edit' ? false : true}
                 />
                 <input className={styles.fill_blank_description} placeholder={'Type a description'} disabled={type === 'edit' ? false : true} />
+                <div className={styles.fill_blank_require}>
+                    Question required: <Switch checked={required} onChange={onChangeRequired} />
+                </div>
                 <div className={styles.fill_blank}>
                     <div className={styles.fill_blank_form}>
                         {aInputs?.map?.((item, index) => {

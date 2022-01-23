@@ -95,3 +95,10 @@
 .fill_blank_add_label:hover {
     color: var(--color-link);
 }
+
+.fill_blank_require {
+    display: flex;
+    align-items: center;
+    color: var(--color-secondary);
+    margin: 10px 10% 0;
+}

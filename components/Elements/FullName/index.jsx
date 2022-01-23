@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import styles from './FullName.module.scss';
+import Switch from '@mui/material/Switch';
 
 const FullName = ({ index, onChange, defaultValue, type = '' }) => {
     let initValue = {
@@ -18,6 +19,7 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
     const [second_field, setSecondField] = useState(initValue?.title?.[2] || 'Last Name');
     const [first_name, setFirstName] = useState('');
     const [last_name, setLastName] = useState('');
+    const [required, setRequired] = React.useState(true);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -85,8 +87,12 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
         onFillValue();
     }, []);
 
+    const onChangeRequired = (event) => {
+        setRequired(event.target.checked);
+    };
+
     return (
-        <div className={styles.root_full_name}>
+        <div className={styles.full_name}>
             <div className={styles.full_name_content}>
                 <input
                     className={styles.full_name_title}
@@ -96,7 +102,10 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
                     disabled={type === 'edit' ? false : true}
                 />
                 <input className={styles.full_name_description} placeholder={'Type a description'} disabled={type === 'edit' ? false : true} />
-                <div className={styles.full_name}>
+                <div className={styles.full_name_require}>
+                    Question required: <Switch checked={required} onChange={onChangeRequired} />
+                </div>
+                <div className={styles.full_name_form}>
                     <div className={styles.full_name_form_left}>
                         <input
                             className={styles.full_name_label}

@@ -5,6 +5,7 @@ import RadioButtonCheckedOutlinedIcon from '@mui/icons-material/RadioButtonCheck
 import RadioButtonUncheckedOutlinedIcon from '@mui/icons-material/RadioButtonUncheckedOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
+import Switch from '@mui/material/Switch';
 
 const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
     let initValue = {
@@ -18,6 +19,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
     }
     const [title, setTitle] = useState(initValue?.title?.[0] || 'Type a question');
     const [aAnswers, setAnswers] = useState([]);
+    const [required, setRequired] = React.useState(true);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -110,11 +112,18 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
         onFillValue();
     }, []);
 
+    const onChangeRequired = (event) => {
+        setRequired(event.target.checked);
+    };
+
     return (
         <div className={styles.root_single_choice}>
             <div className={styles.single_choice_content}>
                 <input className={styles.single_choice_title} value={title} onChange={onTitleChange} placeholder={'Type a title'} />
                 <input className={styles.single_choice_description} placeholder={'Type a description'} />
+                <div className={styles.single_choicerequire}>
+                    Question required: <Switch checked={required} onChange={onChangeRequired} />
+                </div>
                 <div className={styles.single_choice}>
                     {aAnswers?.map?.((item, indexx) => {
                         return (

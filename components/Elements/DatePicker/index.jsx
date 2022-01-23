@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styles from './DatePicker.module.scss';
+import Switch from '@mui/material/Switch';
 
 const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
     let initValue = {
@@ -14,6 +15,7 @@ const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
     const [title, setTitle] = useState(initValue?.title?.[0] || 'Date Picker');
     const [first_field, setFirstField] = useState(initValue?.title?.[1] || 'Please pick a date.');
     const [date, setDate] = useState('');
+    const [required, setRequired] = React.useState(true);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -58,6 +60,10 @@ const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
         onFillValue();
     }, []);
 
+    const onChangeRequired = (event) => {
+        setRequired(event.target.checked);
+    };
+
     return (
         <div className={styles.root_date_picker}>
             <div className={styles.date_picker_content}>
@@ -69,6 +75,9 @@ const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
                     disabled={type === 'edit' ? false : true}
                 />
                 <input className={styles.date_picker_description} placeholder={'Type a description'} disabled={type === 'edit' ? false : true} />
+                <div className={styles.date_picker_require}>
+                    Question required: <Switch checked={required} onChange={onChangeRequired} />
+                </div>
                 <div className={styles.date_picker}>
                     <div className={styles.date_picker_form}>
                         <input

@@ -246,7 +246,7 @@
 
     &__edit {
         @extend .button_action;
-        background: var(--color-link);
+        background: var(--color-gradient);
     }
 
     &__delete {

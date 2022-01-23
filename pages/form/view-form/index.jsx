@@ -18,6 +18,7 @@ import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined
 import PublishIcon from '@mui/icons-material/Publish';
 import UnpublishedOutlinedIcon from '@mui/icons-material/UnpublishedOutlined';
 import InsertChartOutlinedOutlinedIcon from '@mui/icons-material/InsertChartOutlinedOutlined';
+import LinkOutlinedIcon from '@mui/icons-material/LinkOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
@@ -63,6 +64,7 @@ const CreateForm = () => {
     const [openConfirmation, setOpenConfirmation] = useState(false);
     const [openConfirmUnpublish, setOpenConfirmUnpublish] = useState(false);
     const [currentElement, setCurrentElement] = useState({});
+    const [sharedLink, setSharedLink] = useState('');
 
     const onCloseSnack = () => {
         setOpenSnack(false);
@@ -466,6 +468,8 @@ const CreateForm = () => {
         }
     };
 
+    const onGetSharedLink = () => {};
+
     return (
         <>
             {openConfirmation && <Confirmation label={confirmationLabel} onAccept={onAcceptDeleteElement} onCancel={onDenyDeleteElement} />}
@@ -483,6 +487,14 @@ const CreateForm = () => {
                             );
                         })}
                     </div>
+                    <div className={styles.root_share_label}>Link to share:</div>
+                    <div className={styles.root_row}>
+                        <LinkOutlinedIcon className={styles.root_icon_link} />
+                        <div className={styles.root_link_input}>{sharedLink}</div>
+                        <div className={styles.root_link_copy} onClick={onGetSharedLink}>
+                            Copy link
+                        </div>
+                    </div>
                     <div className={styles.root__title}>{form?.title}</div>
                     <div className={styles.root__description}>{form?.description}</div>
                     <div className={styles.content}>
@@ -493,7 +505,17 @@ const CreateForm = () => {
                 </div>
 
                 <Modal open={modalPreview} onClose={onCloseModalPreview} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
-                    <Box sx={{ width: '100vw', height: '100vh' }}>
+                    <Box
+                        sx={{
+                            width: '100vw',
+                            height: '100vh',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            background: '#fff',
+                            position: 'relative',
+                        }}
+                    >
                         <div className={styles.modal_preview_content}>
                             <div className="form_bg" />
                             <div className={styles.modal_preview_content_title}>
@@ -513,7 +535,7 @@ const CreateForm = () => {
                 </Modal>
                 <Modal open={modalEdit} onClose={onCloseModalEdit} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
                     <Box sx={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <div className={styles.modal_preview_content}>
+                        <div className={styles.modal_edit_content}>
                             <div className={styles.modal_preview_content_title}>
                                 <Typography className={styles.modal_edit_title} variant="h5" component="h2">
                                     Edit question
