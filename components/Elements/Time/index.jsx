@@ -3,12 +3,11 @@ import React, { useEffect, useState } from 'react';
 import styles from './Time.module.scss';
 import Switch from '@mui/material/Switch';
 
-const Time = ({ index, onChange, defaultValue, type = '' }) => {
+const Time = ({ index, onChange, defaultValue, type = '', error }) => {
     let initValue = {
         title: ['Type a question', 'Type your description'],
         meta: [],
         isRequired: false,
-        error: '',
     };
 
     if (typeof defaultValue !== 'undefined') {
@@ -18,7 +17,6 @@ const Time = ({ index, onChange, defaultValue, type = '' }) => {
     const [first_field, setFirstField] = useState(initValue?.title?.[1] || 'Type your description.');
     const [time, setTime] = useState('');
     const [required, setRequired] = useState(initValue.isRequired || false);
-    const [error, setError] = useState(initValue.error);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -44,7 +42,6 @@ const Time = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onTimeChange = (e) => {
         setTime(e.target.value);
-        setError('');
         type === 'answer' &&
             onChange?.({
                 index,
@@ -102,7 +99,7 @@ const Time = ({ index, onChange, defaultValue, type = '' }) => {
                         <input className={styles.time_input} type={'time'} disabled={type === 'answer' ? false : true} value={time} onChange={onTimeChange} />
                     </div>
                 </div>
-                {error !== '' && <div className={styles.text_error}>Error</div>}
+                {error !== '' && <div className={styles.text_error}>{error}</div>}
             </div>
         </div>
     );

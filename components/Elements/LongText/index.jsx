@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import styles from './LongText.module.scss';
 import Switch from '@mui/material/Switch';
 
-const LongText = ({ index, onChange, defaultValue, type = '' }) => {
+const LongText = ({ index, onChange, defaultValue, type = '', error }) => {
     let initValue = {
         title: ['Type a question', 'Type your description'],
         meta: [],
@@ -18,7 +18,6 @@ const LongText = ({ index, onChange, defaultValue, type = '' }) => {
     const [first_field, setFirstField] = useState(initValue?.title?.[1] || 'Type your description.');
     const [text, setText] = useState('');
     const [required, setRequired] = useState(initValue.isRequired || false);
-    const [error, setError] = useState(initValue.error);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -44,7 +43,6 @@ const LongText = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onTextChange = (e) => {
         setText(e.target.value);
-        setError('');
         type === 'answer' &&
             onChange?.({
                 index,
@@ -100,7 +98,7 @@ const LongText = ({ index, onChange, defaultValue, type = '' }) => {
                 <div className={styles.long_text}>
                     <div className={styles.long_text_form}>
                         <textarea className={styles.long_text_input} disabled={type === 'answer' ? false : true} value={text} onChange={onTextChange} />
-                        {error !== '' && <div className={styles.text_error}>Error</div>}
+                        {error !== '' && <div className={styles.text_error}>{error}</div>}
                     </div>
                 </div>
             </div>

@@ -44,7 +44,7 @@ const CreateForm = () => {
     const [elements, setElements] = useState([]);
     const [modalPreview, setModalPreview] = useState(false);
     const [modalEdit, setModalEdit] = useState(false);
-    const [forms_status, setFormStatus] = useState('');
+    const [forms_status] = useState('');
     const [openLoading, setOpenLoading] = useState(false);
     const [openSnack, setOpenSnack] = useState(false);
     const [alertType, setAlertType] = useState('success');

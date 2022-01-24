@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import styles from './DatePicker.module.scss';
 import Switch from '@mui/material/Switch';
 
-const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
+const DatePicker = ({ index, onChange, defaultValue, type = '', error }) => {
     let initValue = {
         title: ['Date Picker', 'Type your description', 'Please pick a date.'],
         meta: [],
@@ -19,7 +19,6 @@ const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
     const [second_field, setSecondField] = useState(initValue?.title?.[2] || 'Please pick a date.');
     const [date, setDate] = useState('');
     const [required, setRequired] = useState(initValue.isRequired || false);
-    const [error, setError] = useState(initValue.error);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -56,7 +55,6 @@ const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onDateChange = (e) => {
         setDate(e.target.value);
-        setError('');
         type === 'answer' &&
             onChange?.({
                 index,
@@ -69,7 +67,7 @@ const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
     const onFillValue = () => {
         if (type === 'analysis') {
             setDate(initValue?.meta?.[0] || '');
-            setRequired(initValue?.required);
+            setRequired(initValue?.isRequired);
         }
     };
 
@@ -126,7 +124,7 @@ const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
                             value={date}
                             onChange={onDateChange}
                         />
-                        {error !== '' && <div className={styles.text_error}>Error</div>}
+                        {error !== '' && <div className={styles.text_error}>{error}</div>}
                     </div>
                 </div>
             </div>
