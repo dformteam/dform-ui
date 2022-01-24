@@ -4,12 +4,11 @@ import styles from './StarRating.module.scss';
 import StarOutlinedIcon from '@mui/icons-material/StarOutlined';
 import { Switch } from '@mui/material';
 
-const StarRating = ({ index, onChange, defaultValue, type = '' }) => {
+const StarRating = ({ index, onChange, defaultValue, type = '', error }) => {
     let initValue = {
         title: ['Type a question', 'Type your description'],
         meta: [],
         isRequired: false,
-        error: '',
     };
 
     if (typeof defaultValue !== 'undefined') {
@@ -21,7 +20,6 @@ const StarRating = ({ index, onChange, defaultValue, type = '' }) => {
     const [first_field, setFirstField] = useState(initValue?.title?.[1] || 'Type your description.');
     const [active, setActive] = useState(null);
     const [required, setRequired] = useState(initValue.isRequired || false);
-    const [error, setError] = useState(initValue.error);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -46,7 +44,6 @@ const StarRating = ({ index, onChange, defaultValue, type = '' }) => {
     };
     const onStarClicked = (starx) => {
         setActive(starx);
-        setError('');
         type === 'answer' &&
             onChange?.({
                 index,
@@ -119,7 +116,7 @@ const StarRating = ({ index, onChange, defaultValue, type = '' }) => {
                         <input className={styles.star_rating_input} placeholder={'Type "Best" text'} />
                     </div>
                 </div>
-                {error !== '' && <div className={styles.text_error}>Error</div>}
+                {error !== '' && <div className={styles.text_error}>{error}</div>}
             </div>
         </div>
     );
