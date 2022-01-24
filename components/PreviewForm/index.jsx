@@ -18,11 +18,11 @@ import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 
-const PreviewForm = () => {
+const PreviewForm = (props) => {
     const wallet = useSelector((state) => state.wallet);
     const router = useRouter();
     const { query } = router;
-    let forms = JSON.parse(localStorage.getItem('myForms'));
+    let forms = props.data;
     forms = [
         {
             id: 'welcome',

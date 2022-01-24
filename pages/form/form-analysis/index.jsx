@@ -274,7 +274,7 @@ const FormAnalysis = () => {
 
     const renderAnswer = () => {
         if (answers?.length === 0) {
-            return cStauts;
+            return <div className={styles.cStatus}>{cStauts}</div>;
         } else {
             return answers?.map?.((item, index) => {
                 return (

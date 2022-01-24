@@ -16,6 +16,8 @@ import StarOutlineOutlinedIcon from '@mui/icons-material/StarOutlineOutlined';
 import ArrowForwardOutlinedIcon from '@mui/icons-material/ArrowForwardOutlined';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
 import UploadIcon from '@mui/icons-material/Upload';
 import CloseIcon from '@mui/icons-material/Close';
 import Header from '../../../components/Elements/Header';
@@ -436,12 +438,10 @@ const CreateForm = () => {
     const renderModalSaveSuccess = () => {
         return (
             <>
-                {/* <div className={styles.modal_label + ' ' + styles.margin_top}>Your form has been successfully saved.</div> */}
-                <div className={styles.modal_label}>Do you want to publish right now?</div>
-                <div className={styles.modal_row}>
-                    <button className={styles.modal_button_publish}>Cancel</button>
-                    <button className={styles.modal_button_publish}>Publish</button>
+                <div className={styles.modal_success}>
+                    <CheckCircleIcon className={styles.success_icon} />
                 </div>
+                <div className={styles.modal_label}>Your form is saved.</div>
             </>
         );
     };
@@ -449,11 +449,12 @@ const CreateForm = () => {
     const renderModalSaveError = () => {
         return (
             <>
-                {/* <div className={styles.modal_label + ' ' + styles.margin_top}>Your form has been successfully saved.</div> */}
-                <div className={styles.modal_label}>Do you want to publish right now?</div>
-                <div className={styles.modal_row}>
-                    <button className={styles.modal_button_publish}>Cancel</button>
-                    <button className={styles.modal_button_publish}>Publish</button>
+                <div className={styles.modal_success}>
+                    <CancelIcon className={styles.error_icon} />
+                </div>
+                <div className={styles.modal_label}>
+                    Some questions can't be uploaded.
+                    <br /> Please check again!
                 </div>
             </>
         );
@@ -518,7 +519,7 @@ const CreateForm = () => {
                             Saved Form
                         </Typography>
                         <div className={styles.line} />
-                        {isSuccess ? renderModalSaveSuccess() : renderModalSaveError()}
+                        {!isSuccess ? renderModalSaveSuccess() : renderModalSaveError()}
                     </Box>
                 </Modal>
 
@@ -546,7 +547,7 @@ const CreateForm = () => {
                                 <CloseIcon />
                             </div>
                             <div className={styles.preview_content}>
-                                <PreviewForm />
+                                <PreviewForm data={forms} />
                             </div>
                         </div>
                     </Box>

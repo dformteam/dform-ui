@@ -592,7 +592,7 @@ const CreateForm = () => {
                                 <CloseIcon />
                             </div>
                             <div className={styles.preview_content}>
-                                <PreviewForm />
+                                <PreviewForm data={elements} />
                             </div>
                         </div>
                     </Box>

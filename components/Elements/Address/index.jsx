@@ -184,6 +184,7 @@ const Address = ({ index, onChange, defaultValue, type = '', error }) => {
                     placeholder={'Type a title'}
                     disabled={type === 'edit' ? false : true}
                 />
+                <span>*</span>
                 {type !== 'answer' && (
                     <div className={styles.address_require}>
                         Question required: <Switch value={required} checked={required} onChange={onChangeRequired} />

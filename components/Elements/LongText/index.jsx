@@ -90,7 +90,7 @@ const LongText = ({ index, onChange, defaultValue, type = '', error }) => {
                     placeholder={'Type a description'}
                     disabled={type === 'edit' ? false : true}
                 />
-                {type === 'answer' && (
+                {type !== 'answer' && (
                     <div className={styles.long_text_require}>
                         Question required: <Switch value={required} checked={required} onChange={onChangeRequired} />
                     </div>
