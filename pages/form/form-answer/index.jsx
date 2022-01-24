@@ -19,6 +19,9 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import UploadIcon from '@mui/icons-material/Upload';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
+import Semaphore from '../../../backed/semaphore';
+import Notify from '../../../components/Notify';
+import { Box, Modal, Typography } from '@mui/material';
 
 const FormAnswer = () => {
     const wallet = useSelector((state) => state.wallet);
@@ -26,11 +29,33 @@ const FormAnswer = () => {
     const { query } = router;
     let raws = [];
 
+    const seph = new Semaphore({
+        max: 4,
+    });
+
     const [activeIndex, setActiveIndex] = useState(0);
     const [form_type, setType] = useState('basi');
     const [form, setForm] = useState({});
     const [elements, setElements] = useState([]);
     const [total_element, setTotalElement] = useState([]);
+    const [openLoading, setOpenLoading] = useState(false);
+    const [openSnack, setOpenSnack] = useState(false);
+    const [alertType, setAlertType] = useState('success');
+    const [snackMsg, setSnackMsg] = useState('');
+    const [modalSave, setModalSave] = useState(false);
+    const [isSuccess, setSuccess] = useState(false);
+    const [modalSuccess, setModalSuccess] = useState(false);
+
+    const onCloseSnack = () => {
+        setOpenSnack(false);
+    };
+
+    const onShowResult = ({ type, msg }) => {
+        setOpenSnack(true);
+        setOpenLoading(false);
+        setAlertType(type);
+        setSnackMsg(msg);
+    };
 
     useLayoutEffect(() => {
         onGetFormDetail();
@@ -39,7 +64,6 @@ const FormAnswer = () => {
     useLayoutEffect(() => {
         getParticipantFormDetail();
     }, [form]);
-
     useLayoutEffect(() => {
         if (form?.elements?.length === elements?.length) {
             setTotalElement([
@@ -190,7 +214,7 @@ const FormAnswer = () => {
                                         defaultValue: {
                                             title: form_data?.title,
                                             meta: form_data?.meta,
-                                            isRequire: form_data?.isRequired,
+                                            isRequired: form_data?.isRequired,
                                             error: '',
                                         },
                                     };
@@ -225,7 +249,9 @@ const FormAnswer = () => {
             case 'header':
                 return <Header />;
             case 'fullName':
-                return <FullName index={index} onChange={onElementChanged} elType={type} type={'answer'} defaultValue={defaultValue} />;
+                return (
+                    <FullName index={index} onChange={onElementChanged} elType={type} type={'answer'} defaultValue={defaultValue} error={defaultValue.error} />
+                );
             case 'email':
                 return <Email index={index} onChange={onElementChanged} elType={type} type={'answer'} defaultValue={defaultValue} />;
             case 'address':
@@ -280,8 +306,25 @@ const FormAnswer = () => {
     };
 
     const onNextClick = () => {
+        const { defaultValue } = total_element[activeIndex];
+        if (defaultValue.isRequired) {
+            const { meta } = defaultValue;
+            if (meta.length === 0) {
+                defaultValue.error = 'Required question. Your answer could not be empty!';
+                setElements([...elements]);
+                return false;
+            }
+
+            const meta_empty = meta?.filter((x) => x === '' || x === undefined || x === null);
+            if (meta_empty.length === meta.length) {
+                defaultValue.error = 'Required question. Your answer could not be empty!';
+                setElements([...elements]);
+                return false;
+            }
+        }
+
         setActiveIndex(activeIndex + 1 > total_element.length - 1 ? total_element.length - 1 : activeIndex + 1);
-        if (activeIndex === elements.length - 1) {
+        if (activeIndex === total_element.length - 1) {
             setType('basic');
         }
     };
@@ -303,6 +346,109 @@ const FormAnswer = () => {
         setElements([...total_element]);
     };
 
+    const onSubmitAnswerClick = async () => {
+        const valid = onValidateAnswer();
+        if (!valid) {
+            return onShowResult({
+                type: 'error',
+                msg: 'Somethings went wrong! Check again',
+            });
+        }
+
+        setSuccess(false);
+        setModalSave(true);
+
+        await Promise.all(
+            elements?.map(async (element) => {
+                const { submited, id } = element;
+                if (id !== 'welcome' && id !== 'header' && (typeof submited === 'undefined' || submited === null || submited === '' || submited === false)) {
+                    await seph.acquire();
+                    const result = await submitAnswer(element);
+                    element.submited = result;
+                }
+            }),
+        )
+            .then(() => {
+                const error_element = elements.filter(
+                    (x) =>
+                        x.id !== 'welcome' &&
+                        x.id !== 'header' &&
+                        (typeof x.submited === 'undefined' || x.submited === null || x.submited === '' || x.submited === false),
+                );
+
+                console.log(error_element);
+                if (error_element.length > 0) {
+                    setSuccess(false);
+                } else {
+                    setSuccess(true);
+                }
+                setTotalElement([...elements]);
+                setModalSave(false);
+                setModalSuccess(true);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+
+    const onValidateAnswer = () => {
+        for (let aIndex in elements) {
+            const element = elements[aIndex];
+            const { defaultValue } = element;
+            if (defaultValue.isRequired) {
+                const { meta } = defaultValue;
+                if (meta.length === 0) {
+                    defaultValue.error = 'Required question. Your answer could not be empty!';
+                    setElements([...elements]);
+                    return false;
+                }
+
+                const meta_empty = meta?.filter((x) => x === '' || x === undefined || x === null);
+                if (meta_empty.length === meta.length) {
+                    defaultValue.error = 'Required question. Your answer could not be empty!';
+                    setElements([...elements]);
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    };
+
+    const submitAnswer = (answer) => {
+        const { contract } = wallet;
+        const { id } = query;
+        const { defaultValue } = answer;
+
+        return contract
+            .submit_answer({
+                formId: id,
+                elementId: answer.bId,
+                answer: defaultValue.meta,
+            })
+            .then((res) => {
+                seph.release();
+                return res;
+            })
+            .catch((err) => {
+                seph.release();
+                return undefined;
+            });
+    };
+
+    const onCloseModalSave = () => {
+        setModalSave(false);
+    };
+
+    const onCloseModalSuccess = () => {
+        if (isSuccess) {
+            const { id } = query;
+            return router.push(`/form/view-form?id=${id}`);
+        }
+        setModalSuccess(false);
+        setSuccess(false);
+    };
+
     const renderBasicForm = () => {
         return (
             <>
@@ -311,7 +457,11 @@ const FormAnswer = () => {
                         <div className={styles.element_content} key={index}>
                             {renderElement(item, index)}
                             {index + 1 === total.length && (
-                                <div className={styles.button_submit} style={{ borderBottomLeftRadius: 24, justifyContent: 'center' }} onClick={onNextClick}>
+                                <div
+                                    className={styles.button_submit}
+                                    style={{ borderBottomLeftRadius: 24, justifyContent: 'center' }}
+                                    onClick={onSubmitAnswerClick}
+                                >
                                     <UploadIcon className={styles.icon_next} /> {' Submit'}
                                 </div>
                             )}
@@ -366,13 +516,72 @@ const FormAnswer = () => {
         );
     };
 
+    const renderModalSaveSuccess = () => {
+        return (
+            <>
+                {/* <div className={styles.modal_label + ' ' + styles.margin_top}>Your form has been successfully saved.</div> */}
+                <div className={styles.modal_label}>Do you want to publish right now?</div>
+                <div className={styles.modal_row}>
+                    <button className={styles.modal_button_publish}>Cancel</button>
+                    <button className={styles.modal_button_publish}>Publish</button>
+                </div>
+            </>
+        );
+    };
+
+    const renderModalSaveError = () => {
+        return (
+            <>
+                {/* <div className={styles.modal_label + ' ' + styles.margin_top}>Your form has been successfully saved.</div> */}
+                Error
+            </>
+        );
+    };
+
+    const renderModalSaving = () => {
+        return (
+            <>
+                <div className={styles.modal_label + ' ' + styles.margin_top}>Please wait while saving your form.</div>
+                <div className={styles.modal_content}>
+                    <img src={'/loading.svg'} alt="error" className={styles.modal_loading_icon} />
+                </div>
+                {/* <div className={styles.modal_content_text}>
+                    Processing: {processing}/{executing} completed.
+                </div> */}
+            </>
+        );
+    };
+
     return (
-        <div className={styles.root}>
-            <div className={styles.content}>
-                <div className={styles.form_title}>Form Title</div>
-                {form_type === 'basic' ? renderBasicForm() : renderCardForm()}
+        <>
+            <Notify openLoading={openLoading} openSnack={openSnack} alertType={alertType} snackMsg={snackMsg} onClose={onCloseSnack} />
+            <div className={styles.root}>
+                <div className={styles.content}>
+                    <div className={styles.form_title}>Form Title</div>
+                    {form_type === 'basic' ? renderBasicForm() : renderCardForm()}
+                </div>
             </div>
-        </div>
+
+            <Modal open={modalSuccess} onClose={onCloseModalSuccess} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+                <Box sx={style}>
+                    <Typography id="modal-modal-title" variant="h5" component="h2">
+                        Saved Form
+                    </Typography>
+                    <div className={styles.line} />
+                    {isSuccess ? renderModalSaveSuccess() : renderModalSaveError()}
+                </Box>
+            </Modal>
+
+            <Modal open={modalSave} onClose={onCloseModalSave} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+                <Box sx={style}>
+                    <Typography id="modal-modal-title" variant="h5" component="h2">
+                        Saving
+                    </Typography>
+                    <div className={styles.line} />
+                    {renderModalSaving()}
+                </Box>
+            </Modal>
+        </>
     );
 };
 
@@ -536,3 +745,16 @@ const listElement = [
         },
     },
 ];
+
+const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    minWidth: 400,
+    bgcolor: '#fff',
+    borderRadius: '24px',
+    boxShadow: 24,
+    p: 4,
+    outline: 'none',
+};
