@@ -96,23 +96,23 @@ const Phone = ({ index, onChange, defaultValue, type = '' }) => {
                     value={title}
                     onChange={onTitleChange}
                     placeholder={'Type a title'}
-                    disabled={type === 'answer' ? false : true}
+                    disabled={type === 'edit' ? false : true}
                 />
                 <input
                     className={styles.phone_description}
                     value={first_field}
                     onChange={onFirstFieldChange}
                     placeholder={'Type a description'}
-                    disabled={type === 'answer' ? false : true}
+                    disabled={type === 'edit' ? false : true}
                 />
-                {type === 'answer' && (
+                {type !== 'answer' && (
                     <div className={styles.phone_require}>
                         Question required: <Switch value={required} checked={required} onChange={onChangeRequired} />
                     </div>
                 )}
                 <div className={styles.phone}>
                     <div className={styles.phone_form}>
-                        <input className={styles.phone_label} value={second_field} onChange={onSecondFieldChange} placeholder={'Type a field'} />
+                        <input className={styles.phone_label} value={second_field} onChange={onSecondFieldChange} placeholder={'Type a field'} disabled={type === 'edit' ? false : true}/>
                         <input className={styles.phone_input} type={'tel'} value={phone} onChange={onPhoneChange} disabled={type === 'answer' ? false : true} />
                         {error !== '' && <div className={styles.text_error}>Error</div>}
                     </div>

@@ -83,14 +83,14 @@ const Time = ({ index, onChange, defaultValue, type = '' }) => {
                     value={title}
                     onChange={onTitleChange}
                     placeholder={'Type a title'}
-                    disabled={type === 'answer' ? false : true}
+                    disabled={type === 'edit' ? false : true}
                 />
                 <input
                     className={styles.time_description}
                     value={first_field}
                     onChange={onFirstFieldChange}
                     placeholder={'Type a description'}
-                    disabled={type === 'answer' ? false : true}
+                    disabled={type === 'edit' ? false : true}
                 />
                 {type !== 'answer' && (
                     <div className={styles.timerequire}>

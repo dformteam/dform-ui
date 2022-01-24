@@ -146,14 +146,14 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
                     value={title}
                     onChange={onTitleChange}
                     placeholder={'Type a title'}
-                    disabled={type === 'answer' ? false : true}
+                    disabled={type === 'edit' ? false : true}
                 />
                 <input
                     className={styles.single_choice_description}
                     value={first_field}
                     onChange={onFirstFieldChange}
                     placeholder={'Type a description'}
-                    disabled={type === 'answer' ? false : true}
+                    disabled={type === 'edit' ? false : true}
                 />
                 {type !== 'answer' && (
                     <div className={styles.single_choicerequire}>

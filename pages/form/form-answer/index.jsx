@@ -311,7 +311,7 @@ const FormAnswer = () => {
                         <div className={styles.element_content} key={index}>
                             {renderElement(item, index)}
                             {index + 1 === total.length && (
-                                <div className={styles.button_submit} style={{ borderBottomLeftRadius: 24, justifyContent: 'center' }} onClick={onNextClick}>
+                                <div className={styles.button_submit} onClick={onNextClick}>
                                     <UploadIcon className={styles.icon_next} /> {' Submit'}
                                 </div>
                             )}
@@ -346,7 +346,7 @@ const FormAnswer = () => {
         return (
             <>
                 {item.id !== 'welcome' && item.id !== 'thanks' && (
-                    <div className={styles.button_submit}>
+                    <div className={styles.button_submit_element}>
                         {index > 1 && (
                             <div className={styles.button_prev} onClick={onPrevClick}>
                                 <ArrowBackOutlinedIcon className={styles.icon_prev} />
