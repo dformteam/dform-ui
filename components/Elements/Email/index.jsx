@@ -5,9 +5,10 @@ import Switch from '@mui/material/Switch';
 
 const Email = ({ index, onChange, defaultValue, type = '' }) => {
     let initValue = {
-        title: ['Email', 'We collect your email to bla bla bla...', 'Email.'],
+        title: ['Email', 'Type your description.', 'Email.'],
         meta: [],
         isRequired: false,
+        error: '',
     };
 
     if (typeof defaultValue !== 'undefined') {
@@ -15,10 +16,11 @@ const Email = ({ index, onChange, defaultValue, type = '' }) => {
     }
 
     const [title, setTitle] = useState(initValue?.title?.[0] || 'Email');
-    const [first_field, setFirstField] = useState(initValue?.title?.[1] || 'We collect your email to bla bla bla...');
+    const [first_field, setFirstField] = useState(initValue?.title?.[1] || 'Type your description.');
     const [second_field, setSecondField] = useState(initValue?.title?.[2] || 'Email');
     const [email, setEmail] = useState('');
-    const [required, setRequired] = useState(initValue.isRequired || false);
+    const [required, setRequired] = useState(initValue?.isRequired || false);
+    const [error, setError] = useState(initValue.error);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -55,6 +57,7 @@ const Email = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onEmailChange = (e) => {
         setEmail(e.target.value);
+        setError('');
         type === 'answer' &&
             onChange?.({
                 index,
@@ -67,6 +70,7 @@ const Email = ({ index, onChange, defaultValue, type = '' }) => {
     const onFillValue = () => {
         if (type === 'analysis') {
             setEmail(initValue?.meta?.[0] || '');
+            setRequired(initValue?.required);
         }
     };
 
@@ -104,9 +108,9 @@ const Email = ({ index, onChange, defaultValue, type = '' }) => {
                         disabled={type === 'edit' ? false : true}
                     />
                 )}
-                {type === 'edit' && (
+                {type !== 'answer' && (
                     <div className={styles.email_require}>
-                        Question required: <Switch checked={required} onChange={onChangeRequired} />
+                        Question required: <Switch value={required} checked={required} onChange={onChangeRequired} />
                     </div>
                 )}
                 <div className={styles.email}>
@@ -126,7 +130,7 @@ const Email = ({ index, onChange, defaultValue, type = '' }) => {
                             value={email}
                             onChange={onEmailChange}
                         />
-                        <div className={styles.text_error}>Error</div>
+                        {error !== '' && <div className={styles.text_error}>Error</div>}
                     </div>
                 </div>
             </div>

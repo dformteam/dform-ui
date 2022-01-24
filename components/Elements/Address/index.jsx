@@ -5,9 +5,10 @@ import Switch from '@mui/material/Switch';
 
 const Address = ({ index, onChange, defaultValue, type = '' }) => {
     let initValue = {
-        title: 'Address',
+        title: ['Address', 'Street Address', 'Street Address Line 2', 'City', 'State / Province', 'Postal / Zip Code'],
         meta: [],
         isRequired: false,
+        error: '',
     };
 
     if (typeof defaultValue !== 'undefined') {
@@ -26,6 +27,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
     const [state, setState] = useState('');
     const [postal, setPostal] = useState('');
     const [required, setRequired] = useState(initValue.isRequired || false);
+    const [error, setError] = useState(initValue.error);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -95,6 +97,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onStreetChange = (e) => {
         setStreetAddress(e.target.value);
+        setError('');
         type === 'answer' &&
             onChange?.({
                 index,
@@ -106,6 +109,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onStreet2Change = (e) => {
         setStreetLine2(e.target.value);
+        setError('');
         type === 'answer' &&
             onChange?.({
                 index,
@@ -117,6 +121,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onCityChange = (e) => {
         setCity(e.target.value);
+        setError('');
         type === 'answer' &&
             onChange?.({
                 index,
@@ -128,6 +133,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onStateChange = (e) => {
         setState(e.target.value);
+        setError('');
         type === 'answer' &&
             onChange?.({
                 index,
@@ -139,6 +145,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onPostalChange = (e) => {
         setPostal(e.target.value);
+        setError('');
         type === 'answer' &&
             onChange?.({
                 index,
@@ -155,6 +162,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
             setCity(initValue?.meta?.[2] || '');
             setState(initValue?.meta?.[3] || '');
             setPostal(initValue?.meta?.[4] || '');
+            setRequired(initValue?.required);
         }
     };
 
@@ -183,9 +191,9 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                     placeholder={'Type a title'}
                     disabled={type === 'edit' ? false : true}
                 />
-                {type === 'edit' && (
+                {type !== 'answer' && (
                     <div className={styles.address_require}>
-                        Question required: <Switch checked={required} onChange={onChangeRequired} />
+                        Question required: <Switch value={required} checked={required} onChange={onChangeRequired} />
                     </div>
                 )}
                 <div className={styles.address}>
@@ -244,7 +252,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                         </div>
                         <div className={styles.address_form_right}></div>
                     </div>
-                    <div className={styles.text_error}>Error</div>
+                    {error !== '' && <div className={styles.text_error}>Error</div>}
                 </div>
             </div>
         </div>
