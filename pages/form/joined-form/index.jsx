@@ -125,7 +125,7 @@ const MyForm = () => {
                 })}
             </div>
             <div className={styles.content}>
-                <div className={styles.content_row}>
+                <div className={styles.content_title}>
                     Your joined form
                     {/* <button
                         className={`${styles.content_button} ${aRowSelected.length !== 1 && styles.disabled}`}

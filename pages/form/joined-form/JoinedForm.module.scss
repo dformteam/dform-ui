@@ -90,9 +90,11 @@
     height: 30px;
     font-size: 13px;
     padding: 0 10px;
-    background-color: rgb(237, 242, 255);
-    border: 1px solid rgba(66, 119, 255, 0.53);
-    color: rgb(66, 119, 255);
+    // background-color: rgb(237, 242, 255);
+    // border: 1px solid rgba(66, 119, 255, 0.53);
+    // color: rgb(66, 119, 255);
+    background: var(--color-gradient);
+    color: var(--color-text-button);
 }
 
 .table_button_delete {
@@ -152,4 +154,10 @@
 .filter {
     font-size: 15px;
     margin: 0 0 10px 20px;
+}
+
+.content_title {
+    font-size: 18px;
+    font-weight: 600;
+    padding: 0 16px 16px;
 }
