@@ -467,9 +467,6 @@ const CreateForm = () => {
                 <div className={styles.modal_content}>
                     <img src={'/loading.svg'} alt="error" className={styles.modal_loading_icon} />
                 </div>
-                {/* <div className={styles.modal_content_text}>
-                    Processing: {processing}/{executing} completed.
-                </div> */}
             </>
         );
     };
@@ -519,7 +516,7 @@ const CreateForm = () => {
                             Saved Form
                         </Typography>
                         <div className={styles.line} />
-                        {!isSuccess ? renderModalSaveSuccess() : renderModalSaveError()}
+                        {isSuccess ? renderModalSaveSuccess() : renderModalSaveError()}
                     </Box>
                 </Modal>
 
@@ -729,7 +726,6 @@ const listElement = [
         },
     },
 ];
-
 
 const style = {
     position: 'absolute',

@@ -53,7 +53,7 @@ const LongText = ({ index, onChange, defaultValue, type = '', error }) => {
     };
 
     const onFillValue = () => {
-        if (type === 'analysis') {
+        if (type !== 'edit') {
             setText(initValue?.meta?.[0] || '');
         }
     };
@@ -83,14 +83,16 @@ const LongText = ({ index, onChange, defaultValue, type = '', error }) => {
                     placeholder={'Type a title'}
                     disabled={type === 'edit' ? false : true}
                 />
-                <input
-                    className={styles.long_text_description}
-                    value={first_field}
-                    onChange={onFirstFieldChange}
-                    placeholder={'Type a description'}
-                    disabled={type === 'edit' ? false : true}
-                />
-                {type !== 'answer' && (
+                {(type === 'edit' || first_field !== '') && (
+                    <input
+                        className={styles.long_text_description}
+                        value={first_field}
+                        onChange={onFirstFieldChange}
+                        placeholder={'Type a description'}
+                        disabled={type === 'edit' ? false : true}
+                    />
+                )}
+                {type !== 'answer' && type !== 'analysis' && (
                     <div className={styles.long_text_require}>
                         Question required: <Switch value={required} checked={required} onChange={onChangeRequired} />
                     </div>
