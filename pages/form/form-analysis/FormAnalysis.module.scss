@@ -130,7 +130,7 @@
     text-overflow: ellipsis;
 }
 
-.participant_area:hover>.participant_area_name {
+.participant_area:hover > .participant_area_name {
     text-decoration: underline;
 }
 
@@ -138,4 +138,11 @@
     width: 100%;
     height: 1px;
     background: linear-gradient(to right, transparent, var(--color-border), transparent);
+}
+
+.cStatus {
+    font-size: 17px;
+    color: var(--color-secondary);
+    font-style: italic;
+    margin-top: 40px;
 }
