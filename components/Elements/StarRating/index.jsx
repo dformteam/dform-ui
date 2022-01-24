@@ -9,6 +9,7 @@ const StarRating = ({ index, onChange, defaultValue, type = '' }) => {
         title: ['Type a question'],
         meta: [],
         isRequired: false,
+        error: '',
     };
 
     if (typeof defaultValue !== 'undefined') {
@@ -19,6 +20,7 @@ const StarRating = ({ index, onChange, defaultValue, type = '' }) => {
     const [title, setTitle] = useState(initValue?.title?.[0] || 'Type a question');
     const [active, setActive] = useState(null);
     const [required, setRequired] = useState(initValue.isRequired || false);
+    const [error, setError] = useState(initValue.error);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -33,6 +35,7 @@ const StarRating = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onStarClicked = (starx) => {
         setActive(starx);
+        setError('');
         type === 'answer' &&
             onChange?.({
                 index,
@@ -93,6 +96,7 @@ const StarRating = ({ index, onChange, defaultValue, type = '' }) => {
                         <input className={styles.star_rating_input} placeholder={'Type "Best" text'} />
                     </div>
                 </div>
+                {error !== '' && <div className={styles.text_error}>Error</div>}
             </div>
         </div>
     );

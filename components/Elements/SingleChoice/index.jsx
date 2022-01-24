@@ -12,6 +12,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
         title: ['Type a question'],
         meta: ['Type option 1', 'Type option 2', 'Type option 3', 'Type option 4'],
         isRequired: false,
+        error: '',
     };
 
     if (typeof defaultValue !== 'undefined') {
@@ -20,6 +21,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
     const [title, setTitle] = useState(initValue?.title?.[0] || 'Type a question');
     const [aAnswers, setAnswers] = useState([]);
     const [required, setRequired] = useState(initValue.isRequired || false);
+    const [error, setError] = useState(initValue.error);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -85,7 +87,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
             }
             const choosen = aAnswers?.filter((x) => x.check).map((x) => x.content);
             setAnswers([...aAnswers]);
-
+            setError('');
             onChange?.({
                 index,
                 title: [title],
@@ -173,7 +175,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
                         </div>
                     )}
                 </div>
-                <div className={styles.text_error}>Error</div>
+                {error !== '' && <div className={styles.text_error}>Error</div>}
             </div>
         </div>
     );

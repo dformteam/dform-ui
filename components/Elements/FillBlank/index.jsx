@@ -22,6 +22,7 @@ const FillBlank = ({ index, onChange, defaultValue, type = '' }) => {
 
     const [title, setTitle] = useState(initValue?.title?.[0] || 'Type a question');
     const [required, setRequired] = useState(initValue.isRequired || false);
+    const [error, setError] = useState(initValue.error);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -145,7 +146,7 @@ const FillBlank = ({ index, onChange, defaultValue, type = '' }) => {
                         )}
                     </div>
                 </div>
-                <div className={styles.text_error}>Error</div>
+                {error !== '' && <div className={styles.text_error}>Error</div>}
             </div>
         </div>
     );

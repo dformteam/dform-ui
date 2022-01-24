@@ -8,6 +8,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
         title: 'Address',
         meta: [],
         isRequired: false,
+        error: '',
     };
 
     if (typeof defaultValue !== 'undefined') {
@@ -26,6 +27,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
     const [state, setState] = useState('');
     const [postal, setPostal] = useState('');
     const [required, setRequired] = useState(initValue.isRequired || false);
+    const [error, setError] = useState(initValue.error);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -95,6 +97,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onStreetChange = (e) => {
         setStreetAddress(e.target.value);
+        setError('');
         type === 'answer' &&
             onChange?.({
                 index,
@@ -106,6 +109,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onStreet2Change = (e) => {
         setStreetLine2(e.target.value);
+        setError('');
         type === 'answer' &&
             onChange?.({
                 index,
@@ -117,6 +121,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onCityChange = (e) => {
         setCity(e.target.value);
+        setError('');
         type === 'answer' &&
             onChange?.({
                 index,
@@ -128,6 +133,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onStateChange = (e) => {
         setState(e.target.value);
+        setError('');
         type === 'answer' &&
             onChange?.({
                 index,
@@ -139,6 +145,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onPostalChange = (e) => {
         setPostal(e.target.value);
+        setError('');
         type === 'answer' &&
             onChange?.({
                 index,
@@ -244,7 +251,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                         </div>
                         <div className={styles.address_form_right}></div>
                     </div>
-                    <div className={styles.text_error}>Error</div>
+                    {error !== '' && <div className={styles.text_error}>Error</div>}
                 </div>
             </div>
         </div>

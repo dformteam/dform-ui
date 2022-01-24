@@ -17,6 +17,7 @@ const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
     const [first_field, setFirstField] = useState(initValue?.title?.[1] || 'Please pick a date.');
     const [date, setDate] = useState('');
     const [required, setRequired] = useState(initValue.isRequired || false);
+    const [error, setError] = useState(initValue.error);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -42,6 +43,7 @@ const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onDateChange = (e) => {
         setDate(e.target.value);
+        setError('');
         type === 'answer' &&
             onChange?.({
                 index,
@@ -104,7 +106,7 @@ const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
                             value={date}
                             onChange={onDateChange}
                         />
-                        <div className={styles.text_error}>Error</div>
+                        {error !== '' && <div className={styles.text_error}>Error</div>}
                     </div>
                 </div>
             </div>

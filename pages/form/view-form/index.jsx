@@ -187,6 +187,7 @@ const CreateForm = () => {
                                                 };
                                             }),
                                             isRequire: tmp_data?.isRequired,
+                                            error: '',
                                         },
                                         edited: false,
                                         editable: false,
@@ -234,7 +235,6 @@ const CreateForm = () => {
     const onEditElementClick = (item) => {
         setEditingElement({
             ...item,
-            editable: true,
         });
         setModalEdit(true);
     };
@@ -244,6 +244,37 @@ const CreateForm = () => {
     };
 
     const onAcceptUnPublishForm = () => {
+        const { contract } = wallet;
+        setOpenConfirmUnpublish(false);
+        setOpenLoading(true);
+
+        return contract
+            .unpublish_form({
+                formId: query.id,
+            })
+            .then((res) => {
+                if (res) {
+                    onShowResult({
+                        type: 'success',
+                        msg: 'Unpublish form successfully',
+                    });
+                    onGetFormDetail();
+                } else {
+                    onShowResult({
+                        type: 'error',
+                        msg: 'Something went wrong, please try again!',
+                    });
+                }
+            })
+            .catch((err) => {
+                onShowResult({
+                    type: 'error',
+                    msg: String(err),
+                });
+            });
+    };
+
+    const onSaveQuestionChange = () => {
         const { contract } = wallet;
         setOpenConfirmUnpublish(false);
         setOpenLoading(true);
@@ -372,46 +403,47 @@ const CreateForm = () => {
     };
 
     const onAcceptDeleteElement = () => {
-        const { contract } = wallet;
-        const { bId } = currentElement;
-        setOpenConfirmation(false);
-        setOpenLoading(true);
+        // console.log(object);
+        // const { contract } = wallet;
+        // const { bId } = currentElement;
+        // setOpenConfirmation(false);
+        // setOpenLoading(true);
 
-        return contract
-            .delete_element({
-                formId: query.id,
-                id: bId,
-            })
-            .then((res) => {
-                if (res) {
-                    onGetMaxElement();
-                    onShowResult({
-                        type: 'success',
-                        msg: 'Delete element successfully',
-                    });
-                } else {
-                    onShowResult({
-                        type: 'error',
-                        msg: 'Something went wrong, please try again!',
-                    });
-                }
-            })
-            .catch((err) => {
-                onShowResult({
-                    type: 'error',
-                    msg: String(err),
-                });
-            });
+        // return contract
+        //     .delete_element({
+        //         formId: query.id,
+        //         id: bId,
+        //     })
+        //     .then((res) => {
+        //         if (res) {
+        //             onGetMaxElement();
+        //             onShowResult({
+        //                 type: 'success',
+        //                 msg: 'Delete element successfully',
+        //             });
+        //         } else {
+        //             onShowResult({
+        //                 type: 'error',
+        //                 msg: 'Something went wrong, please try again!',
+        //             });
+        //         }
+        //     })
+        //     .catch((err) => {
+        //         onShowResult({
+        //             type: 'error',
+        //             msg: String(err),
+        //         });
+        //     });
     };
 
     const onDenyDeleteElement = () => {
         setOpenConfirmation(false);
     };
 
-    const renderElement = (el, index) => {
+    const renderElement = (el, index, edit) => {
         const { type, id, defaultValue } = el;
 
-        const editableType = 'view';
+        const editableType = edit ? 'edit' : 'view';
 
         switch (id) {
             case 'header':
@@ -573,12 +605,14 @@ const CreateForm = () => {
                             <div className={styles.modal_preview_close} onClick={onCloseModalEdit}>
                                 <CloseIcon />
                             </div>
-                            <div className={styles.element_content}>{renderElement(editingElement)}</div>
+                            <div className={styles.element_content}>{renderElement(editingElement, 0, true)}</div>
                             <div className={styles.modal_edit_row}>
                                 <button className={styles.modal_edit_button} onClick={onCloseModalEdit}>
                                     Cancel
                                 </button>
-                                <button className={styles.modal_edit_button_save}>Save</button>
+                                <button className={styles.modal_edit_button_save} onClick={onSaveQuestionChange}>
+                                    Save
+                                </button>
                             </div>
                         </div>
                     </Box>
@@ -601,6 +635,7 @@ const listElement = [
             title: [],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -613,6 +648,7 @@ const listElement = [
             title: ['Name', 'First Name', 'Last Name'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -625,6 +661,7 @@ const listElement = [
             title: ['Email', 'Email.'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -637,6 +674,7 @@ const listElement = [
             title: ['Address', 'Street Address', 'Street Address Line 2', 'City', 'State / Province', 'Postal / Zip Code'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -649,6 +687,7 @@ const listElement = [
             title: ['Phone Number', 'Please enter a valid phone number.'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -661,6 +700,7 @@ const listElement = [
             title: ['Date Picker', 'Please pick a date.'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -673,6 +713,7 @@ const listElement = [
             title: ['Type a question'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -685,6 +726,7 @@ const listElement = [
             title: ['Type a question'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -697,6 +739,7 @@ const listElement = [
             title: ['Type a question'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -709,6 +752,7 @@ const listElement = [
             title: ['Type a question'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -721,6 +765,7 @@ const listElement = [
             title: ['Type a question'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -733,6 +778,7 @@ const listElement = [
             title: ['Type a question'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -745,6 +791,7 @@ const listElement = [
             title: ['Type a question'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
 ];

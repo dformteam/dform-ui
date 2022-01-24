@@ -15,6 +15,7 @@ const LongText = ({ index, onChange, defaultValue, type = '' }) => {
     const [title, setTitle] = useState(initValue?.title?.[0] || 'Type a question');
     const [text, setText] = useState('');
     const [required, setRequired] = useState(initValue.isRequired || false);
+    const [error, setError] = useState(initValue.error);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -29,6 +30,7 @@ const LongText = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onTextChange = (e) => {
         setText(e.target.value);
+        setError('');
         type === 'answer' &&
             onChange?.({
                 index,
@@ -78,7 +80,7 @@ const LongText = ({ index, onChange, defaultValue, type = '' }) => {
                 <div className={styles.long_text}>
                     <div className={styles.long_text_form}>
                         <textarea className={styles.long_text_input} disabled={type === 'answer' ? false : true} value={text} onChange={onTextChange} />
-                        <div className={styles.text_error}>Error</div>
+                        {error !== '' && <div className={styles.text_error}>Error</div>}
                     </div>
                 </div>
             </div>

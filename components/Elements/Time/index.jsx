@@ -8,6 +8,7 @@ const Time = ({ index, onChange, defaultValue, type = '' }) => {
         title: ['Type a question'],
         meta: [],
         isRequired: false,
+        error: '',
     };
 
     if (typeof defaultValue !== 'undefined') {
@@ -16,6 +17,7 @@ const Time = ({ index, onChange, defaultValue, type = '' }) => {
     const [title, setTitle] = useState(initValue?.title?.[0] || 'Type a question');
     const [time, setTime] = useState('');
     const [required, setRequired] = useState(initValue.isRequired || false);
+    const [error, setError] = useState(initValue.error);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -29,7 +31,7 @@ const Time = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onTimeChange = (e) => {
         setTime(e.target.value);
-        onChange?.();
+        setError('');
         type === 'answer' &&
             onChange?.({
                 index,
@@ -75,6 +77,7 @@ const Time = ({ index, onChange, defaultValue, type = '' }) => {
                         <input className={styles.time_input} type={'time'} disabled={type === 'answer' ? false : true} value={time} onChange={onTimeChange} />
                     </div>
                 </div>
+                {error !== '' && <div className={styles.text_error}>Error</div>}
             </div>
         </div>
     );

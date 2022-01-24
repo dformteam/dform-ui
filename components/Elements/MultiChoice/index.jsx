@@ -11,6 +11,7 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
         title: ['Type a question'],
         meta: ['Type option 1', 'Type option 2', 'Type option 3', 'Type option 4'],
         isRequired: false,
+        error: '',
     };
 
     if (typeof defaultValue !== 'undefined') {
@@ -20,6 +21,7 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
     const [title, setTitle] = useState(initValue?.title?.[0] || 'Type a question');
     const [aAnswers, setAnswers] = useState(initValue?.meta);
     const [required, setRequired] = useState(initValue.isRequired || false);
+    const [error, setError] = useState(initValue.error);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -84,6 +86,21 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
             });
     };
 
+    const onOptionClick = (item, indexx) => {
+        if (type === 'answer') {
+            aAnswers[indexx].check = !aAnswers?.[indexx].check;
+            const choosen = aAnswers?.filter((x) => x.check).map((x) => x.content);
+            setAnswers([...aAnswers]);
+            setError('');
+            onChange?.({
+                index,
+                title: [title],
+                meta: [...choosen],
+                isRequired: required,
+            });
+        }
+    };
+
     return (
         <div className={styles.root_multi_choice}>
             <div className={styles.multi_choice_content}>
@@ -103,7 +120,11 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
                 <div className={styles.multi_choice}>
                     {aAnswers?.map?.((item, indexx) => {
                         return (
-                            <div className={indexx % 2 === 0 ? styles.multi_choice_form_left : styles.multi_choice_form_right} key={indexx}>
+                            <div
+                                className={indexx % 2 === 0 ? styles.multi_choice_form_left : styles.multi_choice_form_right}
+                                key={indexx}
+                                onClick={() => onOptionClick(item, indexx)}
+                            >
                                 {item.check ? (
                                     <CheckBoxOutlinedIcon className={indexx % 2 === 0 ? styles.multi_choice_checked_left : styles.multi_choice_checked_right} />
                                 ) : (
@@ -134,7 +155,7 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
                         </div>
                     )}
                 </div>
-                <div className={styles.text_error}>Error</div>
+                {error !== '' && <div className={styles.text_error}>Error</div>}
             </div>
         </div>
     );

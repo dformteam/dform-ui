@@ -8,6 +8,7 @@ const Email = ({ index, onChange, defaultValue, type = '' }) => {
         title: ['Email', 'We collect your email to bla bla bla...', 'Email.'],
         meta: [],
         isRequired: false,
+        error: '',
     };
 
     if (typeof defaultValue !== 'undefined') {
@@ -19,6 +20,7 @@ const Email = ({ index, onChange, defaultValue, type = '' }) => {
     const [second_field, setSecondField] = useState(initValue?.title?.[2] || 'Email');
     const [email, setEmail] = useState('');
     const [required, setRequired] = useState(initValue.isRequired || false);
+    const [error, setError] = useState(initValue.error);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -55,6 +57,7 @@ const Email = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onEmailChange = (e) => {
         setEmail(e.target.value);
+        setError('');
         type === 'answer' &&
             onChange?.({
                 index,
@@ -126,7 +129,7 @@ const Email = ({ index, onChange, defaultValue, type = '' }) => {
                             value={email}
                             onChange={onEmailChange}
                         />
-                        <div className={styles.text_error}>Error</div>
+                        {error !== '' && <div className={styles.text_error}>Error</div>}
                     </div>
                 </div>
             </div>

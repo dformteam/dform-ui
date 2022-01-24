@@ -183,6 +183,7 @@ const CreateForm = () => {
                                             title: form_data?.title,
                                             meta: form_data?.meta,
                                             isRequire: form_data?.isRequired,
+                                            error: '',
                                         },
                                     };
                                 });
@@ -550,6 +551,7 @@ const listElement = [
             title: [],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -562,6 +564,7 @@ const listElement = [
             title: ['Name', 'First Name', 'Last Name'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -574,6 +577,7 @@ const listElement = [
             title: ['Email', 'Email.'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -586,6 +590,7 @@ const listElement = [
             title: ['Address', 'Street Address', 'Street Address Line 2', 'City', 'State / Province', 'Postal / Zip Code'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -598,6 +603,7 @@ const listElement = [
             title: ['Phone Number', 'Please enter a valid phone number.'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -610,6 +616,7 @@ const listElement = [
             title: ['Date Picker', 'Please pick a date.'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     // {
@@ -634,6 +641,7 @@ const listElement = [
             title: ['Type a question'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -646,6 +654,7 @@ const listElement = [
             title: ['Type a question'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -658,6 +667,7 @@ const listElement = [
             title: ['Type a question'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -670,6 +680,7 @@ const listElement = [
             title: ['Type a question'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -682,6 +693,7 @@ const listElement = [
             title: ['Type a question'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -694,6 +706,7 @@ const listElement = [
             title: ['Type a question'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
 ];

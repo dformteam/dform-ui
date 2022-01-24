@@ -8,6 +8,7 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
         title: ['Name', 'First Name', 'Last Name'],
         meta: [],
         isRequired: false,
+        error: '',
     };
 
     if (typeof defaultValue !== 'undefined') {
@@ -20,6 +21,7 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
     const [first_name, setFirstName] = useState('');
     const [last_name, setLastName] = useState('');
     const [required, setRequired] = useState(initValue.isRequired || false);
+    const [error, setError] = useState(initValue.error);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -56,6 +58,7 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onFirsNameChange = (e) => {
         setFirstName(e.target.value);
+        setError('');
         type === 'answer' &&
             onChange?.({
                 index,
@@ -67,6 +70,7 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onLastNameChange = (e) => {
         setLastName(e.target.value);
+        setError('');
         type === 'answer' &&
             onChange?.({
                 index,
@@ -136,7 +140,7 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
                         <input className={styles.full_name_input} disabled={type === 'answer' ? false : true} value={last_name} onChange={onLastNameChange} />
                     </div>
                 </div>
-                <div className={styles.text_error}>Error</div>
+                {error !== '' && <div className={styles.text_error}>Error</div>}
             </div>
         </div>
     );
