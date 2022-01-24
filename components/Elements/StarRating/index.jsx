@@ -6,7 +6,7 @@ import { Switch } from '@mui/material';
 
 const StarRating = ({ index, onChange, defaultValue, type = '' }) => {
     let initValue = {
-        title: ['Type a question'],
+        title: ['Type a question', 'Type your description'],
         meta: [],
         isRequired: false,
         error: '',
@@ -18,6 +18,7 @@ const StarRating = ({ index, onChange, defaultValue, type = '' }) => {
 
     const star = [1, 2, 3, 4, 5];
     const [title, setTitle] = useState(initValue?.title?.[0] || 'Type a question');
+    const [first_field, setFirstField] = useState(initValue?.title?.[1] || 'Type your description.');
     const [active, setActive] = useState(null);
     const [required, setRequired] = useState(initValue.isRequired || false);
     const [error, setError] = useState(initValue.error);
@@ -27,19 +28,29 @@ const StarRating = ({ index, onChange, defaultValue, type = '' }) => {
         type === 'edit' &&
             onChange?.({
                 index,
-                title: [e.target.value],
+                title: [e.target.value, first_field],
                 meta: [],
                 isRequired: required,
             });
     };
 
+    const onFirstFieldChange = (e) => {
+        setFirstField(e.target.value);
+        type === 'edit' &&
+            onChange?.({
+                index,
+                title: [title, e.target.value],
+                meta: [],
+                isRequired: required,
+            });
+    };
     const onStarClicked = (starx) => {
         setActive(starx);
         setError('');
         type === 'answer' &&
             onChange?.({
                 index,
-                title: [title],
+                title: [title, first_field],
                 meta: [starx],
                 isRequired: required,
             });
@@ -60,7 +71,7 @@ const StarRating = ({ index, onChange, defaultValue, type = '' }) => {
         type === 'edit' &&
             onChange?.({
                 index,
-                title: [title],
+                title: [title, first_field],
                 meta: [],
                 isRequired: e.target.checked,
             });
@@ -69,11 +80,23 @@ const StarRating = ({ index, onChange, defaultValue, type = '' }) => {
     return (
         <div className={styles.root_star_rating}>
             <div className={styles.star_rating_content}>
-                <input className={styles.star_rating_title} value={title} onChange={onTitleChange} placeholder={'Type a title'} />
-                <input className={styles.star_rating_description} placeholder={'Type a description'} />
-                {type === 'edit' && (
+                <input
+                    className={styles.star_rating_title}
+                    value={title}
+                    onChange={onTitleChange}
+                    placeholder={'Type a title'}
+                    disabled={type === 'answer' ? false : true}
+                />
+                <input
+                    className={styles.star_rating_description}
+                    value={first_field}
+                    onChange={onFirstFieldChange}
+                    placeholder={'Type a description'}
+                    disabled={type === 'answer' ? false : true}
+                />
+                {type !== 'answer' && (
                     <div className={styles.rating_choicerequire}>
-                        Question required: <Switch checked={required} onChange={onChangeRequired} />
+                        Question required: <Switch value={required} checked={required} onChange={onChangeRequired} />
                     </div>
                 )}
                 <div className={styles.star_rating}>

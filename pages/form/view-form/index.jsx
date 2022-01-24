@@ -1,19 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from 'react';
 import styles from './ViewForm.module.scss';
-import TitleOutlinedIcon from '@mui/icons-material/TitleOutlined';
-import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
-import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
-import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
-import LocalPhoneOutlinedIcon from '@mui/icons-material/LocalPhoneOutlined';
-import DateRangeOutlinedIcon from '@mui/icons-material/DateRangeOutlined';
-import FormatSizeOutlinedIcon from '@mui/icons-material/FormatSizeOutlined';
 import ShortTextOutlinedIcon from '@mui/icons-material/ShortTextOutlined';
-import ChromeReaderModeOutlinedIcon from '@mui/icons-material/ChromeReaderModeOutlined';
-import AdjustOutlinedIcon from '@mui/icons-material/AdjustOutlined';
-import CheckBoxOutlinedIcon from '@mui/icons-material/CheckBoxOutlined';
-import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
-import StarOutlineOutlinedIcon from '@mui/icons-material/StarOutlineOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
 import PublishIcon from '@mui/icons-material/Publish';
@@ -186,7 +174,7 @@ const CreateForm = () => {
                                                     checked: false,
                                                 };
                                             }),
-                                            isRequire: tmp_data?.isRequired,
+                                            isRequired: tmp_data?.isRequired,
                                             error: '',
                                         },
                                         edited: false,
@@ -275,19 +263,28 @@ const CreateForm = () => {
     };
 
     const onSaveQuestionChange = () => {
-        const { contract } = wallet;
-        setOpenConfirmUnpublish(false);
+        setModalEdit(false);
         setOpenLoading(true);
 
+        const { contract } = wallet;
+
+        const { id } = query;
+        const { defaultValue } = editingElement;
+
         return contract
-            .unpublish_form({
-                formId: query.id,
+            .update_element({
+                formId: id,
+                id: editingElement.bId,
+                title: defaultValue.title,
+                meta: defaultValue.meta,
+                isRequired: defaultValue.isRequired,
             })
             .then((res) => {
                 if (res) {
+                    onGetMaxElement();
                     onShowResult({
                         type: 'success',
-                        msg: 'Unpublish form successfully',
+                        msg: 'Update question successfully',
                     });
                     onGetFormDetail();
                 } else {
@@ -389,51 +386,59 @@ const CreateForm = () => {
     };
 
     const onElementChanged = ({ index, title, meta, isRequired }) => {
-        elements[index] = {
-            ...elements[index],
+        // elements[index] = {
+        //     ...elements[index],
+        //     defaultValue: {
+        //         title,
+        //         meta,
+        //         isRequired,
+        //     },
+        //     edited: true,
+        // };
+
+        const editElement = {
+            ...editingElement,
             defaultValue: {
                 title,
                 meta,
                 isRequired,
             },
-            edited: true,
         };
 
-        setElements([...elements]);
+        setEditingElement({ ...editElement });
     };
 
     const onAcceptDeleteElement = () => {
-        // console.log(object);
-        // const { contract } = wallet;
-        // const { bId } = currentElement;
-        // setOpenConfirmation(false);
-        // setOpenLoading(true);
+        const { contract } = wallet;
+        const { bId } = currentElement;
+        setOpenConfirmation(false);
+        setOpenLoading(true);
 
-        // return contract
-        //     .delete_element({
-        //         formId: query.id,
-        //         id: bId,
-        //     })
-        //     .then((res) => {
-        //         if (res) {
-        //             onGetMaxElement();
-        //             onShowResult({
-        //                 type: 'success',
-        //                 msg: 'Delete element successfully',
-        //             });
-        //         } else {
-        //             onShowResult({
-        //                 type: 'error',
-        //                 msg: 'Something went wrong, please try again!',
-        //             });
-        //         }
-        //     })
-        //     .catch((err) => {
-        //         onShowResult({
-        //             type: 'error',
-        //             msg: String(err),
-        //         });
-        //     });
+        return contract
+            .delete_element({
+                formId: query.id,
+                id: bId,
+            })
+            .then((res) => {
+                if (res) {
+                    onGetMaxElement();
+                    onShowResult({
+                        type: 'success',
+                        msg: 'Delete element successfully',
+                    });
+                } else {
+                    onShowResult({
+                        type: 'error',
+                        msg: 'Something went wrong, please try again!',
+                    });
+                }
+            })
+            .catch((err) => {
+                onShowResult({
+                    type: 'error',
+                    msg: String(err),
+                });
+            });
     };
 
     const onDenyDeleteElement = () => {
@@ -630,7 +635,6 @@ const listElement = [
         id: 'header',
         type: 0,
         label: 'Header',
-        icon: TitleOutlinedIcon,
         defaultValue: {
             title: [],
             meta: [],
@@ -643,9 +647,8 @@ const listElement = [
         id: 'fullName',
         type: 1,
         label: 'Full Name',
-        icon: AccountCircleOutlinedIcon,
         defaultValue: {
-            title: ['Name', 'First Name', 'Last Name'],
+            title: ['Name', 'Type your description', 'First Name', 'Last Name'],
             meta: [],
             isRequired: false,
             error: '',
@@ -656,9 +659,8 @@ const listElement = [
         id: 'email',
         type: 2,
         label: 'Email',
-        icon: EmailOutlinedIcon,
         defaultValue: {
-            title: ['Email', 'Email.'],
+            title: ['Email', 'Type your description', 'Email.'],
             meta: [],
             isRequired: false,
             error: '',
@@ -669,9 +671,8 @@ const listElement = [
         id: 'address',
         type: 3,
         label: 'Address',
-        icon: LocationOnOutlinedIcon,
         defaultValue: {
-            title: ['Address', 'Street Address', 'Street Address Line 2', 'City', 'State / Province', 'Postal / Zip Code'],
+            title: ['Address', 'Type your description', 'Street Address', 'Street Address Line 2', 'City', 'State / Province', 'Postal / Zip Code'],
             meta: [],
             isRequired: false,
             error: '',
@@ -682,9 +683,8 @@ const listElement = [
         id: 'phone',
         type: 4,
         label: 'Phone',
-        icon: LocalPhoneOutlinedIcon,
         defaultValue: {
-            title: ['Phone Number', 'Please enter a valid phone number.'],
+            title: ['Phone Number', 'Type your description', 'Please enter a valid phone number.'],
             meta: [],
             isRequired: false,
             error: '',
@@ -695,35 +695,32 @@ const listElement = [
         id: 'datePicker',
         type: 5,
         label: 'Date Picker',
-        icon: DateRangeOutlinedIcon,
         defaultValue: {
-            title: ['Date Picker', 'Please pick a date.'],
+            title: ['Date Picker', 'Type your description', 'Please pick a date.'],
             meta: [],
             isRequired: false,
             error: '',
         },
     },
-    {
-        bId: '',
-        id: 'fillBlank',
-        type: 6,
-        label: 'Fill in the Blank',
-        icon: FormatSizeOutlinedIcon,
-        defaultValue: {
-            title: ['Type a question'],
-            meta: [],
-            isRequired: false,
-            error: '',
-        },
-    },
+    // {
+    //     bId: '',
+    //     id: 'fillBlank',
+    //     type: 6,
+    //     label: 'Fill in the Blank',
+    //     icon: FormatSizeOutlinedIcon,
+    //     defaultValue: {
+    //         title: ['Type a question'],
+    //         meta: [],
+    //         isRequired: false,
+    //     },
+    // },
     {
         bId: '',
         id: 'shortText',
         type: 7,
         label: 'Shot Text',
-        icon: ShortTextOutlinedIcon,
         defaultValue: {
-            title: ['Type a question'],
+            title: ['Type a question', 'Type your description'],
             meta: [],
             isRequired: false,
             error: '',
@@ -734,9 +731,8 @@ const listElement = [
         id: 'longText',
         type: 8,
         label: 'Long text',
-        icon: ChromeReaderModeOutlinedIcon,
         defaultValue: {
-            title: ['Type a question'],
+            title: ['Type a question', 'Type your description'],
             meta: [],
             isRequired: false,
             error: '',
@@ -747,9 +743,8 @@ const listElement = [
         id: 'singleChoice',
         type: 9,
         label: 'Single Choice',
-        icon: AdjustOutlinedIcon,
         defaultValue: {
-            title: ['Type a question'],
+            title: ['Type a question', 'Type your description'],
             meta: [],
             isRequired: false,
             error: '',
@@ -760,9 +755,8 @@ const listElement = [
         id: 'multiChoice',
         type: 10,
         label: 'Multi Choice',
-        icon: CheckBoxOutlinedIcon,
         defaultValue: {
-            title: ['Type a question'],
+            title: ['Type a question', 'Type your description'],
             meta: [],
             isRequired: false,
             error: '',
@@ -773,9 +767,8 @@ const listElement = [
         id: 'time',
         type: 11,
         label: 'Time',
-        icon: AccessTimeOutlinedIcon,
         defaultValue: {
-            title: ['Type a question'],
+            title: ['Type a question', 'Type your description'],
             meta: [],
             isRequired: false,
             error: '',
@@ -786,9 +779,8 @@ const listElement = [
         id: 'rating',
         type: 12,
         label: 'Rating',
-        icon: StarOutlineOutlinedIcon,
         defaultValue: {
-            title: ['Type a question'],
+            title: ['Type a question', 'Type your description'],
             meta: [],
             isRequired: false,
             error: '',

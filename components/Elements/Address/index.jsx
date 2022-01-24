@@ -5,7 +5,7 @@ import Switch from '@mui/material/Switch';
 
 const Address = ({ index, onChange, defaultValue, type = '' }) => {
     let initValue = {
-        title: 'Address',
+        title: ['Address', 'Street Address', 'Street Address Line 2', 'City', 'State / Province', 'Postal / Zip Code'],
         meta: [],
         isRequired: false,
         error: '',
@@ -162,6 +162,7 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
             setCity(initValue?.meta?.[2] || '');
             setState(initValue?.meta?.[3] || '');
             setPostal(initValue?.meta?.[4] || '');
+            setRequired(initValue?.required);
         }
     };
 
@@ -190,9 +191,9 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
                     placeholder={'Type a title'}
                     disabled={type === 'edit' ? false : true}
                 />
-                {type === 'edit' && (
+                {type !== 'answer' && (
                     <div className={styles.address_require}>
-                        Question required: <Switch checked={required} onChange={onChangeRequired} />
+                        Question required: <Switch value={required} checked={required} onChange={onChangeRequired} />
                     </div>
                 )}
                 <div className={styles.address}>

@@ -22,7 +22,7 @@ const FillBlank = ({ index, onChange, defaultValue, type = '' }) => {
 
     const [title, setTitle] = useState(initValue?.title?.[0] || 'Type a question');
     const [required, setRequired] = useState(initValue.isRequired || false);
-    const [error, setError] = useState(initValue.error);
+    const [error] = useState(initValue.error);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -122,7 +122,7 @@ const FillBlank = ({ index, onChange, defaultValue, type = '' }) => {
                 <input className={styles.fill_blank_description} placeholder={'Type a description'} disabled={type === 'edit' ? false : true} />
                 {type === 'edit' && (
                     <div className={styles.fill_blank_require}>
-                        Question required: <Switch checked={required} onChange={onChangeRequired} />
+                        Question required: <Switch value={required} checked={required} onChange={onChangeRequired} />
                     </div>
                 )}
                 <div className={styles.fill_blank}>

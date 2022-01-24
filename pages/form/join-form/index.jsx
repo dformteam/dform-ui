@@ -90,7 +90,6 @@ const JoinForm = () => {
                 formId: id,
             })
             .then((res) => {
-                console.log(res);
                 if (res && res.joined) {
                     router.push(`/form/form-answer?id=${id}`);
                 }
@@ -115,7 +114,6 @@ const JoinForm = () => {
                     100000000000000,
                 )
                 .then((res) => {
-                    console.log(res);
                     if (res) {
                         router.push(`/form/form-answer?id=${id}`);
                     } else {

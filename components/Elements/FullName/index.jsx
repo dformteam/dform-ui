@@ -5,7 +5,7 @@ import Switch from '@mui/material/Switch';
 
 const FullName = ({ index, onChange, defaultValue, type = '' }) => {
     let initValue = {
-        title: ['Name', 'First Name', 'Last Name'],
+        title: ['Name', 'Type your description', 'First Name', 'Last Name'],
         meta: [],
         isRequired: false,
         error: '',
@@ -16,8 +16,9 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
     }
 
     const [title, setTitle] = useState(initValue?.title?.[0] || 'Name');
-    const [first_field, setFirstField] = useState(initValue?.title?.[1] || 'First Name');
-    const [second_field, setSecondField] = useState(initValue?.title?.[2] || 'Last Name');
+    const [first_field, setFirstField] = useState(initValue?.title?.[1] || 'Type your description');
+    const [second_field, setSecondField] = useState(initValue?.title?.[2] || 'First Name');
+    const [third_field, setThirdField] = useState(initValue?.title?.[3] || 'Last Name');
     const [first_name, setFirstName] = useState('');
     const [last_name, setLastName] = useState('');
     const [required, setRequired] = useState(initValue.isRequired || false);
@@ -28,7 +29,7 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
         type === 'edit' &&
             onChange?.({
                 index,
-                title: [e.target.value, first_field, second_field],
+                title: [e.target.value, first_field, second_field, third_field],
                 meta: [],
                 isRequired: required,
             });
@@ -39,7 +40,7 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
         type === 'edit' &&
             onChange?.({
                 index,
-                title: [title, e.target.value, second_field],
+                title: [title, e.target.value, second_field, third_field],
                 meta: [],
                 isRequired: required,
             });
@@ -50,7 +51,18 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
         type === 'edit' &&
             onChange?.({
                 index,
-                title: [title, first_field, e.target.value],
+                title: [title, first_field, e.target.value, third_field],
+                meta: [],
+                isRequired: required,
+            });
+    };
+
+    const onThirdFieldChange = (e) => {
+        setThirdField(e.target.value);
+        type === 'edit' &&
+            onChange?.({
+                index,
+                title: [title, first_field, second_field, e.target.value],
                 meta: [],
                 isRequired: required,
             });
@@ -62,7 +74,7 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
         type === 'answer' &&
             onChange?.({
                 index,
-                title: [title, first_field, second_field],
+                title: [title, first_field, second_field, third_field],
                 meta: [e.target.value, last_name],
                 isRequired: required,
             });
@@ -74,7 +86,7 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
         type === 'answer' &&
             onChange?.({
                 index,
-                title: [title, first_field, second_field],
+                title: [title, first_field, second_field, third_field],
                 meta: [first_name, e.target.value],
                 isRequired: required,
             });
@@ -84,6 +96,7 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
         if (type === 'answer') {
             setFirstName(initValue?.meta?.[0] || '');
             setLastName(initValue?.meta?.[0] || '');
+            setRequired(initValue?.required);
         }
     };
 
@@ -112,18 +125,24 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
                     placeholder={'Type a title'}
                     disabled={type === 'edit' ? false : true}
                 />
-                <input className={styles.full_name_description} placeholder={'Type a description'} disabled={type === 'edit' ? false : true} />
-                {type === 'edit' && (
+                <input
+                    className={styles.full_name_description}
+                    value={first_field}
+                    placeholder={'Type a description'}
+                    onChange={onFirstFieldChange}
+                    disabled={type === 'edit' ? false : true}
+                />
+                {type !== 'answer' && (
                     <div className={styles.full_name_require}>
-                        Question required: <Switch checked={required} onChange={onChangeRequired} />
+                        Question required: <Switch value={required} checked={required} onChange={onChangeRequired} />
                     </div>
                 )}
                 <div className={styles.full_name_form}>
                     <div className={styles.full_name_form_left}>
                         <input
                             className={styles.full_name_label}
-                            value={first_field}
-                            onChange={onFirstFieldChange}
+                            value={second_field}
+                            onChange={onSecondFieldChange}
                             placeholder={'Type a field'}
                             disabled={type === 'edit' ? false : true}
                         />
@@ -132,8 +151,8 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
                     <div className={styles.full_name_form_right}>
                         <input
                             className={styles.full_name_label}
-                            value={second_field}
-                            onChange={onSecondFieldChange}
+                            value={third_field}
+                            onChange={onThirdFieldChange}
                             placeholder={'Type a field'}
                             disabled={type === 'edit' ? false : true}
                         />

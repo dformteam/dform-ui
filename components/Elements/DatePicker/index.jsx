@@ -5,8 +5,9 @@ import Switch from '@mui/material/Switch';
 
 const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
     let initValue = {
-        title: ['Date Picker', 'Please pick a date.'],
+        title: ['Date Picker', 'Type your description', 'Please pick a date.'],
         meta: [],
+        isRequired: false,
     };
 
     if (typeof defaultValue !== 'undefined') {
@@ -14,7 +15,8 @@ const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
     }
 
     const [title, setTitle] = useState(initValue?.title?.[0] || 'Date Picker');
-    const [first_field, setFirstField] = useState(initValue?.title?.[1] || 'Please pick a date.');
+    const [first_field, setFirstField] = useState(initValue?.title?.[1] || 'Type your description');
+    const [second_field, setSecondField] = useState(initValue?.title?.[2] || 'Please pick a date.');
     const [date, setDate] = useState('');
     const [required, setRequired] = useState(initValue.isRequired || false);
     const [error, setError] = useState(initValue.error);
@@ -24,7 +26,7 @@ const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
         type === 'edit' &&
             onChange?.({
                 index,
-                title: [e.target.value, first_field],
+                title: [e.target.value, first_field, second_field],
                 meta: [],
                 isRequired: required,
             });
@@ -35,7 +37,18 @@ const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
         type === 'edit' &&
             onChange?.({
                 index,
-                title: [title, e.target.value],
+                title: [title, e.target.value, second_field],
+                meta: [],
+                isRequired: required,
+            });
+    };
+
+    const onSecondFieldChange = (e) => {
+        setSecondField(e.target.value);
+        type === 'edit' &&
+            onChange?.({
+                index,
+                title: [title, first_field, second_field],
                 meta: [],
                 isRequired: required,
             });
@@ -47,7 +60,7 @@ const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
         type === 'answer' &&
             onChange?.({
                 index,
-                title: [title, first_field],
+                title: [title, first_field, second_field],
                 meta: [e.target.value],
                 isRequired: required,
             });
@@ -56,6 +69,7 @@ const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
     const onFillValue = () => {
         if (type === 'analysis') {
             setDate(initValue?.meta?.[0] || '');
+            setRequired(initValue?.required);
         }
     };
 
@@ -84,18 +98,24 @@ const DatePicker = ({ index, onChange, defaultValue, type = '' }) => {
                     placeholder={'Type a title'}
                     disabled={type === 'edit' ? false : true}
                 />
-                <input className={styles.date_picker_description} placeholder={'Type a description'} disabled={type === 'edit' ? false : true} />
-                {type === 'edit' && (
+                <input
+                    className={styles.date_picker_description}
+                    value={first_field}
+                    placeholder={'Type a description'}
+                    onChange={onFirstFieldChange}
+                    disabled={type === 'edit' ? false : true}
+                />
+                {type !== 'answer' && (
                     <div className={styles.date_picker_require}>
-                        Question required: <Switch checked={required} onChange={onChangeRequired} />
+                        Question required: <Switch value={required} checked={required} onChange={onChangeRequired} />
                     </div>
                 )}
                 <div className={styles.date_picker}>
                     <div className={styles.date_picker_form}>
                         <input
                             className={styles.date_picker_label}
-                            value={first_field}
-                            onChange={onFirstFieldChange}
+                            value={second_field}
+                            onChange={onSecondFieldChange}
                             placeholder={'Type a field'}
                             disabled={type === 'edit' ? false : true}
                         />
