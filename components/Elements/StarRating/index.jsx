@@ -54,7 +54,7 @@ const StarRating = ({ index, onChange, defaultValue, type = '', error }) => {
     };
 
     const onFillValue = () => {
-        if (type === 'analysis') {
+        if (type !== 'edit') {
             setActive(initValue?.meta?.[0] || -1);
         }
     };
@@ -84,14 +84,16 @@ const StarRating = ({ index, onChange, defaultValue, type = '', error }) => {
                     placeholder={'Type a title'}
                     disabled={type === 'edit' ? false : true}
                 />
-                <input
-                    className={styles.star_rating_description}
-                    value={first_field}
-                    onChange={onFirstFieldChange}
-                    placeholder={'Type a description'}
-                    disabled={type === 'edit' ? false : true}
-                />
-                {type !== 'answer' && (
+                {(type === 'edit' || first_field !== '') && (
+                    <input
+                        className={styles.star_rating_description}
+                        value={first_field}
+                        onChange={onFirstFieldChange}
+                        placeholder={'Type a description'}
+                        disabled={type === 'edit' ? false : true}
+                    />
+                )}
+                {type !== 'answer' && type !== 'analysis' && (
                     <div className={styles.rating_choicerequire}>
                         Question required: <Switch value={required} checked={required} onChange={onChangeRequired} />
                     </div>

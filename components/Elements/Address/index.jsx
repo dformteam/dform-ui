@@ -155,7 +155,7 @@ const Address = ({ index, onChange, defaultValue, type = '', error }) => {
             setCity(initValue?.meta?.[2] || '');
             setState(initValue?.meta?.[3] || '');
             setPostal(initValue?.meta?.[4] || '');
-            setRequired(initValue?.isRequired);
+            setRequired(initValue?.isRequired || false);
         }
     };
 
@@ -184,8 +184,8 @@ const Address = ({ index, onChange, defaultValue, type = '', error }) => {
                     placeholder={'Type a title'}
                     disabled={type === 'edit' ? false : true}
                 />
-                <span>*</span>
-                {type !== 'answer' && (
+                {/* <span>*</span> */}
+                {type !== 'answer' && type !== 'analysis' && (
                     <div className={styles.address_require}>
                         Question required: <Switch value={required} checked={required} onChange={onChangeRequired} />
                     </div>

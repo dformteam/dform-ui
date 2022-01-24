@@ -52,7 +52,7 @@ const Time = ({ index, onChange, defaultValue, type = '', error }) => {
     };
 
     const onFillValue = () => {
-        if (type === 'analysis') {
+        if (type !== 'edit') {
             setTime(initValue?.meta?.[0] || '');
         }
     };
@@ -82,14 +82,16 @@ const Time = ({ index, onChange, defaultValue, type = '', error }) => {
                     placeholder={'Type a title'}
                     disabled={type === 'edit' ? false : true}
                 />
-                <input
-                    className={styles.time_description}
-                    value={first_field}
-                    onChange={onFirstFieldChange}
-                    placeholder={'Type a description'}
-                    disabled={type === 'edit' ? false : true}
-                />
-                {type !== 'answer' && (
+                {(type === 'edit' || first_field !== '') && (
+                    <input
+                        className={styles.time_description}
+                        value={first_field}
+                        onChange={onFirstFieldChange}
+                        placeholder={'Type a description'}
+                        disabled={type === 'edit' ? false : true}
+                    />
+                )}
+                {type !== 'answer' && type !== 'analysis' && (
                     <div className={styles.timerequire}>
                         Question required: <Switch value={required} checked={required} onChange={onChangeRequired} />
                     </div>
