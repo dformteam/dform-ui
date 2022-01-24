@@ -9,25 +9,39 @@ import Switch from '@mui/material/Switch';
 
 const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
     let initValue = {
-        title: ['Type a question'],
+        title: ['Type a question', 'Type your description'],
         meta: ['Type option 1', 'Type option 2', 'Type option 3', 'Type option 4'],
         isRequired: false,
+        error: '',
     };
 
     if (typeof defaultValue !== 'undefined') {
         initValue = { ...defaultValue };
     }
     const [title, setTitle] = useState(initValue?.title?.[0] || 'Type a question');
+    const [first_field, setFirstField] = useState(initValue?.title?.[1] || 'Type your description.');
     const [aAnswers, setAnswers] = useState([]);
     const [required, setRequired] = useState(initValue.isRequired || false);
+    const [error, setError] = useState(initValue.error);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
         type === 'edit' &&
             onChange?.({
                 index,
-                title: [e.target.value],
-                meta: [...aAnswers],
+                title: [e.target.value, first_field],
+                meta: [],
+                isRequired: required,
+            });
+    };
+
+    const onFirstFieldChange = (e) => {
+        setFirstField(e.target.value);
+        type === 'edit' &&
+            onChange?.({
+                index,
+                title: [title, e.target.value],
+                meta: [],
                 isRequired: required,
             });
     };
@@ -40,7 +54,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
         type === 'edit' &&
             onChange?.({
                 index,
-                title: [value],
+                title: [title, first_field],
                 meta: [...metaAnswer],
                 isRequired: required,
             });
@@ -66,7 +80,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
         type === 'edit' &&
             onChange?.({
                 index,
-                title: [e.target.value],
+                title: [title, first_field],
                 meta: [...metaAnswer],
                 isRequired: required,
             });
@@ -85,10 +99,10 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
             }
             const choosen = aAnswers?.filter((x) => x.check).map((x) => x.content);
             setAnswers([...aAnswers]);
-
+            setError('');
             onChange?.({
                 index,
-                title: [title],
+                title: [title, first_field],
                 meta: [...choosen],
                 isRequired: required,
             });
@@ -127,11 +141,23 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
     return (
         <div className={styles.root_single_choice}>
             <div className={styles.single_choice_content}>
-                <input className={styles.single_choice_title} value={title} onChange={onTitleChange} placeholder={'Type a title'} />
-                <input className={styles.single_choice_description} placeholder={'Type a description'} />
-                {type === 'edit' && (
+                <input
+                    className={styles.single_choice_title}
+                    value={title}
+                    onChange={onTitleChange}
+                    placeholder={'Type a title'}
+                    disabled={type === 'answer' ? false : true}
+                />
+                <input
+                    className={styles.single_choice_description}
+                    value={first_field}
+                    onChange={onFirstFieldChange}
+                    placeholder={'Type a description'}
+                    disabled={type === 'answer' ? false : true}
+                />
+                {type !== 'answer' && (
                     <div className={styles.single_choicerequire}>
-                        Question required: <Switch checked={required} onChange={onChangeRequired} />
+                        Question required: <Switch value={required} checked={required} onChange={onChangeRequired} />
                     </div>
                 )}
                 <div className={styles.single_choice}>
@@ -173,7 +199,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
                         </div>
                     )}
                 </div>
-                <div className={styles.text_error}>Error</div>
+                {error !== '' && <div className={styles.text_error}>Error</div>}
             </div>
         </div>
     );

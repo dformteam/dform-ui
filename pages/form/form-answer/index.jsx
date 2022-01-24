@@ -96,7 +96,6 @@ const FormAnswer = () => {
                     if (content !== '') {
                         return redirectError(content);
                     }
-                    console.log(res);
                     setForm(res);
                     setType(res.type === 0 ? 'basic' : 'card');
                 }
@@ -192,6 +191,7 @@ const FormAnswer = () => {
                                             title: form_data?.title,
                                             meta: form_data?.meta,
                                             isRequire: form_data?.isRequired,
+                                            error: '',
                                         },
                                     };
                                 });
@@ -388,6 +388,7 @@ const listElement = [
             title: [],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -396,9 +397,10 @@ const listElement = [
         type: 1,
         label: 'Full Name',
         defaultValue: {
-            title: ['Name', 'First Name', 'Last Name'],
+            title: ['Name', 'Type your description', 'First Name', 'Last Name'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -407,9 +409,10 @@ const listElement = [
         type: 2,
         label: 'Email',
         defaultValue: {
-            title: ['Email', 'Email.'],
+            title: ['Email', 'Type your description', 'Email.'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -421,6 +424,7 @@ const listElement = [
             title: ['Address', 'Street Address', 'Street Address Line 2', 'City', 'State / Province', 'Postal / Zip Code'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -429,9 +433,10 @@ const listElement = [
         type: 4,
         label: 'Phone',
         defaultValue: {
-            title: ['Phone Number', 'Please enter a valid phone number.'],
+            title: ['Phone Number', 'Type your description', 'Please enter a valid phone number.'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -440,9 +445,10 @@ const listElement = [
         type: 5,
         label: 'Date Picker',
         defaultValue: {
-            title: ['Date Picker', 'Please pick a date.'],
+            title: ['Date Picker', 'Type your description', 'Please pick a date.'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     // {
@@ -450,6 +456,7 @@ const listElement = [
     //     id: 'fillBlank',
     //     type: 6,
     //     label: 'Fill in the Blank',
+    //     icon: FormatSizeOutlinedIcon,
     //     defaultValue: {
     //         title: ['Type a question'],
     //         meta: [],
@@ -462,9 +469,10 @@ const listElement = [
         type: 7,
         label: 'Shot Text',
         defaultValue: {
-            title: ['Type a question'],
+            title: ['Type a question', 'Type your description'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -473,9 +481,10 @@ const listElement = [
         type: 8,
         label: 'Long text',
         defaultValue: {
-            title: ['Type a question'],
+            title: ['Type a question', 'Type your description'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -484,9 +493,10 @@ const listElement = [
         type: 9,
         label: 'Single Choice',
         defaultValue: {
-            title: ['Type a question'],
+            title: ['Type a question', 'Type your description'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -495,9 +505,10 @@ const listElement = [
         type: 10,
         label: 'Multi Choice',
         defaultValue: {
-            title: ['Type a question'],
+            title: ['Type a question', 'Type your description'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -506,9 +517,10 @@ const listElement = [
         type: 11,
         label: 'Time',
         defaultValue: {
-            title: ['Type a question'],
+            title: ['Type a question', 'Type your description'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -517,9 +529,10 @@ const listElement = [
         type: 12,
         label: 'Rating',
         defaultValue: {
-            title: ['Type a question'],
+            title: ['Type a question', 'Type your description'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
 ];

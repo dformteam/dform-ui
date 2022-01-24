@@ -70,6 +70,7 @@ const CreateForm = () => {
     const [executing, setExecuting] = useState(0);
     const [processing, setProcessing] = useState(0);
     const [modalPreview, setModalPreview] = useState(false);
+    const [modalSuccess, setModalSuccess] = useState(false);
     const [openLoading, setOpenLoading] = useState(false);
     const [openSnack, setOpenSnack] = useState(false);
     const [alertType, setAlertType] = useState('success');
@@ -183,6 +184,7 @@ const CreateForm = () => {
                                             title: form_data?.title,
                                             meta: form_data?.meta,
                                             isRequire: form_data?.isRequired,
+                                            error: '',
                                         },
                                     };
                                 });
@@ -247,7 +249,6 @@ const CreateForm = () => {
         }
 
         setExecuting(executing_list.length);
-        let saveError = false;
 
         await Promise.all(
             forms?.map(async (element) => {
@@ -255,21 +256,26 @@ const CreateForm = () => {
                 if (typeof bId === 'undefined' || bId === null || bId === '') {
                     await seph.acquire();
                     const bId_result = await uploadNewElement(element);
-                    if (typeof bId_result === 'undefined' || bId_result === null || bId_result === '') {
-                        saveError = true;
-                    }
                     element.bId = bId_result;
                 }
             }),
         )
             .then(() => {
-                setForms([...forms]);
-                if (saveError) {
-                    //
+                const error_element = forms.filter((x) => typeof x.bId === 'undefined' || x.bId === null || x.bId === '');
+                if (error_element.length > 0) {
+                    setSuccess(false);
+                } else {
+                    setSuccess(true);
                 }
+                setForms([...forms]);
+                setModalSave(false);
+                setModalSuccess(true);
             })
             .catch((err) => {
                 console.log(err);
+                setModalSave(false);
+                setSuccess(false);
+                setModalSuccess(true);
             });
     };
 
@@ -310,8 +316,9 @@ const CreateForm = () => {
 
                     return false;
                 }
+
                 const meta_set = new Set(meta);
-                if (meta.length !== meta_set) {
+                if (meta.length !== meta_set.size) {
                     onShowResult({
                         type: 'error',
                         msg: 'Multi choise / Single choice options could not be duplicated',
@@ -341,6 +348,15 @@ const CreateForm = () => {
 
     const onCloseModalSave = () => {
         setModalSave(false);
+    };
+
+    const onCloseModalSuccess = () => {
+        if (isSuccess) {
+            const { id } = query;
+            return router.push(`/form/view-form?id=${id}`);
+        }
+        setModalSuccess(false);
+        setSuccess(false);
     };
 
     const onCloseModalPreview = () => {
@@ -450,6 +466,19 @@ const CreateForm = () => {
         );
     };
 
+    const renderModalSaveError = () => {
+        return (
+            <>
+                {/* <div className={styles.modal_label + ' ' + styles.margin_top}>Your form has been successfully saved.</div> */}
+                <div className={styles.modal_label}>Do you want to publish right now?</div>
+                <div className={styles.modal_row}>
+                    <button className={styles.modal_button_publish}>Cancel</button>
+                    <button className={styles.modal_button_publish}>Publish</button>
+                </div>
+            </>
+        );
+    };
+
     const renderModalSaving = () => {
         return (
             <>
@@ -503,13 +532,23 @@ const CreateForm = () => {
                     </div>
                 </div>
 
-                <Modal open={modalSave} onClose={onCloseModalSave} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+                <Modal open={modalSuccess} onClose={onCloseModalSuccess} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
                     <Box sx={style}>
                         <Typography id="modal-modal-title" variant="h5" component="h2">
                             Saved Form
                         </Typography>
                         <div className={styles.line} />
-                        {isSuccess ? renderModalSaveSuccess() : renderModalSaving()}
+                        {isSuccess ? renderModalSaveSuccess() : renderModalSaveError()}
+                    </Box>
+                </Modal>
+
+                <Modal open={modalSave} onClose={onCloseModalSave} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+                    <Box sx={style}>
+                        <Typography id="modal-modal-title" variant="h5" component="h2">
+                            Saving
+                        </Typography>
+                        <div className={styles.line} />
+                        {renderModalSaving()}
                     </Box>
                 </Modal>
 
@@ -550,6 +589,7 @@ const listElement = [
             title: [],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -559,9 +599,10 @@ const listElement = [
         label: 'Full Name',
         icon: AccountCircleOutlinedIcon,
         defaultValue: {
-            title: ['Name', 'First Name', 'Last Name'],
+            title: ['Name', 'Type your description', 'First Name', 'Last Name'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -571,9 +612,10 @@ const listElement = [
         label: 'Email',
         icon: EmailOutlinedIcon,
         defaultValue: {
-            title: ['Email', 'Email.'],
+            title: ['Email', 'Type your description', 'Email.'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -586,6 +628,7 @@ const listElement = [
             title: ['Address', 'Street Address', 'Street Address Line 2', 'City', 'State / Province', 'Postal / Zip Code'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -595,9 +638,10 @@ const listElement = [
         label: 'Phone',
         icon: LocalPhoneOutlinedIcon,
         defaultValue: {
-            title: ['Phone Number', 'Please enter a valid phone number.'],
+            title: ['Phone Number', 'Type your description', 'Please enter a valid phone number.'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -607,9 +651,10 @@ const listElement = [
         label: 'Date Picker',
         icon: DateRangeOutlinedIcon,
         defaultValue: {
-            title: ['Date Picker', 'Please pick a date.'],
+            title: ['Date Picker', 'Type your description', 'Please pick a date.'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     // {
@@ -631,9 +676,10 @@ const listElement = [
         label: 'Shot Text',
         icon: ShortTextOutlinedIcon,
         defaultValue: {
-            title: ['Type a question'],
+            title: ['Type a question', 'Type your description'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -643,9 +689,10 @@ const listElement = [
         label: 'Long text',
         icon: ChromeReaderModeOutlinedIcon,
         defaultValue: {
-            title: ['Type a question'],
+            title: ['Type a question', 'Type your description'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -655,9 +702,10 @@ const listElement = [
         label: 'Single Choice',
         icon: AdjustOutlinedIcon,
         defaultValue: {
-            title: ['Type a question'],
+            title: ['Type a question', 'Type your description'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -667,9 +715,10 @@ const listElement = [
         label: 'Multi Choice',
         icon: CheckBoxOutlinedIcon,
         defaultValue: {
-            title: ['Type a question'],
+            title: ['Type a question', 'Type your description'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -679,9 +728,10 @@ const listElement = [
         label: 'Time',
         icon: AccessTimeOutlinedIcon,
         defaultValue: {
-            title: ['Type a question'],
+            title: ['Type a question', 'Type your description'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
     {
@@ -691,9 +741,10 @@ const listElement = [
         label: 'Rating',
         icon: StarOutlineOutlinedIcon,
         defaultValue: {
-            title: ['Type a question'],
+            title: ['Type a question', 'Type your description'],
             meta: [],
             isRequired: false,
+            error: '',
         },
     },
 ];

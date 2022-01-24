@@ -8,9 +8,10 @@ import Switch from '@mui/material/Switch';
 
 const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
     let initValue = {
-        title: ['Type a question'],
+        title: ['Type a question', 'Type your description'],
         meta: ['Type option 1', 'Type option 2', 'Type option 3', 'Type option 4'],
         isRequired: false,
+        error: '',
     };
 
     if (typeof defaultValue !== 'undefined') {
@@ -18,8 +19,10 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
     }
 
     const [title, setTitle] = useState(initValue?.title?.[0] || 'Type a question');
+    const [first_field, setFirstField] = useState(initValue?.title?.[1] || 'Type your description.');
     const [aAnswers, setAnswers] = useState(initValue?.meta);
     const [required, setRequired] = useState(initValue.isRequired || false);
+    const [error, setError] = useState(initValue.error);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -27,8 +30,19 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
         type === 'edit' &&
             onChange?.({
                 index,
-                title: [e.target.value],
+                title: [e.target.value, first_field],
                 meta: [...metaAnswer],
+            });
+    };
+
+    const onFirstFieldChange = (e) => {
+        setFirstField(e.target.value);
+        type === 'edit' &&
+            onChange?.({
+                index,
+                title: [title, e.target.value],
+                meta: [],
+                isRequired: required,
             });
     };
 
@@ -40,7 +54,7 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
         type === 'edit' &&
             onChange?.({
                 index,
-                title: [title],
+                title: [title, first_field],
                 meta: [...metaAnswer],
                 isRequired: required,
             });
@@ -66,7 +80,7 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
         type === 'edit' &&
             onChange?.({
                 index,
-                title: [title],
+                title: [title, first_field],
                 meta: [...metaAnswer],
                 isRequired: required,
             });
@@ -78,10 +92,25 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
         type === 'edit' &&
             onChange?.({
                 index,
-                title: [title],
+                title: [title, first_field],
                 meta: [...metaAnswer],
                 isRequired: e.target.checked,
             });
+    };
+
+    const onOptionClick = (item, indexx) => {
+        if (type === 'answer') {
+            aAnswers[indexx].check = !aAnswers?.[indexx].check;
+            const choosen = aAnswers?.filter((x) => x.check).map((x) => x.content);
+            setAnswers([...aAnswers]);
+            setError('');
+            onChange?.({
+                index,
+                title: [title, first_field],
+                meta: [...choosen],
+                isRequired: required,
+            });
+        }
     };
 
     return (
@@ -94,16 +123,26 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
                     placeholder={'Type a title'}
                     disabled={type === 'edit' ? false : true}
                 />
-                <input className={styles.multi_choice_description} placeholder={'Type a description'} disabled={type === 'edit' ? false : true} />
-                {type === 'edit' && (
+                <input
+                    className={styles.multi_choice_description}
+                    value={first_field}
+                    onChange={onFirstFieldChange}
+                    placeholder={'Type a description'}
+                    disabled={type === 'edit' ? false : true}
+                />
+                {type !== 'answer' && (
                     <div className={styles.multi_choice_require}>
-                        Question required: <Switch checked={required} onChange={onChangeRequired} />
+                        Question required: <Switch value={required} checked={required} onChange={onChangeRequired} />
                     </div>
                 )}
                 <div className={styles.multi_choice}>
                     {aAnswers?.map?.((item, indexx) => {
                         return (
-                            <div className={indexx % 2 === 0 ? styles.multi_choice_form_left : styles.multi_choice_form_right} key={indexx}>
+                            <div
+                                className={indexx % 2 === 0 ? styles.multi_choice_form_left : styles.multi_choice_form_right}
+                                key={indexx}
+                                onClick={() => onOptionClick(item, indexx)}
+                            >
                                 {item.check ? (
                                     <CheckBoxOutlinedIcon className={indexx % 2 === 0 ? styles.multi_choice_checked_left : styles.multi_choice_checked_right} />
                                 ) : (
@@ -134,7 +173,7 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
                         </div>
                     )}
                 </div>
-                <div className={styles.text_error}>Error</div>
+                {error !== '' && <div className={styles.text_error}>Error</div>}
             </div>
         </div>
     );

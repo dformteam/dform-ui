@@ -223,8 +223,6 @@ const MyForm = (props) => {
             });
     };
 
-    console.log(rows);
-
     return (
         <div className={styles.root}>
             <div className={styles.nav}>
