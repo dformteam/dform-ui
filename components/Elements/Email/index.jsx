@@ -92,13 +92,13 @@ const Email = ({ index, onChange, defaultValue, type = '' }) => {
     return (
         <div className={styles.root_email}>
             <div className={styles.email_content}>
-                <input
-                    className={styles.email_title}
-                    value={title}
-                    onChange={onTitleChange}
-                    placeholder={'Type a title'}
-                    disabled={type === 'edit' ? false : true}
-                />
+                {type === 'edit' ? (
+                    <input className={styles.email_title} value={title} onChange={onTitleChange} placeholder={'Type a title'} />
+                ) : (
+                    <div className={styles.email_title}>
+                        {title} {required && <span>*</span>}
+                    </div>
+                )}
                 {(type === 'edit' || second_field !== '') && (
                     <input
                         className={styles.email_description}

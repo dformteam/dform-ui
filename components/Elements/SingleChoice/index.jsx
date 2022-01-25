@@ -141,13 +141,13 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
     return (
         <div className={styles.root_single_choice}>
             <div className={styles.single_choice_content}>
-                <input
-                    className={styles.single_choice_title}
-                    value={title}
-                    onChange={onTitleChange}
-                    placeholder={'Type a title'}
-                    disabled={type === 'edit' ? false : true}
-                />
+                {type === 'edit' ? (
+                    <input className={styles.single_choice_title} value={title} onChange={onTitleChange} placeholder={'Type a title'} />
+                ) : (
+                    <div className={styles.single_choice_title}>
+                        {title} {required && <span>*</span>}
+                    </div>
+                )}
                 <input
                     className={styles.single_choice_description}
                     value={first_field}
@@ -156,7 +156,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '' }) => {
                     disabled={type === 'edit' ? false : true}
                 />
                 {type !== 'answer' && (
-                    <div className={styles.single_choicerequire}>
+                    <div className={styles.single_choice_require}>
                         Question required: <Switch value={required} checked={required} onChange={onChangeRequired} />
                     </div>
                 )}

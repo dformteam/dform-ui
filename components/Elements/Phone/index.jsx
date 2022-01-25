@@ -91,13 +91,13 @@ const Phone = ({ index, onChange, defaultValue, type = '' }) => {
     return (
         <div className={styles.root_phone}>
             <div className={styles.phone_content}>
-                <input
-                    className={styles.phone_title}
-                    value={title}
-                    onChange={onTitleChange}
-                    placeholder={'Type a title'}
-                    disabled={type === 'edit' ? false : true}
-                />
+                {type === 'edit' ? (
+                    <input className={styles.phone_title} value={title} onChange={onTitleChange} placeholder={'Type a title'} />
+                ) : (
+                    <div className={styles.phone_title}>
+                        {title} {required && <span>*</span>}
+                    </div>
+                )}
                 <input
                     className={styles.phone_description}
                     value={first_field}
@@ -112,7 +112,13 @@ const Phone = ({ index, onChange, defaultValue, type = '' }) => {
                 )}
                 <div className={styles.phone}>
                     <div className={styles.phone_form}>
-                        <input className={styles.phone_label} value={second_field} onChange={onSecondFieldChange} placeholder={'Type a field'} disabled={type === 'edit' ? false : true}/>
+                        <input
+                            className={styles.phone_label}
+                            value={second_field}
+                            onChange={onSecondFieldChange}
+                            placeholder={'Type a field'}
+                            disabled={type === 'edit' ? false : true}
+                        />
                         <input className={styles.phone_input} type={'tel'} value={phone} onChange={onPhoneChange} disabled={type === 'answer' ? false : true} />
                         {error !== '' && <div className={styles.text_error}>Error</div>}
                     </div>

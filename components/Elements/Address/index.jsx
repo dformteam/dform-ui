@@ -184,14 +184,13 @@ const Address = ({ index, onChange, defaultValue, type = '' }) => {
     return (
         <div className={styles.root_address}>
             <div className={styles.address_content}>
-                <input
-                    className={styles.address_title}
-                    value={title}
-                    onChange={onTitleChange}
-                    placeholder={'Type a title'}
-                    disabled={type === 'edit' ? false : true}
-                />
-                <span>*</span>
+                {type === 'edit' ? (
+                    <input className={styles.address_title} value={title} onChange={onTitleChange} placeholder={'Type a title'} />
+                ) : (
+                    <div className={styles.address_title}>
+                        {title} {required && <span>*</span>}
+                    </div>
+                )}
                 {type !== 'answer' && (
                     <div className={styles.address_require}>
                         Question required: <Switch value={required} checked={required} onChange={onChangeRequired} />

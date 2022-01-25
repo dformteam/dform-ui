@@ -78,13 +78,13 @@ const ShortText = ({ index, onChange, defaultValue, type = '' }) => {
     return (
         <div className={styles.root_short_text}>
             <div className={styles.short_text_content}>
-                <input
-                    className={styles.short_text_title}
-                    value={title}
-                    onChange={onTitleChange}
-                    placeholder={'Type a title'}
-                    disabled={type === 'edit' ? false : true}
-                />
+                {type === 'edit' ? (
+                    <input className={styles.short_text_title} value={title} onChange={onTitleChange} placeholder={'Type a title'} />
+                ) : (
+                    <div className={styles.short_text_title}>
+                        {title} {required && <span>*</span>}
+                    </div>
+                )}
                 <input
                     className={styles.short_text_description}
                     value={first_field}
