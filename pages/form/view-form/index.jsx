@@ -134,7 +134,7 @@ const CreateForm = () => {
 
     const onGetElements = ({ total }) => {
         const { contract, walletConnection } = wallet;
-        const num_page = parseInt(total / 5) + 1;
+        const num_page = total % 5 === 0 ? total / 5 : parseInt(total / 5) + 1;
         const page_arr = new Array(num_page).fill(0);
         setElements([]);
 
@@ -159,28 +159,35 @@ const CreateForm = () => {
                             });
                             let temp_elements = [];
                             raws.map((raw) => {
-                                const transform_form = raw?.data?.map((tmp_data) => {
-                                    return {
-                                        bId: tmp_data.id,
-                                        id: listElement?.[tmp_data.type]?.id,
-                                        type: tmp_data.type,
-                                        label: listElement?.[tmp_data.type]?.label,
-                                        icon: ShortTextOutlinedIcon,
-                                        defaultValue: {
-                                            title: tmp_data?.title,
-                                            meta: tmp_data?.meta?.map((x) => {
-                                                return {
-                                                    content: x,
-                                                    checked: false,
-                                                };
-                                            }),
-                                            isRequired: tmp_data?.isRequired,
-                                            error: '',
-                                        },
-                                        edited: false,
-                                        editable: false,
-                                    };
-                                });
+                                const transform_form = raw?.data
+                                    ?.map((tmp_data) => {
+                                        return {
+                                            bId: tmp_data.id,
+                                            id: listElement?.[tmp_data.type]?.id,
+                                            type: tmp_data.type,
+                                            label: listElement?.[tmp_data.type]?.label,
+                                            icon: ShortTextOutlinedIcon,
+                                            defaultValue: {
+                                                title: tmp_data?.title,
+                                                meta: tmp_data?.meta?.map((x) => {
+                                                    return {
+                                                        content: x,
+                                                        checked: false,
+                                                    };
+                                                }),
+                                                isRequired: tmp_data?.isRequired,
+                                                error: '',
+                                            },
+                                            edited: false,
+                                            editable: false,
+                                            numth: tmp_data.numth,
+                                        };
+                                    })
+                                    ?.sort((x, y) => {
+                                        if (x?.numth < y?.numth) return -1;
+                                        if (x?.numth > y?.numth) return 1;
+                                        return 0;
+                                    });
                                 temp_elements = [...temp_elements, ...(transform_form || [])];
                                 return '';
                             });

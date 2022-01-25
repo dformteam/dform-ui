@@ -56,8 +56,6 @@ const CreateForm = () => {
     const [forms, setForms] = useState([]);
     const [modalSave, setModalSave] = useState(false);
     const [isSuccess, setSuccess] = useState(false);
-    // const [executing, setExecuting] = useState(0);
-    // const [processing, setProcessing] = useState(0);
     const [modalPreview, setModalPreview] = useState(false);
     const [modalSuccess, setModalSuccess] = useState(false);
     const [openLoading, setOpenLoading] = useState(false);
@@ -137,7 +135,7 @@ const CreateForm = () => {
 
     const onGetElements = ({ total }) => {
         const { contract, walletConnection } = wallet;
-        const num_page = parseInt(total / 5) + 1;
+        const num_page = total % 5 === 0 ? total / 5 : parseInt(total / 5) + 1;
         const page_arr = new Array(num_page).fill(0);
         setForms([]);
 
@@ -162,25 +160,33 @@ const CreateForm = () => {
                             });
                             let temp_forms = [];
                             raws.map((raw) => {
-                                const transform_form = raw?.data?.map((form_data) => {
-                                    return {
-                                        bId: form_data.id,
-                                        id: listElement?.[form_data.type]?.id,
-                                        type: form_data.type,
-                                        label: listElement?.[form_data.type]?.label,
-                                        icon: ShortTextOutlinedIcon,
-                                        defaultValue: {
-                                            title: form_data?.title,
-                                            meta: form_data?.meta,
-                                            isRequire: form_data?.isRequired,
-                                            error: '',
-                                        },
-                                    };
-                                });
+                                const transform_form = raw?.data
+                                    ?.map((form_data) => {
+                                        return {
+                                            bId: form_data.id,
+                                            id: listElement?.[form_data.type]?.id,
+                                            type: form_data.type,
+                                            label: listElement?.[form_data.type]?.label,
+                                            icon: ShortTextOutlinedIcon,
+                                            defaultValue: {
+                                                title: form_data?.title,
+                                                meta: form_data?.meta,
+                                                isRequire: form_data?.isRequired,
+                                                error: '',
+                                            },
+                                            numth: form_data.numth,
+                                        };
+                                    })
+                                    ?.sort((x, y) => {
+                                        if (x?.numth < y?.numth) return -1;
+                                        if (x?.numth > y?.numth) return 1;
+                                        return 0;
+                                    });
                                 temp_forms = [...temp_forms, ...(transform_form || [])];
                                 return '';
                             });
                             setRawForms([...temp_forms]);
+                            setForms([...temp_forms]);
                         }
                     }
                 });
@@ -233,11 +239,11 @@ const CreateForm = () => {
         setModalSave(true);
 
         await Promise.all(
-            forms?.map(async (element) => {
+            forms?.map(async (element, index) => {
                 const { bId } = element;
                 if (typeof bId === 'undefined' || bId === null || bId === '') {
                     await seph.acquire();
-                    const bId_result = await uploadNewElement(element);
+                    const bId_result = await uploadNewElement(element, index);
                     element.bId = bId_result;
                 }
             }),
@@ -261,7 +267,7 @@ const CreateForm = () => {
             });
     };
 
-    const uploadNewElement = async (element) => {
+    const uploadNewElement = async (element, index) => {
         const { contract } = wallet;
         const { id } = query;
         const { type, defaultValue } = element;
@@ -273,6 +279,7 @@ const CreateForm = () => {
                 title: defaultValue.title,
                 meta: defaultValue.meta,
                 isRequired: defaultValue.isRequired,
+                numth: index,
             })
             .then((res) => {
                 // setProcessing(processing + 1);
@@ -314,7 +321,7 @@ const CreateForm = () => {
         return true;
     };
 
-    const onUploadElementClick = async (element) => {
+    const onUploadElementClick = async (element, index) => {
         const valid = onValidateQuestion([element]);
         if (!valid) {
             return;
@@ -322,7 +329,7 @@ const CreateForm = () => {
         // setExecuting(1);
         // setProcessing(0);
         setModalSave(true);
-        const bId = await uploadNewElement(element);
+        const bId = await uploadNewElement(element, index);
         element.bId = bId;
         setForms([...forms]);
         setModalSave(false);
@@ -422,7 +429,7 @@ const CreateForm = () => {
                 <div className={styles.element_action_area}>
                     {(typeof item.bId === 'undefined' || item.bId === '') && (
                         <button className={styles.element_action_area__edit}>
-                            <UploadIcon className={styles.button_delete_icon} onClick={() => onUploadElementClick(item)} />
+                            <UploadIcon className={styles.button_delete_icon} onClick={() => onUploadElementClick(item, index)} />
                         </button>
                     )}
                     {(typeof item.bId === 'undefined' || item.bId === '') && (

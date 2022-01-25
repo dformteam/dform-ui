@@ -7,7 +7,6 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import LinkOutlinedIcon from '@mui/icons-material/LinkOutlined';
 import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
-import TagFacesIcon from '@mui/icons-material/TagFaces';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -51,13 +50,6 @@ const Publish = () => {
     const [alertType, setAlertType] = useState('success');
     const [snackMsg, setSnackMsg] = useState('');
     const [sharedLink, setSharedLink] = useState('');
-    const [chipData, setChipData] = React.useState([
-        { key: 0, label: 'Angular' },
-        { key: 1, label: 'jQuery' },
-        { key: 2, label: 'Polymer' },
-        { key: 3, label: 'React' },
-        { key: 4, label: 'Vue.js' },
-    ]);
 
     const onCloseSnack = () => {
         setOpenSnack(false);
@@ -157,6 +149,13 @@ const Publish = () => {
     };
 
     const onAddToBlackList = () => {
+        if (black_account === '') {
+            onShowResult({
+                type: 'error',
+                msg: 'Black list account could not be empty',
+            });
+            return;
+        }
         if (white_list.includes(black_account)) {
             onShowResult({
                 type: 'error',
@@ -179,6 +178,13 @@ const Publish = () => {
     };
 
     const onAddToWhiteList = () => {
+        if (white_account === '') {
+            onShowResult({
+                type: 'error',
+                msg: 'White list account could not be empty',
+            });
+            return;
+        }
         if (black_list.includes(white_account)) {
             onShowResult({
                 type: 'error',
@@ -337,7 +343,11 @@ const Publish = () => {
     };
 
     const onDeleteBlackItem = (chipToDelete) => () => {
-        setChipData((chips) => chips.filter((chip) => chip.key !== chipToDelete.key));
+        setBlackAccount([...black_list.filter((chip) => chip !== chipToDelete)]);
+    };
+
+    const onDeleteWhiteItem = (chipToDelete) => {
+        setWhiteAccount([...white_list.filter((chip) => chip !== chipToDelete)]);
     };
 
     const ListItem = styled('div')(({ theme }) => ({
@@ -451,40 +461,42 @@ const Publish = () => {
                         </div>
                     </div>
                 </div>
-                <div className={styles.list}>
-                    <div className={styles.list_label}>Black list:</div>
-                    <div className={styles.list_content}>
-                        {black_list?.length > 0 ? (
-                            <>
-                                {chipData.map((data) => {
-                                    return (
-                                        <ListItem key={data.key}>
-                                            <Chip label={data.label} onDelete={onDeleteBlackItem(data)} variant="outlined" color="error" />
-                                        </ListItem>
-                                    );
-                                })}
-                            </>
-                        ) : (
-                            <div className={styles.list_nothing}>Nothing to display</div>
-                        )}
+                {status === 'private' && (
+                    <div className={styles.list}>
+                        <div className={styles.list_label}>Black list:</div>
+                        <div className={styles.list_content}>
+                            {black_list?.length > 0 ? (
+                                <>
+                                    {black_list.map((data) => {
+                                        return (
+                                            <ListItem key={data}>
+                                                <Chip label={data} onDelete={() => onDeleteBlackItem(data)} variant="outlined" color="error" />
+                                            </ListItem>
+                                        );
+                                    })}
+                                </>
+                            ) : (
+                                <div className={styles.list_nothing}>Nothing to display</div>
+                            )}
+                        </div>
+                        <div className={styles.list_label}>White list:</div>
+                        <div className={styles.list_content}>
+                            {white_list?.length > 0 ? (
+                                <>
+                                    {white_list.map((data) => {
+                                        return (
+                                            <ListItem key={data}>
+                                                <Chip label={data} onDelete={() => onDeleteWhiteItem(data)} variant="outlined" color="success" />
+                                            </ListItem>
+                                        );
+                                    })}
+                                </>
+                            ) : (
+                                <div className={styles.list_nothing}>Nothing to display</div>
+                            )}
+                        </div>
                     </div>
-                    <div className={styles.list_label}>White list:</div>
-                    <div className={styles.list_content}>
-                        {white_list?.length > 0 ? (
-                            <>
-                                {chipData.map((data) => {
-                                    return (
-                                        <ListItem key={data.key}>
-                                            <Chip label={data.label} onDelete={onDeleteWhiteItem(data)} variant="outlined" color="success" />
-                                        </ListItem>
-                                    );
-                                })}
-                            </>
-                        ) : (
-                            <div className={styles.list_nothing}>Nothing to display</div>
-                        )}
-                    </div>
-                </div>
+                )}
 
                 <Modal open={open} onClose={onCloseModalShare} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
                     <Box sx={style}>

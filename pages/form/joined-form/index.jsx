@@ -31,6 +31,12 @@ const MyForm = () => {
         };
     }, []);
 
+    const getActiveClassName = () => {
+        return router.pathname;
+    };
+
+    const navActive = getActiveClassName();
+
     const onGetMaxRows = () => {
         const { contract, walletConnection } = wallet;
         const userId = walletConnection.getAccountId();
@@ -48,7 +54,7 @@ const MyForm = () => {
 
     const onGetRows = async ({ total }) => {
         const { contract, walletConnection } = wallet;
-        const num_page = parseInt(total / 5) + 1;
+        const num_page = total % 5 === 0 ? total / 5 : parseInt(total / 5) + 1;
         const page_arr = new Array(num_page).fill(0);
         setRows([]);
         const userId = walletConnection.getAccountId();
@@ -114,7 +120,7 @@ const MyForm = () => {
                 {aNav.map((item, index) => {
                     return (
                         <Fragment key={index}>
-                            <div className={styles.nav_label} onClick={() => onNavItemClicked(item)}>
+                            <div className={navActive === item.url ? styles.nav_label_active : styles.nav_label} onClick={() => onNavItemClicked(item)}>
                                 {item.icon && <item.icon className={styles.nav_icon} />}
                                 {item.label}
                             </div>
