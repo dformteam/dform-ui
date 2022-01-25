@@ -120,14 +120,16 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '', error }) => {
                         {title} {required && <span>*</span>}
                     </div>
                 )}
-                <input
-                    className={styles.multi_choice_description}
-                    value={first_field}
-                    onChange={onFirstFieldChange}
-                    placeholder={'Type a description'}
-                    disabled={type === 'edit' ? false : true}
-                />
-                {type !== 'answer' && (
+                {(type === 'edit' || first_field !== '') && (
+                    <input
+                        className={styles.multi_choice_description}
+                        value={first_field}
+                        onChange={onFirstFieldChange}
+                        placeholder={'Type a description'}
+                        disabled={type === 'edit' ? false : true}
+                    />
+                )}
+                {type !== 'answer' && type !== 'analysis' && (
                     <div className={styles.multi_choice_require}>
                         Question required: <Switch value={required} checked={required} onChange={onChangeRequired} />
                     </div>

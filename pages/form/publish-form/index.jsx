@@ -167,7 +167,7 @@ const Publish = () => {
 
         onShowResult({
             type: 'success',
-            msg: `Added ${black_account} into white list`,
+            msg: `Added ${black_account} into black list`,
         });
         black_list.push(black_account);
         setBlackList([...black_list]);
@@ -189,7 +189,7 @@ const Publish = () => {
 
         onShowResult({
             type: 'success',
-            msg: `Added ${white_account} into black list`,
+            msg: `Added ${white_account} into white list`,
         });
         white_list.push(white_account);
         setWhiteList([...white_list]);

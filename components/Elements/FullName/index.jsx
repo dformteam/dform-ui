@@ -91,10 +91,10 @@ const FullName = ({ index, onChange, defaultValue, type = '', error }) => {
     };
 
     const onFillValue = () => {
-        if (type === 'answer') {
+        if (type !== 'edit') {
             setFirstName(initValue?.meta?.[0] || '');
             setLastName(initValue?.meta?.[1] || '');
-            setRequired(initValue?.isRequired);
+            setRequired(initValue?.isRequired || false);
         }
     };
 
@@ -123,14 +123,16 @@ const FullName = ({ index, onChange, defaultValue, type = '', error }) => {
                         {title} {required && <span>*</span>}
                     </div>
                 )}
-                <input
-                    className={styles.full_name_description}
-                    value={first_field}
-                    placeholder={'Type a description'}
-                    onChange={onFirstFieldChange}
-                    disabled={type === 'edit' ? false : true}
-                />
-                {type !== 'answer' && (
+                {(type === 'edit' || first_field !== '') && (
+                    <input
+                        className={styles.full_name_description}
+                        value={first_field}
+                        placeholder={'Type a description'}
+                        onChange={onFirstFieldChange}
+                        disabled={type === 'edit' ? false : true}
+                    />
+                )}
+                {type !== 'answer' && type !== 'analysis' && (
                     <div className={styles.full_name_require}>
                         Question required: <Switch value={required} checked={required} onChange={onChangeRequired} />
                     </div>

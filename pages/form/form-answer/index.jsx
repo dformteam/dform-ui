@@ -16,6 +16,7 @@ import MultiChoice from '../../../components/Elements/MultiChoice';
 import ArrowForwardOutlinedIcon from '@mui/icons-material/ArrowForwardOutlined';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
 import UploadIcon from '@mui/icons-material/Upload';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
@@ -443,7 +444,7 @@ const FormAnswer = () => {
     const onCloseModalSuccess = () => {
         if (isSuccess) {
             const { id } = query;
-            return router.push(`/form/view-form?id=${id}`);
+            return router.push(`/form/form-analysis?id=${id}`);
         }
         setModalSuccess(false);
         setSuccess(false);
@@ -457,7 +458,6 @@ const FormAnswer = () => {
                         <div className={styles.element_content} key={index}>
                             {renderElement(item, index)}
                             {index + 1 === total.length && (
-
                                 <div
                                     className={styles.button_submit}
                                     style={{ borderBottomLeftRadius: 24, justifyContent: 'center' }}
@@ -520,12 +520,10 @@ const FormAnswer = () => {
     const renderModalSaveSuccess = () => {
         return (
             <>
-                {/* <div className={styles.modal_label + ' ' + styles.margin_top}>Your form has been successfully saved.</div> */}
-                <div className={styles.modal_label}>Do you want to publish right now?</div>
-                <div className={styles.modal_row}>
-                    <button className={styles.modal_button_publish}>Cancel</button>
-                    <button className={styles.modal_button_publish}>Publish</button>
+                <div className={styles.modal_success}>
+                    <CheckCircleIcon className={styles.success_icon} />
                 </div>
+                <div className={styles.modal_label}>Your form is saved.</div>
             </>
         );
     };
@@ -533,8 +531,13 @@ const FormAnswer = () => {
     const renderModalSaveError = () => {
         return (
             <>
-                {/* <div className={styles.modal_label + ' ' + styles.margin_top}>Your form has been successfully saved.</div> */}
-                Error
+                <div className={styles.modal_success}>
+                    <CancelIcon className={styles.error_icon} />
+                </div>
+                <div className={styles.modal_label}>
+                    Some answer can't be uploaded.
+                    <br /> Please check again!
+                </div>
             </>
         );
     };
@@ -546,9 +549,6 @@ const FormAnswer = () => {
                 <div className={styles.modal_content}>
                     <img src={'/loading.svg'} alt="error" className={styles.modal_loading_icon} />
                 </div>
-                {/* <div className={styles.modal_content_text}>
-                    Processing: {processing}/{executing} completed.
-                </div> */}
             </>
         );
     };
@@ -661,18 +661,17 @@ const listElement = [
             error: '',
         },
     },
-    // {
-    //     bId: '',
-    //     id: 'fillBlank',
-    //     type: 6,
-    //     label: 'Fill in the Blank',
-    //     icon: FormatSizeOutlinedIcon,
-    //     defaultValue: {
-    //         title: ['Type a question'],
-    //         meta: [],
-    //         isRequired: false,
-    //     },
-    // },
+    {
+        bId: '',
+        id: 'fillBlank',
+        type: 6,
+        label: 'Fill in the Blank',
+        defaultValue: {
+            title: ['Type a question'],
+            meta: [],
+            isRequired: false,
+        },
+    },
     {
         bId: '',
         id: 'shortText',

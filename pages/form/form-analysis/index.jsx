@@ -36,7 +36,6 @@ const style = {
 };
 
 const FormAnalysis = () => {
-    let raws = {};
     let raw_answers = [];
 
     const wallet = useSelector((state) => state.wallet);
@@ -54,6 +53,7 @@ const FormAnalysis = () => {
     const [openSnack, setOpenSnack] = useState(false);
     const [alertType, setAlertType] = useState('success');
     const [snackMsg, setSnackMsg] = useState('');
+    const [raws, setRaws] = useState({});
 
     const onCloseSnack = () => {
         setOpenSnack(false);
@@ -99,7 +99,13 @@ const FormAnalysis = () => {
                     }
 
                     setForm(res);
-                    setParticipant([...participants]);
+                    const prt = participants?.map((pt) => {
+                        return {
+                            name: pt,
+                            checked: false,
+                        };
+                    });
+                    setParticipant([...prt]);
                 }
             })
             .catch((err) => {
@@ -107,25 +113,15 @@ const FormAnalysis = () => {
             });
     };
 
-    const onRenderParticipant = (item, index) => {
-        const shortName = `${item?.[0]}${item?.[1]}`;
-        return (
-            <div className={styles.participant_area} key={index} onClick={() => onParticipantDetailClicked(item)}>
-                <div className={styles.participant_area_avata} style={{ background: onRandomColorBg() }}>
-                    {shortName}
-                </div>
-                <div className={styles.participant_area_name}>{item}</div>
-            </div>
-        );
-    };
-
-    const onParticipantDetailClicked = (item) => {
+    const onParticipantDetailClicked = (item, index) => {
+        participant[index].checked = true;
         const { walletConnection } = wallet;
         const userId = walletConnection.getAccountId();
         if (userId !== form.owner && userId !== item) {
             return setNotify('You only see your answers!');
         }
 
+        setParticipant([...participant]);
         setCurrentParticipant(item);
         getMaxAnswers(item);
     };
@@ -157,6 +153,10 @@ const FormAnalysis = () => {
     };
 
     const getAnswers = async (part, total) => {
+        if (typeof raws[part] !== 'undefined') {
+            setOpenLoading(false);
+            return setAnswers([...raws[part]]);
+        }
         const { contract } = wallet;
         const { id } = query;
         const num_page = total % 5 === 0 ? parseInt(total / 5) : parseInt(total / 5) + 1;
@@ -189,7 +189,7 @@ const FormAnalysis = () => {
                                 raw_answers.map((raw) => {
                                     const transform_form = raw?.data?.map((form_data) => {
                                         return {
-                                            bId: form_data.id,
+                                            bId: form_data.element_id,
                                             id: listElement?.[form_data.type]?.id,
                                             type: form_data.type,
                                             label: listElement?.[form_data.type]?.label,
@@ -215,6 +215,9 @@ const FormAnalysis = () => {
         )
             .then(() => {
                 raws[part] = [...tmp_answers];
+                setRaws({
+                    ...raws,
+                });
                 setOpenLoading(false);
             })
             .catch((err) => {
@@ -238,7 +241,6 @@ const FormAnalysis = () => {
 
     const renderElement = (el, index) => {
         const { type, id, defaultValue } = el;
-
         switch (id) {
             case 'header':
                 return <Header />;
@@ -286,15 +288,35 @@ const FormAnalysis = () => {
         }
     };
 
+    const onRenderParticipant = (item, index) => {
+        const { name } = item;
+        const shortName = `${name?.[0]}${name?.[1]}`;
+        return (
+            <div className={styles.participant_area} key={index} onClick={() => onParticipantDetailClicked(name, index)}>
+                <div className={styles.participant_area_avata} style={{ background: onRandomColorBg() }}>
+                    {shortName}
+                </div>
+                <div
+                    className={styles.participant_area_name}
+                    style={{
+                        color: item.checked ? '#bebebe' : '',
+                    }}
+                >
+                    {name}
+                </div>
+            </div>
+        );
+    };
+
     return (
         <>
             <Notify openLoading={openLoading} openSnack={openSnack} alertType={alertType} snackMsg={snackMsg} onClose={onCloseSnack} />
             <div className={styles.root}>
                 <div className={styles.content}>
                     <div className={styles.content_left}>
-                        <div className={styles.form_analysis_title}>{data.title}</div>
-                        <div className={styles.form_analysis_text}>Total Question(s): {data.total}</div>
-                        <div className={styles.form_analysis_text}>Total Participant(s): {data.q_participant}</div>
+                        <div className={styles.form_analysis_title}>{form?.title}</div>
+                        <div className={styles.form_analysis_text}>Total Question(s): {form?.elements?.length}</div>
+                        <div className={styles.form_analysis_text}>Total Participant(s): {form?.participants?.length}</div>
                         {participant?.length > 0 ? (
                             <div className={styles.participant_root}>
                                 <div className={styles.participant_list}>
@@ -342,24 +364,6 @@ const color = [
     '#FFD166',
     '#FA8F54',
 ];
-
-const data = {
-    title: 'Demo Form',
-    total: 13,
-    q_participant: 10,
-    a_participant: [
-        { id: 'annhd.near' },
-        { id: 'fdssfd.near' },
-        { id: 'xcvxxc.near' },
-        { id: 'tyuiyt.near' },
-        { id: 'uiuyiouioyu.near' },
-        { id: 'ghjbnmnbm,.near' },
-        { id: 'bnm.near' },
-        { id: 'vcnzxc.near' },
-        { id: 'weqedsfs.near' },
-        { id: 'qwesd.near' },
-    ],
-};
 
 const listElement = [
     {
@@ -434,18 +438,17 @@ const listElement = [
             error: '',
         },
     },
-    // {
-    //     bId: '',
-    //     id: 'fillBlank',
-    //     type: 6,
-    //     label: 'Fill in the Blank',
-    //     icon: FormatSizeOutlinedIcon,
-    //     defaultValue: {
-    //         title: ['Type a question'],
-    //         meta: [],
-    //         isRequired: false,
-    //     },
-    // },
+    {
+        bId: '',
+        id: 'fillBlank',
+        type: 6,
+        label: 'Fill in the Blank',
+        defaultValue: {
+            title: ['Type a question'],
+            meta: [],
+            isRequired: false,
+        },
+    },
     {
         bId: '',
         id: 'shortText',

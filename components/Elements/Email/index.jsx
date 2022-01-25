@@ -66,9 +66,10 @@ const Email = ({ index, onChange, defaultValue, type = '', error }) => {
     };
 
     const onFillValue = () => {
-        if (type === 'analysis') {
+        if (type !== 'edit') {
+            console.log(initValue);
             setEmail(initValue?.meta?.[0] || '');
-            setRequired(initValue?.isRequired);
+            setRequired(initValue?.isRequired || false);
         }
     };
 
@@ -106,7 +107,7 @@ const Email = ({ index, onChange, defaultValue, type = '', error }) => {
                         disabled={type === 'edit' ? false : true}
                     />
                 )}
-                {type !== 'answer' && (
+                {type !== 'answer' && type !== 'analysis' && (
                     <div className={styles.email_require}>
                         Question required: <Switch value={required} checked={required} onChange={onChangeRequired} />
                     </div>

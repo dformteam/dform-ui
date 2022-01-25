@@ -65,9 +65,9 @@ const DatePicker = ({ index, onChange, defaultValue, type = '', error }) => {
     };
 
     const onFillValue = () => {
-        if (type === 'analysis') {
+        if (type !== 'edit') {
             setDate(initValue?.meta?.[0] || '');
-            setRequired(initValue?.isRequired);
+            setRequired(initValue?.isRequired || false);
         }
     };
 
@@ -96,14 +96,16 @@ const DatePicker = ({ index, onChange, defaultValue, type = '', error }) => {
                         {title} {required && <span>*</span>}
                     </div>
                 )}
-                <input
-                    className={styles.date_picker_description}
-                    value={first_field}
-                    placeholder={'Type a description'}
-                    onChange={onFirstFieldChange}
-                    disabled={type === 'edit' ? false : true}
-                />
-                {type !== 'answer' && (
+                {(type === 'edit' || first_field !== '') && (
+                    <input
+                        className={styles.date_picker_description}
+                        value={first_field}
+                        placeholder={'Type a description'}
+                        onChange={onFirstFieldChange}
+                        disabled={type === 'edit' ? false : true}
+                    />
+                )}
+                {type !== 'answer' && type !== 'analysis' && (
                     <div className={styles.date_picker_require}>
                         Question required: <Switch value={required} checked={required} onChange={onChangeRequired} />
                     </div>

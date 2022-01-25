@@ -65,7 +65,7 @@ const Phone = ({ index, onChange, defaultValue, type = '', error }) => {
     };
 
     const onFillValue = () => {
-        if (type === 'answer') {
+        if (type !== 'edit') {
             setPhone(initValue?.meta?.[0] || '');
         }
     };
@@ -95,14 +95,16 @@ const Phone = ({ index, onChange, defaultValue, type = '', error }) => {
                         {title} {required && <span>*</span>}
                     </div>
                 )}
-                <input
-                    className={styles.phone_description}
-                    value={first_field}
-                    onChange={onFirstFieldChange}
-                    placeholder={'Type a description'}
-                    disabled={type === 'edit' ? false : true}
-                />
-                {type !== 'answer' && (
+                {(type === 'edit' || first_field !== '') && (
+                    <input
+                        className={styles.phone_description}
+                        value={first_field}
+                        onChange={onFirstFieldChange}
+                        placeholder={'Type a description'}
+                        disabled={type === 'edit' ? false : true}
+                    />
+                )}
+                {type !== 'answer' && type !== 'analysis' && (
                     <div className={styles.phone_require}>
                         Question required: <Switch value={required} checked={required} onChange={onChangeRequired} />
                     </div>

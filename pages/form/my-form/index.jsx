@@ -12,23 +12,37 @@ import { useSelector } from 'react-redux';
 import { useRouter, withRouter } from 'next/router';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import Notify from '../../../components/Notify';
+import Confirmation from '../../../components/Confirmation';
 
-const MyForm = (props) => {
+const MyForm = () => {
     const raws = [];
     const wallet = useSelector((state) => state.wallet);
     const router = useRouter();
     const { query } = router;
     const mouted = useRef(false);
-    const aNav = [
-        { id: 'all-form', label: 'All Form', url: '/form/my-form', icon: null },
-        { id: 'share-with-me', label: 'Share With Me', url: '/form/joined-form', icon: null },
-        // { id: 'favorites', label: 'Favorites', icon: FavoriteOutlinedIcon },
-    ];
 
     const headers = ['Form name', 'Submissions', 'Type', 'Created at', 'status'];
     const [rows, setRows] = useState([]);
     const [filter, setFilter] = useState(query.filter || 'editable');
+    const [openConfirmation, setOpenConfirmation] = useState(false);
     const [unfiltered, setUnfilterd] = useState([]);
+    const [currentForm, setCurrentForm] = useState({});
+    const [openLoading, setOpenLoading] = useState(false);
+    const [openSnack, setOpenSnack] = useState(false);
+    const [alertType, setAlertType] = useState('success');
+    const [snackMsg, setSnackMsg] = useState('');
+
+    const onCloseSnack = () => {
+        setOpenSnack(false);
+    };
+
+    const onShowResult = ({ type, msg }) => {
+        setOpenSnack(true);
+        setOpenLoading(false);
+        setAlertType(type);
+        setSnackMsg(msg);
+    };
 
     useLayoutEffect(() => {
         mouted.current = true;
@@ -104,20 +118,9 @@ const MyForm = (props) => {
         router.push(`/form/view-form?id=${item.id}`);
     };
 
-    const onDeleteForm = (item) => {
-        const { contract } = wallet;
-        contract
-            ?.delete_form?.({
-                id: item?.id,
-            })
-            .then((ret) => {
-                if (ret) {
-                    onGetMaxRows();
-                }
-            })
-            .catch((err) => {
-                console.log(err);
-            });
+    const onDeleteFormClick = (element) => {
+        setCurrentForm(element);
+        setOpenConfirmation(true);
     };
 
     const onExportDateTime = (datetime) => {
@@ -222,25 +225,66 @@ const MyForm = (props) => {
             });
     };
 
+    const onAcceptDeleteForm = () => {
+        const { contract } = wallet;
+        setOpenConfirmation(false);
+        setOpenLoading(true);
+
+        contract
+            ?.delete_form?.(
+                {
+                    id: currentForm?.id,
+                },
+                50000000000000,
+            )
+            .then((ret) => {
+                if (ret) {
+                    onShowResult({
+                        type: 'success',
+                        msg: 'Form has been deleted',
+                    });
+                    onGetMaxRows();
+                } else {
+                    onShowResult({
+                        type: 'error',
+                        msg: 'Somethings went wrong, try again later',
+                    });
+                }
+            })
+            .catch((err) => {
+                onShowResult({
+                    type: 'success',
+                    msg: String(err),
+                });
+            });
+    };
+
+    const onDenyDeleteForm = () => {
+        setOpenConfirmation(false);
+    };
+
     return (
-        <div className={styles.root}>
-            <div className={styles.nav}>
-                <div className={styles.nav_title}>My Forms</div>
-                {aNav.map((item, index) => {
-                    return (
-                        <Fragment key={index}>
-                            <div className={navActive === item.url ? styles.nav_label_active : styles.nav_label} onClick={() => onNavItemClicked(item)}>
-                                {item.icon && <item.icon className={styles.nav_icon} />}
-                                {item.label}
-                            </div>
-                            <div className={styles.line} />
-                        </Fragment>
-                    );
-                })}
-            </div>
-            <div className={styles.content}>
-                <div className={styles.content_row}>
-                    {/* <button
+        <>
+            {openConfirmation && <Confirmation label={confirmationLabel} onAccept={onAcceptDeleteForm} onCancel={onDenyDeleteForm} />}
+            <Notify openLoading={openLoading} openSnack={openSnack} alertType={alertType} snackMsg={snackMsg} onClose={onCloseSnack} />
+            <div className={styles.root}>
+                <div className={styles.nav}>
+                    <div className={styles.nav_title}>My Forms</div>
+                    {aNav.map((item, index) => {
+                        return (
+                            <Fragment key={index}>
+                                <div className={navActive === item.url ? styles.nav_label_active : styles.nav_label} onClick={() => onNavItemClicked(item)}>
+                                    {item.icon && <item.icon className={styles.nav_icon} />}
+                                    {item.label}
+                                </div>
+                                <div className={styles.line} />
+                            </Fragment>
+                        );
+                    })}
+                </div>
+                <div className={styles.content}>
+                    <div className={styles.content_row}>
+                        {/* <button
                         className={`${styles.content_button} ${aRowSelected.length !== 1 && styles.disabled}`}
                         disabled={aRowSelected.length !== 1}
                         onClick={onAnalysisForm}
@@ -250,26 +294,26 @@ const MyForm = (props) => {
                     <button className={`${styles.content_button_delete} ${aRowSelected.length === 0 && styles.disabled}`} disabled={aRowSelected.length === 0}>
                         Delete Selected
                     </button> */}
-                    <div className={styles.filter}>Filter:</div>
-                    <Select
-                        value={filter}
-                        onChange={onFilterChange}
-                        className={styles.content_button_filter}
-                        inputProps={{ 'aria-label': 'Without label' }}
-                        displayEmpty
-                    >
-                        <MenuItem value={'all'}>All</MenuItem>
-                        <MenuItem value={'editable'}>Editable</MenuItem>
-                        <MenuItem value={'publishing'}>Publishing</MenuItem>
-                        <MenuItem value={'finished'}>Finished</MenuItem>
-                    </Select>
-                </div>
-                <div className={styles.line} />
-                <div className={styles.table}>
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                {/* <TableCell className={styles.cell_select_area}>
+                        <div className={styles.filter}>Filter:</div>
+                        <Select
+                            value={filter}
+                            onChange={onFilterChange}
+                            className={styles.content_button_filter}
+                            inputProps={{ 'aria-label': 'Without label' }}
+                            displayEmpty
+                        >
+                            <MenuItem value={'all'}>All</MenuItem>
+                            <MenuItem value={'editable'}>Editable</MenuItem>
+                            <MenuItem value={'publishing'}>Publishing</MenuItem>
+                            <MenuItem value={'finished'}>Finished</MenuItem>
+                        </Select>
+                    </div>
+                    <div className={styles.line} />
+                    <div className={styles.table}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    {/* <TableCell className={styles.cell_select_area}>
                                     {aRowSelected.length === rows.length && aRowSelected.length > 0 ? (
                                         <CheckBoxIcon className={styles.table_icon_select} onClick={() => onSelectAllRow(false)} />
                                     ) : (
@@ -281,18 +325,18 @@ const MyForm = (props) => {
                                         <FavoriteBorderOutlinedIcon className={styles.table_icon_favor} onClick={() => onAddAllFavorite(true)} />
                                     )}
                                 </TableCell> */}
-                                {headers.map((header, index) => (
-                                    <TableCell align="left" key={index} className={styles.table_title}>
-                                        {header.toUpperCase()}
-                                    </TableCell>
-                                ))}
-                                <TableCell className={styles.table_title}>{'ACTIONS'}</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {rows?.map?.((item, index) => (
-                                <TableRow key={index}>
-                                    {/* <TableCell className={styles.cell_select_area}>
+                                    {headers.map((header, index) => (
+                                        <TableCell align="left" key={index} className={styles.table_title}>
+                                            {header.toUpperCase()}
+                                        </TableCell>
+                                    ))}
+                                    <TableCell className={styles.table_title}>{'ACTIONS'}</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {rows?.map?.((item, index) => (
+                                    <TableRow key={index}>
+                                        {/* <TableCell className={styles.cell_select_area}>
                                         <span onClick={() => onSelectRow(item, index)}>
                                             {item.select ? (
                                                 <CheckBoxIcon className={styles.table_icon_select} />
@@ -308,31 +352,45 @@ const MyForm = (props) => {
                                             )}
                                         </span>
                                     </TableCell> */}
-                                    <TableCell className={styles.cell_title} onClick={() => onViewForm(item)}>
-                                        {item.title}
-                                    </TableCell>
-                                    <TableCell className={styles.cell}>{item.participants?.length}</TableCell>
-                                    <TableCell className={styles.cell}>{item.type === 0 ? 'Basic' : 'Card'}</TableCell>
-                                    <TableCell className={styles.cell}>{onExportDateTime(item.created_at)}</TableCell>
-                                    <TableCell className={styles.cell}>{onExportFormStatus(item)}</TableCell>
-                                    <TableCell className={styles.cell_action}>
-                                        <div className={styles.action_button_area}>
-                                            <button className={styles.table_button_edit} onClick={() => onViewForm(item)}>
-                                                <PreviewOutlinedIcon className={styles.table_button_icon} /> View
-                                            </button>
-                                            <button className={styles.table_button_delete} onClick={() => onDeleteForm(item)}>
-                                                <DeleteOutlinedIcon className={styles.table_button_icon} /> Delete
-                                            </button>
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                                        <TableCell className={styles.cell_title} onClick={() => onViewForm(item)}>
+                                            {item.title}
+                                        </TableCell>
+                                        <TableCell className={styles.cell}>{item.participants?.length}</TableCell>
+                                        <TableCell className={styles.cell}>{item.type === 0 ? 'Basic' : 'Card'}</TableCell>
+                                        <TableCell className={styles.cell}>{onExportDateTime(item.created_at)}</TableCell>
+                                        <TableCell className={styles.cell}>{onExportFormStatus(item)}</TableCell>
+                                        <TableCell className={styles.cell_action}>
+                                            <div className={styles.action_button_area}>
+                                                <button className={styles.table_button_edit} onClick={() => onViewForm(item)}>
+                                                    <PreviewOutlinedIcon className={styles.table_button_icon} /> View
+                                                </button>
+                                                <button className={styles.table_button_delete} onClick={() => onDeleteFormClick(item)}>
+                                                    <DeleteOutlinedIcon className={styles.table_button_icon} /> Delete
+                                                </button>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 
 export default withRouter(MyForm);
+
+const aNav = [
+    { id: 'all-form', label: 'All Form', url: '/form/my-form', icon: null },
+    { id: 'share-with-me', label: 'Share With Me', url: '/form/joined-form', icon: null },
+    // { id: 'favorites', label: 'Favorites', icon: FavoriteOutlinedIcon },
+];
+
+const confirmationLabel = {
+    title: 'Confirmation',
+    desc: 'Are you sure to delete this form?',
+    accept: 'Accept',
+    cancel: 'Deny',
+};
