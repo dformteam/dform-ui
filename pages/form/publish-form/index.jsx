@@ -424,19 +424,19 @@ const Publish = () => {
                     </div>
                     <div className={styles.publish_fee_row}>
                         <div className={styles.publish_fee_label}>Joining Fee</div>
-                        <button className={free ? styles.publish_fee_button_active : styles.publish_fee_button} onClick={() => setFree(!free)}>
+                        <button className={free ? styles.publish_fee_button_active : styles.publish_fee_button} onClick={() => setFree(true)}>
                             Free
                         </button>
+                        <button className={!free ? styles.publish_fee_button_active : styles.publish_fee_button} onClick={() => setFree(false)}>
+                            Paid
+                        </button>
                         {!free && (
-                            <>
-                                <div className={styles.publish_fee_label_paid}>Paid</div>
-                                <input
-                                    className={styles.publish_fee_input}
-                                    type={'number'}
-                                    onChange={onFeeChange}
-                                    placeholder={'The amount need to be paid by a participant'}
-                                />
-                            </>
+                            <input
+                                className={styles.publish_fee_input}
+                                type={'number'}
+                                onChange={onFeeChange}
+                                placeholder={'The amount need to be paid by a participant'}
+                            />
                         )}
                     </div>
                     <div className={styles.publish_fee_row}>
