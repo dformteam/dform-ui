@@ -239,3 +239,28 @@
 .goto_homepage:hover {
     text-decoration: underline;
 }
+
+.modal_content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal_loading_icon {
+    width: 150px;
+    height: 150px;
+    margin: 30px auto;
+}
+
+.modal_label {
+    font-size: 17px;
+    color: var(--color-secondary);
+    margin-top: 10px;
+}
+
+.modal_content_text {
+    font-size: 18px;
+    text-align: center;
+    text-decoration: underline;
+    padding-bottom: 10px;
+}

@@ -41,19 +41,6 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Notify from '../../../components/Notify';
 
-const style = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    minWidth: 400,
-    bgcolor: '#fff',
-    borderRadius: '24px',
-    boxShadow: 24,
-    p: 4,
-    outline: 'none',
-};
-
 const CreateForm = () => {
     const raws = [];
     const wallet = useSelector((state) => state.wallet);
@@ -61,7 +48,7 @@ const CreateForm = () => {
     const { query } = router;
 
     const seph = new Semaphore({
-        max: 1,
+        max: 4,
     });
 
     const [welcomeText, setWelcomeText] = useState('Please fill out and submit this form.');
@@ -69,8 +56,8 @@ const CreateForm = () => {
     const [forms, setForms] = useState([]);
     const [modalSave, setModalSave] = useState(false);
     const [isSuccess, setSuccess] = useState(false);
-    const [executing, setExecuting] = useState(0);
-    const [processing, setProcessing] = useState(0);
+    // const [executing, setExecuting] = useState(0);
+    // const [processing, setProcessing] = useState(0);
     const [modalPreview, setModalPreview] = useState(false);
     const [modalSuccess, setModalSuccess] = useState(false);
     const [openLoading, setOpenLoading] = useState(false);
@@ -244,13 +231,6 @@ const CreateForm = () => {
         }
         setSuccess(false);
         setModalSave(true);
-        setProcessing(0);
-        const executing_list = forms?.filter?.((x) => typeof x.bId === 'undefined' || x.bId === null || x.bId === '');
-        if (executing_list.length === 0) {
-            return;
-        }
-
-        setExecuting(executing_list.length);
 
         await Promise.all(
             forms?.map(async (element) => {
@@ -295,12 +275,12 @@ const CreateForm = () => {
                 isRequired: defaultValue.isRequired,
             })
             .then((res) => {
-                setProcessing(processing + 1);
+                // setProcessing(processing + 1);
                 seph.release();
                 return res?.id;
             })
             .catch((err) => {
-                setProcessing(processing + 1);
+                // setProcessing(processing + 1);
                 seph.release();
                 return undefined;
             });
@@ -339,8 +319,8 @@ const CreateForm = () => {
         if (!valid) {
             return;
         }
-        setExecuting(1);
-        setProcessing(0);
+        // setExecuting(1);
+        // setProcessing(0);
         setModalSave(true);
         const bId = await uploadNewElement(element);
         element.bId = bId;
@@ -487,9 +467,9 @@ const CreateForm = () => {
                 <div className={styles.modal_content}>
                     <img src={'/loading.svg'} alt="error" className={styles.modal_loading_icon} />
                 </div>
-                <div className={styles.modal_content_text}>
+                {/* <div className={styles.modal_content_text}>
                     Processing: {processing}/{executing} completed.
-                </div>
+                </div> */}
             </>
         );
     };
@@ -749,3 +729,17 @@ const listElement = [
         },
     },
 ];
+
+
+const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    minWidth: 400,
+    bgcolor: '#fff',
+    borderRadius: '24px',
+    boxShadow: 24,
+    p: 4,
+    outline: 'none',
+};

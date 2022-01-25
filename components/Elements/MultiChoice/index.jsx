@@ -6,12 +6,11 @@ import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import Switch from '@mui/material/Switch';
 
-const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
+const MultiChoice = ({ index, onChange, defaultValue, type = '', error }) => {
     let initValue = {
         title: ['Type a question', 'Type your description'],
         meta: ['Type option 1', 'Type option 2', 'Type option 3', 'Type option 4'],
         isRequired: false,
-        error: '',
     };
 
     if (typeof defaultValue !== 'undefined') {
@@ -22,7 +21,6 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
     const [first_field, setFirstField] = useState(initValue?.title?.[1] || 'Type your description.');
     const [aAnswers, setAnswers] = useState(initValue?.meta);
     const [required, setRequired] = useState(initValue.isRequired || false);
-    const [error, setError] = useState(initValue.error);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -103,7 +101,6 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
             aAnswers[indexx].check = !aAnswers?.[indexx].check;
             const choosen = aAnswers?.filter((x) => x.check).map((x) => x.content);
             setAnswers([...aAnswers]);
-            setError('');
             onChange?.({
                 index,
                 title: [title, first_field],
@@ -173,7 +170,7 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '' }) => {
                         </div>
                     )}
                 </div>
-                {error !== '' && <div className={styles.text_error}>Error</div>}
+                {error !== '' && <div className={styles.text_error}>{error}</div>}
             </div>
         </div>
     );

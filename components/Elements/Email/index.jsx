@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import styles from './Email.module.scss';
 import Switch from '@mui/material/Switch';
 
-const Email = ({ index, onChange, defaultValue, type = '' }) => {
+const Email = ({ index, onChange, defaultValue, type = '', error }) => {
     let initValue = {
         title: ['Email', 'Type your description.', 'Email.'],
         meta: [],
@@ -20,7 +20,6 @@ const Email = ({ index, onChange, defaultValue, type = '' }) => {
     const [second_field, setSecondField] = useState(initValue?.title?.[2] || 'Email');
     const [email, setEmail] = useState('');
     const [required, setRequired] = useState(initValue?.isRequired || false);
-    const [error, setError] = useState(initValue.error);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -57,7 +56,6 @@ const Email = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onEmailChange = (e) => {
         setEmail(e.target.value);
-        setError('');
         type === 'answer' &&
             onChange?.({
                 index,
@@ -70,7 +68,7 @@ const Email = ({ index, onChange, defaultValue, type = '' }) => {
     const onFillValue = () => {
         if (type === 'analysis') {
             setEmail(initValue?.meta?.[0] || '');
-            setRequired(initValue?.required);
+            setRequired(initValue?.isRequired);
         }
     };
 
@@ -130,7 +128,7 @@ const Email = ({ index, onChange, defaultValue, type = '' }) => {
                             value={email}
                             onChange={onEmailChange}
                         />
-                        {error !== '' && <div className={styles.text_error}>Error</div>}
+                        {error !== '' && <div className={styles.text_error}>{error}</div>}
                     </div>
                 </div>
             </div>

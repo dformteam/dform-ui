@@ -6,7 +6,6 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import FavoriteOutlinedIcon from '@mui/icons-material/FavoriteOutlined';
 import PreviewOutlinedIcon from '@mui/icons-material/PreviewOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import { useSelector } from 'react-redux';
@@ -23,7 +22,7 @@ const MyForm = (props) => {
     const aNav = [
         { id: 'all-form', label: 'All Form', url: '/form/my-form', icon: null },
         { id: 'share-with-me', label: 'Share With Me', url: '/form/joined-form', icon: null },
-        { id: 'favorites', label: 'Favorites', icon: FavoriteOutlinedIcon },
+        // { id: 'favorites', label: 'Favorites', icon: FavoriteOutlinedIcon },
     ];
 
     const headers = ['Form name', 'Submissions', 'Type', 'Created at', 'status'];
@@ -45,9 +44,9 @@ const MyForm = (props) => {
     }, []);
 
     const getActiveClassName = () => {
-        const { router } = props;
         return router.pathname;
     };
+
     const navActive = getActiveClassName();
 
     const onGetMaxRows = () => {

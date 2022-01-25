@@ -3,12 +3,11 @@ import React, { useEffect, useState } from 'react';
 import styles from './Phone.module.scss';
 import Switch from '@mui/material/Switch';
 
-const Phone = ({ index, onChange, defaultValue, type = '' }) => {
+const Phone = ({ index, onChange, defaultValue, type = '', error }) => {
     let initValue = {
         title: ['Phone Number', 'Type your description', 'Please enter a valid phone number.'],
         meta: [],
         isRequired: false,
-        error: '',
     };
 
     if (typeof defaultValue !== 'undefined') {
@@ -20,7 +19,6 @@ const Phone = ({ index, onChange, defaultValue, type = '' }) => {
     const [second_field, setSecondField] = useState(initValue?.first_field?.[1] || 'Please enter a valid phone number.');
     const [phone, setPhone] = useState('');
     const [required, setRequired] = useState(initValue.isRequired || false);
-    const [error, setError] = useState(initValue.error);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -57,7 +55,6 @@ const Phone = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onPhoneChange = (e) => {
         setPhone(e.target.value);
-        setError('');
         type === 'answer' &&
             onChange?.({
                 index,
@@ -120,7 +117,7 @@ const Phone = ({ index, onChange, defaultValue, type = '' }) => {
                             disabled={type === 'edit' ? false : true}
                         />
                         <input className={styles.phone_input} type={'tel'} value={phone} onChange={onPhoneChange} disabled={type === 'answer' ? false : true} />
-                        {error !== '' && <div className={styles.text_error}>Error</div>}
+                        {error !== '' && <div className={styles.text_error}>{error}</div>}
                     </div>
                 </div>
             </div>

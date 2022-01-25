@@ -3,12 +3,11 @@ import React, { useEffect, useState } from 'react';
 import styles from './FullName.module.scss';
 import Switch from '@mui/material/Switch';
 
-const FullName = ({ index, onChange, defaultValue, type = '' }) => {
+const FullName = ({ index, onChange, defaultValue, type = '', error }) => {
     let initValue = {
         title: ['Name', 'Type your description', 'First Name', 'Last Name'],
         meta: [],
         isRequired: false,
-        error: '',
     };
 
     if (typeof defaultValue !== 'undefined') {
@@ -22,7 +21,6 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
     const [first_name, setFirstName] = useState('');
     const [last_name, setLastName] = useState('');
     const [required, setRequired] = useState(initValue.isRequired || false);
-    const [error, setError] = useState(initValue.error);
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
@@ -70,7 +68,7 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onFirsNameChange = (e) => {
         setFirstName(e.target.value);
-        setError('');
+        // setError('');
         type === 'answer' &&
             onChange?.({
                 index,
@@ -82,7 +80,7 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
 
     const onLastNameChange = (e) => {
         setLastName(e.target.value);
-        setError('');
+        // setError('');
         type === 'answer' &&
             onChange?.({
                 index,
@@ -95,8 +93,8 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
     const onFillValue = () => {
         if (type === 'answer') {
             setFirstName(initValue?.meta?.[0] || '');
-            setLastName(initValue?.meta?.[0] || '');
-            setRequired(initValue?.required);
+            setLastName(initValue?.meta?.[1] || '');
+            setRequired(initValue?.isRequired);
         }
     };
 
@@ -159,7 +157,7 @@ const FullName = ({ index, onChange, defaultValue, type = '' }) => {
                         <input className={styles.full_name_input} disabled={type === 'answer' ? false : true} value={last_name} onChange={onLastNameChange} />
                     </div>
                 </div>
-                {error !== '' && <div className={styles.text_error}>Error</div>}
+                {error !== '' && <div className={styles.text_error}>{error}</div>}
             </div>
         </div>
     );
