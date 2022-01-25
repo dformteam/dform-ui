@@ -134,7 +134,7 @@ const CreateForm = () => {
 
     const onGetElements = ({ total }) => {
         const { contract, walletConnection } = wallet;
-        const num_page = parseInt(total / 5) + 1;
+        const num_page = total % 5 === 0 ? total / 5 : parseInt(total / 5) + 1;
         const page_arr = new Array(num_page).fill(0);
         setElements([]);
 

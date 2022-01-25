@@ -3,6 +3,7 @@
     flex: 1;
     display: flex;
     padding: 5%;
+    justify-content: center;
 }
 
 .publish_content {
@@ -15,7 +16,7 @@
     background: var(--color-background);
     box-shadow: var(--color-boxshadow);
     padding: 32px;
-    margin: 0 auto;
+    // margin: 0 auto;
 }
 
 .publish_title {
@@ -386,7 +387,9 @@
 }
 
 .list {
-    flex: 1;
+    // flex: 1;
+    width: 20%;
+    min-width: 345px;
     border-radius: 24px;
     background: var(--color-background);
     box-shadow: var(--color-boxshadow);

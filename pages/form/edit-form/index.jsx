@@ -56,8 +56,6 @@ const CreateForm = () => {
     const [forms, setForms] = useState([]);
     const [modalSave, setModalSave] = useState(false);
     const [isSuccess, setSuccess] = useState(false);
-    // const [executing, setExecuting] = useState(0);
-    // const [processing, setProcessing] = useState(0);
     const [modalPreview, setModalPreview] = useState(false);
     const [modalSuccess, setModalSuccess] = useState(false);
     const [openLoading, setOpenLoading] = useState(false);
@@ -137,7 +135,7 @@ const CreateForm = () => {
 
     const onGetElements = ({ total }) => {
         const { contract, walletConnection } = wallet;
-        const num_page = parseInt(total / 5) + 1;
+        const num_page = total % 5 === 0 ? total / 5 : parseInt(total / 5) + 1;
         const page_arr = new Array(num_page).fill(0);
         setForms([]);
 
@@ -181,6 +179,7 @@ const CreateForm = () => {
                                 return '';
                             });
                             setRawForms([...temp_forms]);
+                            setForms([...temp_forms]);
                         }
                     }
                 });
