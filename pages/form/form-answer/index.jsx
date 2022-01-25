@@ -206,30 +206,31 @@ const FormAnswer = () => {
                             });
                             let temp_elements = [];
                             raws.map((raw) => {
-                                const transform_form = raw?.data
-                                    ?.map((form_data) => {
-                                        return {
-                                            bId: form_data.id,
-                                            id: listElement?.[form_data.type]?.id,
-                                            type: form_data.type,
-                                            label: listElement?.[form_data.type]?.label,
-                                            defaultValue: {
-                                                title: form_data?.title,
-                                                meta: form_data?.meta,
-                                                isRequired: form_data?.isRequired,
-                                                error: '',
-                                            },
-                                            numth: form_data.numth,
-                                        };
-                                    })
-                                    ?.sort((x, y) => {
-                                        if (x?.numth < y?.numth) return -1;
-                                        if (x?.numth > y?.numth) return 1;
-                                        return 0;
-                                    });
+                                const transform_form = raw?.data?.map((form_data) => {
+                                    return {
+                                        bId: form_data.id,
+                                        id: listElement?.[form_data.type]?.id,
+                                        type: form_data.type,
+                                        label: listElement?.[form_data.type]?.label,
+                                        defaultValue: {
+                                            title: form_data?.title,
+                                            meta: form_data?.meta,
+                                            isRequired: form_data?.isRequired,
+                                            error: '',
+                                        },
+                                        numth: form_data.numth,
+                                    };
+                                });
                                 temp_elements = [...temp_elements, ...(transform_form || [])];
                                 return temp_elements;
                             });
+
+                            temp_elements = temp_elements?.sort((x, y) => {
+                                if (x?.numth < y?.numth) return -1;
+                                if (x?.numth > y?.numth) return 1;
+                                return 0;
+                            });
+
                             setElements([...temp_elements]);
                         }
                     }

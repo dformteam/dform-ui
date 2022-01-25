@@ -32,7 +32,7 @@ const Event = () => {
             <div className={styles.event_item} key={item.id}>
                 <div className={styles.event_item_header}>
                     <div className={styles.event_item_type}>{item.type}</div>
-                    <img src={'/calendar.svg'} className={styles.event_item_img} />
+                    <img src={'/calendar.svg'} className={styles.event_item_img} alt="img" />
                 </div>
                 <div className={styles.event_item_info}>
                     <div className={styles.event_item_date}>{item.date}</div>
@@ -61,7 +61,7 @@ const Event = () => {
             <div className={styles.attend_event}>
                 <div className={styles.attend_item_header}>
                     <div className={styles.attend_item_type}>{'Online'}</div>
-                    <img src={'/calendar.svg'} className={styles.attend_item_img} />
+                    <img src={'/calendar.svg'} className={styles.attend_item_img} alt="img" />
                 </div>
                 <div className={styles.attend_item_info}>
                     <div className={styles.attend_item_date}>{'Sat, Jan 15 @ 5:30 PM'}</div>
