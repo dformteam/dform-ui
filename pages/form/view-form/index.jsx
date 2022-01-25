@@ -161,6 +161,7 @@ const CreateForm = () => {
                             raws.map((raw) => {
                                 const transform_form = raw?.data
                                     ?.map((tmp_data) => {
+                                        console.log(tmp_data);
                                         return {
                                             bId: tmp_data.id,
                                             id: listElement?.[tmp_data.type]?.id,

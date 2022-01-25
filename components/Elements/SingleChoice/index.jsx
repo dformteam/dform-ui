@@ -19,7 +19,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '', error }) => {
     }
     const [title, setTitle] = useState(initValue?.title?.[0] || 'Type a question');
     const [first_field, setFirstField] = useState(initValue?.title?.[1] || 'Type your description.');
-    const [aAnswers, setAnswers] = useState([]);
+    const [aAnswers, setAnswers] = useState(initValue?.meta);
     const [required, setRequired] = useState(initValue.isRequired || false);
 
     const onTitleChange = (e) => {
@@ -112,7 +112,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '', error }) => {
                 const check = type === 'analysis' ? true : false;
                 return {
                     id: indexn,
-                    content: mt,
+                    content: mt.content,
                     check,
                 };
             }),
@@ -155,12 +155,13 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '', error }) => {
                     />
                 )}
                 {type !== 'answer' && type !== 'analysis' && (
-                    <div className={styles.single_choicerequire}>
+                    <div className={styles.single_choice_require}>
                         Question required: <Switch value={required} checked={required} onChange={onChangeRequired} />
                     </div>
                 )}
                 <div className={styles.single_choice}>
                     {aAnswers?.map?.((item, indexx) => {
+                        console.log(item);
                         return (
                             <div
                                 className={indexx % 2 === 0 ? styles.single_choice_form_left : styles.single_choice_form_right}
