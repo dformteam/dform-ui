@@ -184,6 +184,7 @@ const CreateForm = () => {
                                 temp_elements = [...temp_elements, ...(transform_form || [])];
                                 return '';
                             });
+                            console.log(temp_elements);
                             setElements([...temp_elements]);
                         }
                     }
@@ -533,7 +534,7 @@ const CreateForm = () => {
     return (
         <>
             {openConfirmation && <Confirmation label={confirmationLabel} onAccept={onAcceptDeleteElement} onCancel={onDenyDeleteElement} />}
-            {openConfirmUnpublish && <Confirmation label={confirmationLabel} onAccept={onAcceptUnPublishForm} onCancel={onDenyUnPublishForm} />}
+            {openConfirmUnpublish && <Confirmation label={unpublishConfirmationLabel} onAccept={onAcceptUnPublishForm} onCancel={onDenyUnPublishForm} />}
             <Notify openLoading={openLoading} openSnack={openSnack} alertType={alertType} snackMsg={snackMsg} onClose={onCloseSnack} />
             <div className={styles.root}>
                 <div className={styles.container}>
@@ -702,18 +703,17 @@ const listElement = [
             error: '',
         },
     },
-    // {
-    //     bId: '',
-    //     id: 'fillBlank',
-    //     type: 6,
-    //     label: 'Fill in the Blank',
-    //     icon: FormatSizeOutlinedIcon,
-    //     defaultValue: {
-    //         title: ['Type a question'],
-    //         meta: [],
-    //         isRequired: false,
-    //     },
-    // },
+    {
+        bId: '',
+        id: 'fillBlank',
+        type: 6,
+        label: 'Fill in the Blank',
+        defaultValue: {
+            title: ['Type a question'],
+            meta: [],
+            isRequired: false,
+        },
+    },
     {
         bId: '',
         id: 'shortText',
@@ -791,6 +791,13 @@ const listElement = [
 const confirmationLabel = {
     title: 'Confirmation',
     desc: 'Are you sure to delete this question?',
+    accept: 'Accept',
+    cancel: 'Deny',
+};
+
+const unpublishConfirmationLabel = {
+    title: 'Confirmation',
+    desc: 'Are you sure to unpublish, data of submission will be deleted!',
     accept: 'Accept',
     cancel: 'Deny',
 };
