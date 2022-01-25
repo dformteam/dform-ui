@@ -461,40 +461,42 @@ const Publish = () => {
                         </div>
                     </div>
                 </div>
-                <div className={styles.list}>
-                    <div className={styles.list_label}>Black list:</div>
-                    <div className={styles.list_content}>
-                        {black_list?.length > 0 ? (
-                            <>
-                                {black_list.map((data) => {
-                                    return (
-                                        <ListItem key={data}>
-                                            <Chip label={data} onDelete={() => onDeleteBlackItem(data)} variant="outlined" color="error" />
-                                        </ListItem>
-                                    );
-                                })}
-                            </>
-                        ) : (
-                            <div className={styles.list_nothing}>Nothing to display</div>
-                        )}
+                {status === 'private' && (
+                    <div className={styles.list}>
+                        <div className={styles.list_label}>Black list:</div>
+                        <div className={styles.list_content}>
+                            {black_list?.length > 0 ? (
+                                <>
+                                    {black_list.map((data) => {
+                                        return (
+                                            <ListItem key={data}>
+                                                <Chip label={data} onDelete={() => onDeleteBlackItem(data)} variant="outlined" color="error" />
+                                            </ListItem>
+                                        );
+                                    })}
+                                </>
+                            ) : (
+                                <div className={styles.list_nothing}>Nothing to display</div>
+                            )}
+                        </div>
+                        <div className={styles.list_label}>White list:</div>
+                        <div className={styles.list_content}>
+                            {white_list?.length > 0 ? (
+                                <>
+                                    {white_list.map((data) => {
+                                        return (
+                                            <ListItem key={data}>
+                                                <Chip label={data} onDelete={() => onDeleteWhiteItem(data)} variant="outlined" color="success" />
+                                            </ListItem>
+                                        );
+                                    })}
+                                </>
+                            ) : (
+                                <div className={styles.list_nothing}>Nothing to display</div>
+                            )}
+                        </div>
                     </div>
-                    <div className={styles.list_label}>White list:</div>
-                    <div className={styles.list_content}>
-                        {white_list?.length > 0 ? (
-                            <>
-                                {white_list.map((data) => {
-                                    return (
-                                        <ListItem key={data}>
-                                            <Chip label={data} onDelete={() => onDeleteWhiteItem(data)} variant="outlined" color="success" />
-                                        </ListItem>
-                                    );
-                                })}
-                            </>
-                        ) : (
-                            <div className={styles.list_nothing}>Nothing to display</div>
-                        )}
-                    </div>
-                </div>
+                )}
 
                 <Modal open={open} onClose={onCloseModalShare} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
                     <Box sx={style}>
