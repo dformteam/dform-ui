@@ -92,7 +92,7 @@ const Time = ({ index, onChange, defaultValue, type = '', error }) => {
                     />
                 )}
                 {type !== 'answer' && type !== 'analysis' && (
-                    <div className={styles.timerequire}>
+                    <div className={styles.time_require}>
                         Question required: <Switch value={required} checked={required} onChange={onChangeRequired} />
                     </div>
                 )}

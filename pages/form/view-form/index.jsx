@@ -797,7 +797,7 @@ const confirmationLabel = {
 
 const unpublishConfirmationLabel = {
     title: 'Confirmation',
-    desc: 'Are you sure to unpublish, data of submission will be deleted!',
+    desc: 'Are you sure to unpublish,' + '\n' + ' data of submission will be deleted!',
     accept: 'Accept',
     cancel: 'Deny',
 };
