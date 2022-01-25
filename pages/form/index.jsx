@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './Form.module.scss';
 import Image from 'next/image';
 import IconTemplate from './IconTemplate.svg';
@@ -11,6 +11,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { connect } from 'react-redux';
 import Notify from '../../components/Notify';
+import { useSelector } from 'react-redux';
 
 const style = {
     position: 'absolute',
@@ -25,7 +26,12 @@ const style = {
     outline: 'none',
 };
 
-const Form = ({ wallet }) => {
+const Form = () => {
+    const wallet = useSelector((state) => state.wallet);
+    const router = useRouter();
+    const create_form_raws = [];
+    const joined_form_raws = [];
+
     const [open, setOpen] = useState(false);
     const [new_form_title, setNewFormTitle] = useState('');
     const [new_form_description, setNewFormDescripton] = useState('');
@@ -34,6 +40,8 @@ const Form = ({ wallet }) => {
     const [openSnack, setOpenSnack] = useState(false);
     const [alertType, setAlertType] = useState('success');
     const [snackMsg, setSnackMsg] = useState('');
+    const [created_forms, setCreateForms] = useState([]);
+    const [joined_forms, setJoinedForms] = useState([]);
 
     const onCloseSnack = () => {
         setOpenSnack(false);
@@ -46,18 +54,44 @@ const Form = ({ wallet }) => {
         setSnackMsg(msg);
     };
 
-    const router = useRouter();
+    useEffect(() => {
+        (async () => {
+            await getNewestCreatedForms();
+            await getNewestJoinedForms();
+        })();
+    }, []);
 
-    const aTemplate = [
-        { id: 'blank', title: 'Blank', name: 'Create a blank form', route: '/form/create-form' },
-        { id: 'demo_day', title: 'Demo day', name: `© ${new Date().getFullYear()} Learn NEAR Club`, route: '/create-form' },
-    ];
+    const getNewestCreatedForms = async () => {
+        const { contract, walletConnection } = wallet;
+        setCreateForms([]);
+        const userId = walletConnection.getAccountId();
+        await contract
+            .get_forms({
+                userId,
+                page: 1,
+            })
+            .then((data) => {
+                if (data) {
+                    setCreateForms([...data?.data]);
+                }
+            })
+            .catch((err) => console.log(err));
+    };
 
-    const aRecent = [
-        { id: '1', title: 'Blank', subtitle: 'Create a blank form', lastUpdate: '20:00 29/12/2021' },
-        { id: '2', title: 'Demo day © 2021 Learn NEAR Club © 2021 Learn NEAR Club', subtitle: '© 2021 Learn NEAR Club', lastUpdate: '21:00 30/12/2021' },
-        { id: '1', title: 'Blank', subtitle: 'Create a blank form', lastUpdate: '20:00 29/12/2021' },
-    ];
+    const getNewestJoinedForms = () => {
+        const { contract, walletConnection } = wallet;
+        const userId = walletConnection.getAccountId();
+        contract
+            .get_joined_forms({
+                userId,
+                page: 1,
+            })
+            .then((data) => {
+                if (data) {
+                    setJoinedForms([...data?.data]);
+                }
+            });
+    };
 
     const onCreateClick = () => {
         if (new_form_title === '' || new_form_title === null || typeof new_form_title === 'undefined') {
@@ -76,8 +110,7 @@ const Form = ({ wallet }) => {
 
         setOpenLoading(true);
         setOpen(false);
-        const { contract, walletConnection } = wallet;
-        const userId = walletConnection.getAccountId();
+        const { contract } = wallet;
         const form_type = new_form_type === 'card' ? 1 : 0;
 
         contract
@@ -119,6 +152,26 @@ const Form = ({ wallet }) => {
 
     const onCloseModalCreate = () => setOpen(false);
 
+    const onExportDateTime = (datetime) => {
+        try {
+            const timestamp = parseFloat(datetime);
+            const date = new Date(timestamp);
+            const localDate = date.toLocaleDateString();
+            const localTime = date.toLocaleTimeString();
+            return `${localDate} ${localTime}`;
+        } catch {
+            return 'unknow';
+        }
+    };
+
+    const onJoinedFormClick = (item) => {
+        router.push(`form/form-analysis?id=${item.form_id}`);
+    };
+
+    const onCreatedFormClick = (item) => {
+        router.push(`form/view-form?id=${item.id}`);
+    };
+
     return (
         <>
             <Notify openLoading={openLoading} openSnack={openSnack} alertType={alertType} snackMsg={snackMsg} onClose={onCloseSnack} />
@@ -139,7 +192,7 @@ const Form = ({ wallet }) => {
                 <div className={styles.content}>
                     {aTemplate.map((item, index) => {
                         return (
-                            <div className={styles.template} key={index} onClick={() => onOpenModalCreate(item.route)}>
+                            <div className={styles.template} key={index} onClick={() => onOpenModalCreate()}>
                                 <div className={styles.template_content}>
                                     {item.id === 'blank' ? (
                                         <AddOutlinedIcon fontSize="large" className={styles.template_icon_add} />
@@ -159,11 +212,25 @@ const Form = ({ wallet }) => {
                     <div className={styles.label_title}>Recent</div>
                 </div>
                 <div className={styles.content}>
-                    {aRecent.length > 0 ? (
+                    {joined_forms?.length > 0 || created_forms?.length > 0 ? (
                         <>
-                            {aRecent.map((item, index) => {
+                            {joined_forms.map((item, index) => {
                                 return (
-                                    <div className={styles.recent} key={index}>
+                                    <div className={styles.recent} key={index} onClick={() => onJoinedFormClick(item)}>
+                                        <div className={styles.menu}>
+                                            <MoreVertOutlinedIcon fontSize="large" className={styles.recent_icon_menu} />
+                                        </div>
+                                        <div className={styles.recent_title}>
+                                            Name: <span className={styles.recent_name}>{item.form_title}</span>
+                                        </div>
+                                        <div className={styles.recent_title}>Last updated:</div>
+                                        <div className={styles.recent_last_update}>{onExportDateTime(item.last_summited)}</div>
+                                    </div>
+                                );
+                            })}
+                            {created_forms.map((item, index) => {
+                                return (
+                                    <div className={styles.recent} key={index} onClick={() => onCreatedFormClick(item)}>
                                         <div className={styles.menu}>
                                             <MoreVertOutlinedIcon fontSize="large" className={styles.recent_icon_menu} />
                                         </div>
@@ -171,7 +238,7 @@ const Form = ({ wallet }) => {
                                             Name: <span className={styles.recent_name}>{item.title}</span>
                                         </div>
                                         <div className={styles.recent_title}>Last updated:</div>
-                                        <div className={styles.recent_last_update}>{item.lastUpdate}</div>
+                                        <div className={styles.recent_last_update}>{onExportDateTime(item.created_at)}</div>
                                     </div>
                                 );
                             })}
@@ -196,7 +263,7 @@ const Form = ({ wallet }) => {
                         <div className={styles.modal_row}>
                             <div className={styles.modal_label}>Form type</div>
                             <div className={new_form_type === 'card' ? styles.modal_button_active : styles.modal_button} onClick={() => setNewFormType('card')}>
-                                <img src={'/card_form.svg'} className={styles.modal_card_img} />
+                                <img src={'/card_form.svg'} alt="img" className={styles.modal_card_img} />
                                 <div className={styles.line} />
                                 <span>Card Form</span>
                             </div>
@@ -204,7 +271,7 @@ const Form = ({ wallet }) => {
                                 className={(new_form_type === 'basic' ? styles.modal_button_active : styles.modal_button) + ' ' + styles.margin_left}
                                 onClick={() => setNewFormType('basic')}
                             >
-                                <img src={'/basic_form.svg'} className={styles.modal_card_img} />
+                                <img src={'/basic_form.svg'} alt="img" className={styles.modal_card_img} />
                                 <div className={styles.line} />
                                 <span>Basic Form</span>
                             </button>
@@ -229,3 +296,14 @@ export default connect((state) => {
         wallet: state.wallet,
     };
 })(Form);
+
+const aTemplate = [
+    { id: 'blank', title: 'Blank', name: 'Create a blank form', route: '/form/create-form' },
+    { id: 'demo_day', title: 'Demo day', name: `© ${new Date().getFullYear()} Learn NEAR Club`, route: '/create-form' },
+];
+
+// const aRecent = [
+//     { id: '1', title: 'Blank', subtitle: 'Create a blank form', lastUpdate: '20:00 29/12/2021' },
+//     { id: '2', title: 'Demo day © 2021 Learn NEAR Club © 2021 Learn NEAR Club', subtitle: '© 2021 Learn NEAR Club', lastUpdate: '21:00 30/12/2021' },
+//     { id: '1', title: 'Blank', subtitle: 'Create a blank form', lastUpdate: '20:00 29/12/2021' },
+// ];
