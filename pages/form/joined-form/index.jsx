@@ -31,6 +31,12 @@ const MyForm = () => {
         };
     }, []);
 
+    const getActiveClassName = () => {
+        return router.pathname;
+    };
+
+    const navActive = getActiveClassName();
+
     const onGetMaxRows = () => {
         const { contract, walletConnection } = wallet;
         const userId = walletConnection.getAccountId();
@@ -114,7 +120,7 @@ const MyForm = () => {
                 {aNav.map((item, index) => {
                     return (
                         <Fragment key={index}>
-                            <div className={styles.nav_label} onClick={() => onNavItemClicked(item)}>
+                            <div className={navActive === item.url ? styles.nav_label_active : styles.nav_label} onClick={() => onNavItemClicked(item)}>
                                 {item.icon && <item.icon className={styles.nav_icon} />}
                                 {item.label}
                             </div>
