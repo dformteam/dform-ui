@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useLayoutEffect, useState } from 'react';
 import styles from './PreviewForm.module.scss';
 import Header from '../../../../components/Elements/Header';
@@ -96,9 +97,10 @@ const PreviewForm = () => {
     const onGetFormDetail = () => {
         const { contract, walletConnection } = wallet;
         const { id } = query;
-        const content = 'Could not found any object have that id!';
-        const encoded_content = encodeURIComponent(content);
+        let content = '';
         if (id === null || id === '' || typeof id === 'undefined') {
+            content = 'Could not found any object have that id!';
+            const encoded_content = encodeURIComponent(content);
             router.push(`/error?content=${encoded_content}`);
         }
 
@@ -108,12 +110,11 @@ const PreviewForm = () => {
             })
             .then((res) => {
                 if (res) {
-                    const content = '';
                     const userId = walletConnection.getAccountId();
                     if (userId !== res?.owner) {
                         content = 'You do not have permssion to edit this form!';
                     }
-                    
+
                     if (content !== '') {
                         const encoded_content = encodeURIComponent(content);
                         router.push(`/error?content=${encoded_content}`);
@@ -162,7 +163,9 @@ const PreviewForm = () => {
         <div className={styles.root}>
             <div className={styles.content}>
                 {forms.map((item, index) => {
-                    if (index !== activeIndex) return;
+                    if (index !== activeIndex) {
+                        return null;
+                    }
                     return (
                         <div className={styles.element_content} key={index}>
                             {renderElement(item, index)}

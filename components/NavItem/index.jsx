@@ -1,12 +1,8 @@
-import React from "react";
-import styles from "./NavItem.module.scss";
-import Router from "next/router";
+import React from 'react';
+import styles from './NavItem.module.scss';
+import Router from 'next/router';
 
 export default class NavItem extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-
     onNavItemClicked = () => {
         const { href } = this.props;
         Router.push(href);

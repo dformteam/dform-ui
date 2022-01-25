@@ -3,7 +3,7 @@ import Dialog from '@mui/material/Dialog';
 import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined';
 import styles from './Confirmation.module.scss';
 
-export default ({ label = {}, onAccept, onCancel }) => {
+const Confirmation = ({ label = {}, onAccept, onCancel }) => {
     const handleAccept = () => {
         onAccept?.();
     };
@@ -28,3 +28,5 @@ export default ({ label = {}, onAccept, onCancel }) => {
         </Dialog>
     );
 };
+
+export default Confirmation;

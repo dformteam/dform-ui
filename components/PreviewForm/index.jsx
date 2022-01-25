@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState } from 'react';
+import { useState } from 'react';
 import styles from './PreviewForm.module.scss';
 import Header from '../../components/Elements/Header';
 import FullName from '../../components/Elements/FullName';
@@ -15,13 +15,8 @@ import MultiChoice from '../../components/Elements/MultiChoice';
 import FillBlank from '../../components/Elements/FillBlank';
 import ArrowForwardOutlinedIcon from '@mui/icons-material/ArrowForwardOutlined';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
-import { useSelector } from 'react-redux';
-import { useRouter } from 'next/router';
 
 const PreviewForm = (props) => {
-    const wallet = useSelector((state) => state.wallet);
-    const router = useRouter();
-    const { query } = router;
     let forms = props.data;
     forms = [
         {
@@ -124,7 +119,7 @@ const PreviewForm = (props) => {
         <div className={styles.root}>
             <div className={styles.content}>
                 {forms.map((item, index) => {
-                    if (index !== activeIndex) return;
+                    if (index !== activeIndex) return null;
                     return (
                         <div className={styles.element_content} key={index}>
                             {renderElement(item, index)}

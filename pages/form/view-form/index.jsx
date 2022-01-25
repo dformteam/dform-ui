@@ -159,40 +159,40 @@ const CreateForm = () => {
                             });
                             let temp_elements = [];
                             raws.map((raw) => {
-                                const transform_form = raw?.data
-                                    ?.map((tmp_data) => {
-                                        console.log(tmp_data);
-                                        return {
-                                            bId: tmp_data.id,
-                                            id: listElement?.[tmp_data.type]?.id,
-                                            type: tmp_data.type,
-                                            label: listElement?.[tmp_data.type]?.label,
-                                            icon: ShortTextOutlinedIcon,
-                                            defaultValue: {
-                                                title: tmp_data?.title,
-                                                meta: tmp_data?.meta?.map((x) => {
-                                                    return {
-                                                        content: x,
-                                                        checked: false,
-                                                    };
-                                                }),
-                                                isRequired: tmp_data?.isRequired,
-                                                error: '',
-                                            },
-                                            edited: false,
-                                            editable: false,
-                                            numth: tmp_data.numth,
-                                        };
-                                    })
-                                    ?.sort((x, y) => {
-                                        if (x?.numth < y?.numth) return -1;
-                                        if (x?.numth > y?.numth) return 1;
-                                        return 0;
-                                    });
+                                const transform_form = raw?.data?.map((tmp_data) => {
+                                    console.log(tmp_data);
+                                    return {
+                                        bId: tmp_data.id,
+                                        id: listElement?.[tmp_data.type]?.id,
+                                        type: tmp_data.type,
+                                        label: listElement?.[tmp_data.type]?.label,
+                                        icon: ShortTextOutlinedIcon,
+                                        defaultValue: {
+                                            title: tmp_data?.title,
+                                            meta: tmp_data?.meta?.map((x) => {
+                                                return {
+                                                    content: x,
+                                                    checked: false,
+                                                };
+                                            }),
+                                            isRequired: tmp_data?.isRequired,
+                                            error: '',
+                                        },
+                                        edited: false,
+                                        editable: false,
+                                        numth: tmp_data.numth,
+                                    };
+                                });
+
                                 temp_elements = [...temp_elements, ...(transform_form || [])];
                                 return '';
                             });
-                            console.log(temp_elements);
+
+                            temp_elements = temp_elements?.sort((x, y) => {
+                                if (x?.numth < y?.numth) return -1;
+                                if (x?.numth > y?.numth) return 1;
+                                return 0;
+                            });
                             setElements([...temp_elements]);
                         }
                     }
@@ -805,7 +805,7 @@ const confirmationLabel = {
 
 const unpublishConfirmationLabel = {
     title: 'Confirmation',
-    desc: 'Are you sure to unpublish,' + '\n' + ' data of submission will be deleted!',
+    desc: `Are you sure to unpublish,\n data of submission will be deleted!`,
     accept: 'Accept',
     cancel: 'Deny',
 };
