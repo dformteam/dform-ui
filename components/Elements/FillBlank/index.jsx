@@ -112,13 +112,13 @@ const FillBlank = ({ index, onChange, defaultValue, type = '' }) => {
     return (
         <div className={styles.root_fill_blank}>
             <div className={styles.fill_blank_content}>
-                <input
-                    className={styles.fill_blank_title}
-                    value={title}
-                    onChange={onTitleChange}
-                    placeholder={'Type a title'}
-                    disabled={type === 'edit' ? false : true}
-                />
+                {type === 'edit' ? (
+                    <input className={styles.date_picker_title} value={title} onChange={onTitleChange} placeholder={'Type a title'} />
+                ) : (
+                    <div className={styles.date_picker_title}>
+                        {title} {required && <span>*</span>}
+                    </div>
+                )}
                 <input className={styles.fill_blank_description} placeholder={'Type a description'} disabled={type === 'edit' ? false : true} />
                 {type === 'edit' && (
                     <div className={styles.fill_blank_require}>

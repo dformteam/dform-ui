@@ -138,13 +138,13 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '', error }) => {
     return (
         <div className={styles.root_single_choice}>
             <div className={styles.single_choice_content}>
-                <input
-                    className={styles.single_choice_title}
-                    value={title}
-                    onChange={onTitleChange}
-                    placeholder={'Type a title'}
-                    disabled={type === 'edit' ? false : true}
-                />
+                {type === 'edit' ? (
+                    <input className={styles.single_choice_title} value={title} onChange={onTitleChange} placeholder={'Type a title'} />
+                ) : (
+                    <div className={styles.single_choice_title}>
+                        {title} {required && <span>*</span>}
+                    </div>
+                )}
                 {(type === 'edit' || first_field !== '') && (
                     <input
                         className={styles.single_choice_description}

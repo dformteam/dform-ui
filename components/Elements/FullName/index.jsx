@@ -116,13 +116,13 @@ const FullName = ({ index, onChange, defaultValue, type = '', error }) => {
     return (
         <div className={styles.full_name}>
             <div className={styles.full_name_content}>
-                <input
-                    className={styles.full_name_title}
-                    value={title}
-                    onChange={onTitleChange}
-                    placeholder={'Type a title'}
-                    disabled={type === 'edit' ? false : true}
-                />
+                {type === 'edit' ? (
+                    <input className={styles.full_name_title} value={title} onChange={onTitleChange} placeholder={'Type a title'} />
+                ) : (
+                    <div className={styles.full_name_title}>
+                        {title} {required && <span>*</span>}
+                    </div>
+                )}
                 {(type === 'edit' || first_field !== '') && (
                     <input
                         className={styles.full_name_description}

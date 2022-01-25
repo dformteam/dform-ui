@@ -76,13 +76,13 @@ const LongText = ({ index, onChange, defaultValue, type = '', error }) => {
     return (
         <div className={styles.root_long_text}>
             <div className={styles.long_text_content}>
-                <input
-                    className={styles.long_text_title}
-                    value={title}
-                    onChange={onTitleChange}
-                    placeholder={'Type a title'}
-                    disabled={type === 'edit' ? false : true}
-                />
+                {type === 'edit' ? (
+                    <input className={styles.long_text_title} value={title} onChange={onTitleChange} placeholder={'Type a title'} />
+                ) : (
+                    <div className={styles.long_text_title}>
+                        {title} {required && <span>*</span>}
+                    </div>
+                )}
                 {(type === 'edit' || first_field !== '') && (
                     <input
                         className={styles.long_text_description}

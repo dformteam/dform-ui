@@ -89,13 +89,13 @@ const DatePicker = ({ index, onChange, defaultValue, type = '', error }) => {
     return (
         <div className={styles.root_date_picker}>
             <div className={styles.date_picker_content}>
-                <input
-                    className={styles.date_picker_title}
-                    value={title}
-                    onChange={onTitleChange}
-                    placeholder={'Type a title'}
-                    disabled={type === 'edit' ? false : true}
-                />
+                {type === 'edit' ? (
+                    <input className={styles.date_picker_title} value={title} onChange={onTitleChange} placeholder={'Type a title'} />
+                ) : (
+                    <div className={styles.date_picker_title}>
+                        {title} {required && <span>*</span>}
+                    </div>
+                )}
                 {(type === 'edit' || first_field !== '') && (
                     <input
                         className={styles.date_picker_description}

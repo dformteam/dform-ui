@@ -7,9 +7,12 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import LinkOutlinedIcon from '@mui/icons-material/LinkOutlined';
 import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
+import TagFacesIcon from '@mui/icons-material/TagFaces';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import Chip from '@mui/material/Chip';
+import { styled } from '@mui/material/styles';
 import { useRouter } from 'next/router';
 import { useSelector } from 'react-redux';
 import Notify from '../../../components/Notify';
@@ -48,6 +51,13 @@ const Publish = () => {
     const [alertType, setAlertType] = useState('success');
     const [snackMsg, setSnackMsg] = useState('');
     const [sharedLink, setSharedLink] = useState('');
+    const [chipData, setChipData] = React.useState([
+        { key: 0, label: 'Angular' },
+        { key: 1, label: 'jQuery' },
+        { key: 2, label: 'Polymer' },
+        { key: 3, label: 'React' },
+        { key: 4, label: 'Vue.js' },
+    ]);
 
     const onCloseSnack = () => {
         setOpenSnack(false);
@@ -326,6 +336,14 @@ const Publish = () => {
         router.back();
     };
 
+    const onDeleteBlackItem = (chipToDelete) => () => {
+        setChipData((chips) => chips.filter((chip) => chip.key !== chipToDelete.key));
+    };
+
+    const ListItem = styled('div')(({ theme }) => ({
+        margin: theme.spacing(1),
+    }));
+
     return (
         <>
             <Notify openLoading={openLoading} openSnack={openSnack} alertType={alertType} snackMsg={snackMsg} onClose={onCloseSnack} />
@@ -433,6 +451,41 @@ const Publish = () => {
                         </div>
                     </div>
                 </div>
+                <div className={styles.list}>
+                    <div className={styles.list_label}>Black list:</div>
+                    <div className={styles.list_content}>
+                        {black_list?.length > 0 ? (
+                            <>
+                                {chipData.map((data) => {
+                                    return (
+                                        <ListItem key={data.key}>
+                                            <Chip label={data.label} onDelete={onDeleteBlackItem(data)} variant="outlined" color="error" />
+                                        </ListItem>
+                                    );
+                                })}
+                            </>
+                        ) : (
+                            <div className={styles.list_nothing}>Nothing to display</div>
+                        )}
+                    </div>
+                    <div className={styles.list_label}>White list:</div>
+                    <div className={styles.list_content}>
+                        {white_list?.length > 0 ? (
+                            <>
+                                {chipData.map((data) => {
+                                    return (
+                                        <ListItem key={data.key}>
+                                            <Chip label={data.label} onDelete={onDeleteWhiteItem(data)} variant="outlined" color="success" />
+                                        </ListItem>
+                                    );
+                                })}
+                            </>
+                        ) : (
+                            <div className={styles.list_nothing}>Nothing to display</div>
+                        )}
+                    </div>
+                </div>
+
                 <Modal open={open} onClose={onCloseModalShare} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
                     <Box sx={style}>
                         <Typography id="modal-modal-title" variant="h6" component="h2">

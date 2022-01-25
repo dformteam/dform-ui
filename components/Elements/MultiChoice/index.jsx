@@ -113,13 +113,13 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '', error }) => {
     return (
         <div className={styles.root_multi_choice}>
             <div className={styles.multi_choice_content}>
-                <input
-                    className={styles.multi_choice_title}
-                    value={title}
-                    onChange={onTitleChange}
-                    placeholder={'Type a title'}
-                    disabled={type === 'edit' ? false : true}
-                />
+                {type === 'edit' ? (
+                    <input className={styles.multi_choice_title} value={title} onChange={onTitleChange} placeholder={'Type a title'} />
+                ) : (
+                    <div className={styles.multi_choice_title}>
+                        {title} {required && <span>*</span>}
+                    </div>
+                )}
                 {(type === 'edit' || first_field !== '') && (
                     <input
                         className={styles.multi_choice_description}

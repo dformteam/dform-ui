@@ -16,6 +16,11 @@
     &_title {
         font-size: 20px;
         text-align: center;
+        & > span {
+            font-size: 24px;
+            color: var(--color-danger);
+            margin-left: 5px;
+        }
     }
 
     &_description {
