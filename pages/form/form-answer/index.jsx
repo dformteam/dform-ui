@@ -625,7 +625,7 @@ const FormAnswer = () => {
             <Notify openLoading={openLoading} openSnack={openSnack} alertType={alertType} snackMsg={snackMsg} onClose={onCloseSnack} />
             <div className={styles.root}>
                 <div className={styles.content}>
-                    <div className={styles.form_title}>Form Title</div>
+                    <div className={styles.form_title}>{form.title}</div>
                     {form_type === 'basic' ? renderBasicForm() : renderCardForm()}
                 </div>
             </div>

@@ -316,7 +316,7 @@ const FormAnalysis = () => {
                 <div
                     className={styles.participant_area_name}
                     style={{
-                        color: item.checked ? '#bebebe' : '',
+                        color: item.checked ? 'var(--color-secondary)' : '',
                     }}
                 >
                     {name}
