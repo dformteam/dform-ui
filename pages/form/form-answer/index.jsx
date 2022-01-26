@@ -65,6 +65,7 @@ const FormAnswer = () => {
     useLayoutEffect(() => {
         getParticipantFormDetail();
     }, [form]);
+
     useLayoutEffect(() => {
         if (form?.elements?.length === elements?.length) {
             setTotalElement([
@@ -79,16 +80,6 @@ const FormAnswer = () => {
                     },
                 },
                 ...(elements || []),
-                // {
-                //     id: 'thanks',
-                //     type: 2,
-                //     label: 'Thanks',
-                //     defaultValue: {
-                //         title: ['Thank You!', 'Your submission has been received.'],
-                //         meta: [],
-                //         isRequired: false,
-                //     },
-                // },
             ]);
         }
     }, [elements]);
@@ -217,7 +208,7 @@ const FormAnswer = () => {
                                             meta: form_data?.meta?.map((x) => {
                                                 return {
                                                     content: x,
-                                                    checked: false,
+                                                    check: false,
                                                 };
                                             }),
                                             isRequired: form_data?.isRequired,
@@ -266,25 +257,67 @@ const FormAnswer = () => {
                     <FullName index={index} onChange={onElementChanged} elType={type} type={'answer'} defaultValue={defaultValue} error={defaultValue.error} />
                 );
             case 'email':
-                return <Email index={index} onChange={onElementChanged} elType={type} type={'answer'} defaultValue={defaultValue} />;
+                return <Email index={index} onChange={onElementChanged} elType={type} type={'answer'} defaultValue={defaultValue} error={defaultValue.error} />;
             case 'address':
-                return <Address index={index} onChange={onElementChanged} elType={type} type={'answer'} defaultValue={defaultValue} />;
+                return (
+                    <Address index={index} onChange={onElementChanged} elType={type} type={'answer'} defaultValue={defaultValue} error={defaultValue.error} />
+                );
             case 'phone':
-                return <Phone index={index} onChange={onElementChanged} elType={type} type={'answer'} defaultValue={defaultValue} />;
+                return <Phone index={index} onChange={onElementChanged} elType={type} type={'answer'} defaultValue={defaultValue} error={defaultValue.error} />;
             case 'datePicker':
-                return <DatePicker index={index} onChange={onElementChanged} elType={type} type={'answer'} defaultValue={defaultValue} />;
+                return (
+                    <DatePicker
+                        index={index}
+                        onChange={onElementChanged}
+                        elType={type}
+                        type={'answer'}
+                        defaultValue={defaultValue}
+                        error={defaultValue.error}
+                    />
+                );
             case 'shortText':
-                return <ShortText index={index} onChange={onElementChanged} elType={type} type={'answer'} defaultValue={defaultValue} />;
+                return (
+                    <ShortText index={index} onChange={onElementChanged} elType={type} type={'answer'} defaultValue={defaultValue} error={defaultValue.error} />
+                );
             case 'longText':
-                return <LongText index={index} onChange={onElementChanged} elType={type} type={'answer'} defaultValue={defaultValue} />;
+                return (
+                    <LongText index={index} onChange={onElementChanged} elType={type} type={'answer'} defaultValue={defaultValue} error={defaultValue.error} />
+                );
             case 'time':
-                return <Time index={index} onChange={onElementChanged} elType={type} type={'answer'} defaultValue={defaultValue} />;
+                return <Time index={index} onChange={onElementChanged} elType={type} type={'answer'} defaultValue={defaultValue} error={defaultValue.error} />;
             case 'rating':
-                return <StarRating index={index} onChange={onElementChanged} elType={type} type={'answer'} defaultValue={defaultValue} />;
+                return (
+                    <StarRating
+                        index={index}
+                        onChange={onElementChanged}
+                        elType={type}
+                        type={'answer'}
+                        defaultValue={defaultValue}
+                        error={defaultValue.error}
+                    />
+                );
             case 'singleChoice':
-                return <SingleChoice index={index} onChange={onElementChanged} elType={type} type={'answer'} defaultValue={defaultValue} />;
+                return (
+                    <SingleChoice
+                        index={index}
+                        onChange={onElementChanged}
+                        elType={type}
+                        type={'answer'}
+                        defaultValue={defaultValue}
+                        error={defaultValue.error}
+                    />
+                );
             case 'multiChoice':
-                return <MultiChoice index={index} onChange={onElementChanged} elType={type} type={'answer'} defaultValue={defaultValue} />;
+                return (
+                    <MultiChoice
+                        index={index}
+                        onChange={onElementChanged}
+                        elType={type}
+                        type={'answer'}
+                        defaultValue={defaultValue}
+                        error={defaultValue.error}
+                    />
+                );
             // case 'fillBlank':
             //     return <FillBlank index={index} elType={type} type={'answer'} defaultValue={defaultValue} />;
 
@@ -319,20 +352,29 @@ const FormAnswer = () => {
     };
 
     const onNextClick = () => {
-        const { defaultValue } = total_element[activeIndex];
+        const { defaultValue, id } = total_element[activeIndex];
         if (defaultValue.isRequired) {
             const { meta } = defaultValue;
-            if (meta.length === 0) {
+            if (meta?.length === 0) {
                 defaultValue.error = 'Required question. Your answer could not be empty!';
                 setElements([...elements]);
                 return false;
             }
 
             const meta_empty = meta?.filter((x) => x === '' || x === undefined || x === null);
-            if (meta_empty.length === meta.length) {
+            if (meta_empty?.length === meta?.length) {
                 defaultValue.error = 'Required question. Your answer could not be empty!';
                 setElements([...elements]);
                 return false;
+            }
+
+            if (id === 'singleChoice' || id === 'multiChoice') {
+                const empty = meta?.filter((x) => x.check === false);
+                if (empty?.length === meta?.length) {
+                    defaultValue.error = 'Required question. Your answer could not be empty!';
+                    setElements([...elements]);
+                    return false;
+                }
             }
         }
 
@@ -375,7 +417,8 @@ const FormAnswer = () => {
             elements?.map(async (element) => {
                 const { submited, id } = element;
                 if (id !== 'welcome' && id !== 'header' && (typeof submited === 'undefined' || submited === null || submited === '' || submited === false)) {
-                    await seph.acquire();
+                    console.log(element);
+                    // await seph.acquire();
                     const result = await submitAnswer(element);
                     element.submited = result;
                 }
@@ -389,7 +432,6 @@ const FormAnswer = () => {
                         (typeof x.submited === 'undefined' || x.submited === null || x.submited === '' || x.submited === false),
                 );
 
-                console.log(error_element);
                 if (error_element.length > 0) {
                     setSuccess(false);
                 } else {
@@ -410,17 +452,26 @@ const FormAnswer = () => {
             const { defaultValue } = element;
             if (defaultValue.isRequired) {
                 const { meta } = defaultValue;
-                if (meta.length === 0) {
+                if (meta?.length === 0) {
                     defaultValue.error = 'Required question. Your answer could not be empty!';
                     setElements([...elements]);
                     return false;
                 }
 
                 const meta_empty = meta?.filter((x) => x === '' || x === undefined || x === null);
-                if (meta_empty.length === meta.length) {
+                if (meta_empty?.length === meta?.length) {
                     defaultValue.error = 'Required question. Your answer could not be empty!';
                     setElements([...elements]);
                     return false;
+                }
+
+                if (element.id === 'singleChoice' || element.id === 'multiChoice') {
+                    const empty = meta?.filter((x) => x.check === false);
+                    if (empty?.length === meta?.length) {
+                        defaultValue.error = 'Required question. Your answer could not be empty!';
+                        setElements([...elements]);
+                        return false;
+                    }
                 }
             }
         }
@@ -432,12 +483,16 @@ const FormAnswer = () => {
         const { contract } = wallet;
         const { id } = query;
         const { defaultValue } = answer;
+        let meta = defaultValue.meta;
+        if (answer.id === 'singleChoice' || answer.id === 'multiChoice') {
+            meta = defaultValue?.meta?.filter?.((x) => x.check)?.map((x) => x.content);
+        }
 
         return contract
             .submit_answer({
                 formId: id,
                 elementId: answer.bId,
-                answer: defaultValue.meta,
+                answer: meta,
             })
             .then((res) => {
                 seph.release();

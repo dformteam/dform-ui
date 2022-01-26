@@ -79,7 +79,6 @@ const MyForm = () => {
     };
 
     const onGetRows = async ({ total }) => {
-        console.log(total);
         const { contract, walletConnection } = wallet;
         const num_page = total % 5 === 0 ? total / 5 : parseInt(total / 5) + 1;
         const page_arr = new Array(num_page).fill(0);
@@ -108,7 +107,6 @@ const MyForm = () => {
                                     return raw;
                                 });
 
-                                console.log(forms);
                                 mouted && setUnfilterd([...forms]);
                             }
                         }

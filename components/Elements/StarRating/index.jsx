@@ -15,7 +15,7 @@ const StarRating = ({ index, onChange, defaultValue, type = '', error }) => {
         initValue = { ...defaultValue };
     }
 
-    const star = [1, 2, 3, 4, 5];
+    const star = ['1', '2', '3', '4', '5'];
     const [title, setTitle] = useState(initValue?.title?.[0] || 'Type a question');
     const [first_field, setFirstField] = useState(initValue?.title?.[1] || 'Type your description.');
     const [active, setActive] = useState(null);
@@ -118,7 +118,7 @@ const StarRating = ({ index, onChange, defaultValue, type = '', error }) => {
                         <input className={styles.star_rating_input} placeholder={'Type "Best" text'} />
                     </div>
                 </div>
-                {error !== '' && <div className={styles.text_error}>{error}</div>}
+                {error !== '' && typeof error !== 'undefined' && <div className={styles.text_error}>{error}</div>}
             </div>
         </div>
     );

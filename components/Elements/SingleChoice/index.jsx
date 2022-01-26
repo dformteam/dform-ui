@@ -95,12 +95,12 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '', error }) => {
             if (!check) {
                 aAnswers[indexx].check = true;
             }
-            const choosen = aAnswers?.filter((x) => x.check).map((x) => x.content);
+            // const choosen = aAnswers?.filter((x) => x.check).map((x) => x.content);
             setAnswers([...aAnswers]);
             onChange?.({
                 index,
                 title: [title, first_field],
-                meta: [...choosen],
+                meta: [...aAnswers],
                 isRequired: required,
             });
         }
@@ -108,14 +108,14 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '', error }) => {
 
     const onFillValue = () => {
         setAnswers([
-            ...initValue?.meta?.map((mt, indexn) => {
-                const check = type === 'analysis' ? true : false;
+            ...(initValue?.meta?.map?.((mt, indexn) => {
+                // const check = type === 'analysis' ? true : false;
                 return {
                     id: indexn,
-                    content: mt.content,
-                    check,
+                    content: mt?.content,
+                    check: mt.check,
                 };
-            }),
+            }) || []),
         ]);
     };
 
@@ -161,7 +161,6 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '', error }) => {
                 )}
                 <div className={styles.single_choice}>
                     {aAnswers?.map?.((item, indexx) => {
-                        console.log(item);
                         return (
                             <div
                                 className={indexx % 2 === 0 ? styles.single_choice_form_left : styles.single_choice_form_right}
@@ -199,7 +198,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '', error }) => {
                         </div>
                     )}
                 </div>
-                {error !== '' && <div className={styles.text_error}>{error}</div>}
+                {error !== '' && typeof error !== "undefined" && <div className={styles.text_error}>{error}</div>}
             </div>
         </div>
     );

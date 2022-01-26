@@ -146,7 +146,7 @@ const FillBlank = ({ index, onChange, defaultValue, type = '' }) => {
                         )}
                     </div>
                 </div>
-                {error !== '' && <div className={styles.text_error}>{error}</div>}
+                {error !== '' && typeof error !== "undefined" && <div className={styles.text_error}>{error}</div>}
             </div>
         </div>
     );

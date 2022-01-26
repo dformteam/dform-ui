@@ -195,13 +195,25 @@ const FormAnalysis = () => {
                                             label: listElement?.[form_data.type]?.label,
                                             defaultValue: {
                                                 title: form_data?.title,
-                                                meta: form_data?.answer,
+                                                meta: form_data?.meta?.map((x) => {
+                                                    return {
+                                                        content: x,
+                                                        check: form_data?.answer?.includes(x) ? true : false,
+                                                    };
+                                                }),
                                                 isRequire: form_data?.isRequired,
                                             },
+                                            numth: form_data.numth,
                                         };
                                     });
                                     tmp_answers = [...tmp_answers, ...(transform_form || [])];
                                     return '';
+                                });
+
+                                tmp_answers = tmp_answers?.sort((x, y) => {
+                                    if (x?.numth < y?.numth) return -1;
+                                    if (x?.numth > y?.numth) return 1;
+                                    return 0;
                                 });
 
                                 setAnswers([...tmp_answers]);
