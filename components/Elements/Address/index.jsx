@@ -184,7 +184,7 @@ const Address = ({ index, onChange, defaultValue, type = '', error }) => {
                         {title} {required && <span>*</span>}
                     </div>
                 )}
-                {type !== 'answer' && type !== 'analysis' && (
+                {type !== 'answer' && type !== 'analysis'  && (
                     <div className={styles.address_require}>
                         Question required: <Switch value={required} checked={required} onChange={onChangeRequired} />
                     </div>
