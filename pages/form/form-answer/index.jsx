@@ -417,8 +417,7 @@ const FormAnswer = () => {
             elements?.map(async (element) => {
                 const { submited, id } = element;
                 if (id !== 'welcome' && id !== 'header' && (typeof submited === 'undefined' || submited === null || submited === '' || submited === false)) {
-                    console.log(element);
-                    // await seph.acquire();
+                    await seph.acquire();
                     const result = await submitAnswer(element);
                     element.submited = result;
                 }

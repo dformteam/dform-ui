@@ -114,6 +114,7 @@ const FormAnalysis = () => {
     };
 
     const onParticipantDetailClicked = (item, index) => {
+        setAnswers([]);
         participant[index].checked = true;
         const { walletConnection } = wallet;
         const userId = walletConnection.getAccountId();
@@ -128,13 +129,12 @@ const FormAnalysis = () => {
 
     const getMaxAnswers = (part) => {
         setOpenLoading(true);
-        const { contract, walletConnection } = wallet;
+        const { contract } = wallet;
         const { id } = query;
-        const userId = walletConnection.getAccountId();
         contract
             ?.get_passed_element_count?.({
                 formId: id,
-                userId,
+                userId: part,
             })
             .then((res) => {
                 if (res) {
