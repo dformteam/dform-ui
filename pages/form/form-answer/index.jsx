@@ -214,7 +214,12 @@ const FormAnswer = () => {
                                         label: listElement?.[form_data.type]?.label,
                                         defaultValue: {
                                             title: form_data?.title,
-                                            meta: form_data?.meta,
+                                            meta: form_data?.meta?.map((x) => {
+                                                return {
+                                                    content: x,
+                                                    checked: false,
+                                                };
+                                            }),
                                             isRequired: form_data?.isRequired,
                                             error: '',
                                         },
