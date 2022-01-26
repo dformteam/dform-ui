@@ -119,6 +119,7 @@ const FormAnalysis = () => {
         const { walletConnection } = wallet;
         const userId = walletConnection.getAccountId();
         if (userId !== form.owner && userId !== item) {
+            setCurrentParticipant('');
             return setNotify('You only see your answers!');
         }
 
