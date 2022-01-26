@@ -188,12 +188,14 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '', error }) => {
                                     placeholder={item.placeholder}
                                     onChange={(e) => onOptionChange(e.target.value, indexx)}
                                 />
-                                <div
-                                    className={indexx % 2 === 0 ? styles.single_choice_delete_left : styles.single_choice_delete_right}
-                                    onClick={(e) => onDeleteOption(e, indexx)}
-                                >
-                                    <DeleteOutlinedIcon className={styles.single_choice_delete_icon} />
-                                </div>
+                                {type === 'edit' && (
+                                    <div
+                                        className={indexx % 2 === 0 ? styles.single_choice_delete_left : styles.single_choice_delete_right}
+                                        onClick={(e) => onDeleteOption(e, indexx)}
+                                    >
+                                        <DeleteOutlinedIcon className={styles.single_choice_delete_icon} />
+                                    </div>
+                                )}
                             </div>
                         );
                     })}

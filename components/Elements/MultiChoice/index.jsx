@@ -156,12 +156,14 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '', error }) => {
                                     onChange={(e) => onOptionChange(e.target.value, indexx)}
                                     disabled={type !== 'edit' ? true : false}
                                 />
-                                <div
-                                    className={indexx % 2 === 0 ? styles.multi_choice_delete_left : styles.multi_choice_delete_right}
-                                    onClick={() => onDeleteOption(indexx)}
-                                >
-                                    <DeleteOutlinedIcon className={styles.multi_choice_delete_icon} />
-                                </div>
+                                {type === 'edit' && (
+                                    <div
+                                        className={indexx % 2 === 0 ? styles.multi_choice_delete_left : styles.multi_choice_delete_right}
+                                        onClick={() => onDeleteOption(indexx)}
+                                    >
+                                        <DeleteOutlinedIcon className={styles.multi_choice_delete_icon} />
+                                    </div>
+                                )}
                             </div>
                         );
                     })}
@@ -172,7 +174,7 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '', error }) => {
                         </div>
                     )}
                 </div>
-                {error !== '' && typeof error !== "undefined" && <div className={styles.text_error}>{error}</div>}
+                {error !== '' && typeof error !== 'undefined' && <div className={styles.text_error}>{error}</div>}
             </div>
         </div>
     );
