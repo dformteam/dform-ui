@@ -55,7 +55,7 @@ const StarRating = ({ index, onChange, defaultValue, type = '', error }) => {
 
     const onFillValue = () => {
         if (type !== 'edit') {
-            setActive(initValue?.meta?.[0] || -1);
+            setActive(initValue?.meta?.[0] || '0');
         }
     };
 
@@ -77,14 +77,20 @@ const StarRating = ({ index, onChange, defaultValue, type = '', error }) => {
     return (
         <div className={styles.root_star_rating}>
             <div className={styles.star_rating_content}>
-                <input
-                    className={styles.star_rating_title}
-                    value={title}
-                    onChange={onTitleChange}
-                    placeholder={'Type a title'}
-                    disabled={type === 'edit' ? false : true}
-                />
-                {(type === 'edit' || first_field !== '') && (
+                {type === 'edit' ? (
+                    <input
+                        className={styles.star_rating_title}
+                        value={title}
+                        onChange={onTitleChange}
+                        placeholder={'Type a title'}
+                        disabled={type === 'edit' ? false : true}
+                    />
+                ) : (
+                    <div className={styles.star_rating_title}>
+                        {title} {required && <span>*</span>}
+                    </div>
+                )}
+                {(type === 'edit' || first_field !== 'Type your description') && (
                     <input
                         className={styles.star_rating_description}
                         value={first_field}
