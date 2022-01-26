@@ -13,7 +13,7 @@ const JoinForm = () => {
     const { query } = router;
 
     const [form, setForm] = useState({});
-    
+
     const [openLoading, setOpenLoading] = useState(false);
     const [openSnack, setOpenSnack] = useState(false);
     const [alertType, setAlertType] = useState('success');
@@ -90,6 +90,7 @@ const JoinForm = () => {
                 formId: id,
             })
             .then((res) => {
+                console.log(res);
                 if (res && res.joined) {
                     router.push(`/form/form-answer?id=${id}`);
                 }
