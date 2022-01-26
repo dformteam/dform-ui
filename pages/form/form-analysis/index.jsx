@@ -114,11 +114,11 @@ const FormAnalysis = () => {
     };
 
     const onParticipantDetailClicked = (item, index) => {
+        setAnswers([]);
         participant[index].checked = true;
         const { walletConnection } = wallet;
         const userId = walletConnection.getAccountId();
         if (userId !== form.owner && userId !== item) {
-
             return setNotify('You only see your answers!');
         }
 
