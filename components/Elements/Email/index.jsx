@@ -97,11 +97,11 @@ const Email = ({ index, onChange, defaultValue, type = '', error }) => {
                         {title} {required && <span>*</span>}
                     </div>
                 )}
-                {(type === 'edit' || second_field !== '') && (
+                {(type === 'edit' || first_field !== 'Type your description') && (
                     <input
                         className={styles.email_description}
                         value={first_field}
-                        placeholder={'Type a description'}
+                        placeholder={'Type your description'}
                         onChange={onFirstFieldChange}
                         disabled={type === 'edit' ? false : true}
                     />
@@ -128,7 +128,7 @@ const Email = ({ index, onChange, defaultValue, type = '', error }) => {
                             value={email}
                             onChange={onEmailChange}
                         />
-                        {error !== '' && typeof error !== "undefined" && <div className={styles.text_error}>{error}</div>}
+                        {error !== '' && typeof error !== 'undefined' && <div className={styles.text_error}>{error}</div>}
                     </div>
                 </div>
             </div>

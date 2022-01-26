@@ -123,7 +123,7 @@ const FullName = ({ index, onChange, defaultValue, type = '', error }) => {
                         {title} {required && <span>*</span>}
                     </div>
                 )}
-                {(type === 'edit' || first_field !== '') && (
+                {(type === 'edit' || first_field !== 'Type your description') && (
                     <input
                         className={styles.full_name_description}
                         value={first_field}
@@ -159,7 +159,7 @@ const FullName = ({ index, onChange, defaultValue, type = '', error }) => {
                         <input className={styles.full_name_input} disabled={type === 'answer' ? false : true} value={last_name} onChange={onLastNameChange} />
                     </div>
                 </div>
-                {error !== '' && typeof error !== "undefined" && <div className={styles.text_error}>{error}</div>}
+                {error !== '' && typeof error !== 'undefined' && <div className={styles.text_error}>{error}</div>}
             </div>
         </div>
     );

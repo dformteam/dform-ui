@@ -139,13 +139,19 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '', error }) => {
         <div className={styles.root_single_choice}>
             <div className={styles.single_choice_content}>
                 {type === 'edit' ? (
-                    <input className={styles.single_choice_title} value={title} onChange={onTitleChange} placeholder={'Type a title'} />
+                    <input
+                        className={styles.single_choice_title}
+                        value={title}
+                        onChange={onTitleChange}
+                        placeholder={'Type a title'}
+                        disabled={type === 'edit' ? false : true}
+                    />
                 ) : (
                     <div className={styles.single_choice_title}>
                         {title} {required && <span>*</span>}
                     </div>
                 )}
-                {(type === 'edit' || first_field !== '') && (
+                {(type === 'edit' || first_field !== 'Type your description') && (
                     <input
                         className={styles.single_choice_description}
                         value={first_field}
@@ -198,7 +204,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '', error }) => {
                         </div>
                     )}
                 </div>
-                {error !== '' && typeof error !== "undefined" && <div className={styles.text_error}>{error}</div>}
+                {error !== '' && typeof error !== 'undefined' && <div className={styles.text_error}>{error}</div>}
             </div>
         </div>
     );

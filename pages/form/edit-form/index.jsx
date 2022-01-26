@@ -76,8 +76,17 @@ const CreateForm = () => {
     };
 
     useLayoutEffect(() => {
-        onGetFormDetail();
-    }, []);
+        const { id, transactionHashes } = query;
+        if (id !== '') {
+            if (transactionHashes !== null && transactionHashes !== '' && typeof transactionHashes !== 'undefined') {
+                console.log(123);
+                setForms([...(JSON.parse(localStorage.getItem('temp')) || [])]);
+            } else {
+                console.log(1233123);
+                onGetFormDetail();
+            }
+        }
+    }, [query]);
 
     const onGetFormDetail = () => {
         const { contract, walletConnection } = wallet;
@@ -235,6 +244,8 @@ const CreateForm = () => {
         if (!valid) {
             return;
         }
+
+        localStorage.setItem('temp', JSON.stringify(forms));
         setSuccess(false);
         setModalSave(true);
 
@@ -341,6 +352,7 @@ const CreateForm = () => {
 
     const onCloseModalSuccess = () => {
         if (isSuccess) {
+            localStorage.removeItem('temp');
             const { id } = query;
             return router.push(`/form/view-form?id=${id}`);
         }
@@ -359,6 +371,9 @@ const CreateForm = () => {
     };
 
     const renderElements = (item, index) => {
+        if (item.id === 'fillBlank') {
+            return;
+        }
         return (
             <Fragment key={item.id}>
                 <div className={styles.line} />
@@ -428,13 +443,13 @@ const CreateForm = () => {
 
                 <div className={styles.element_action_area}>
                     {(typeof item.bId === 'undefined' || item.bId === '') && (
-                        <button className={styles.element_action_area__edit}>
-                            <UploadIcon className={styles.button_delete_icon} onClick={() => onUploadElementClick(item, index)} />
+                        <button className={styles.element_action_area__edit} onClick={() => onUploadElementClick(item, index)}>
+                            <UploadIcon className={styles.button_delete_icon} />
                         </button>
                     )}
                     {(typeof item.bId === 'undefined' || item.bId === '') && (
-                        <button className={styles.element_action_area__delete}>
-                            <DeleteForeverOutlinedIcon className={styles.button_delete_icon} onClick={() => onDeleteElement(index)} />
+                        <button className={styles.element_action_area__delete} onClick={() => onDeleteElement(index)}>
+                            <DeleteForeverOutlinedIcon className={styles.button_delete_icon} />
                         </button>
                     )}
                 </div>
@@ -642,18 +657,17 @@ const listElement = [
             error: '',
         },
     },
-    // {
-    //     bId: '',
-    //     id: 'fillBlank',
-    //     type: 6,
-    //     label: 'Fill in the Blank',
-    //     icon: FormatSizeOutlinedIcon,
-    //     defaultValue: {
-    //         title: ['Type a question'],
-    //         meta: [],
-    //         isRequired: false,
-    //     },
-    // },
+    {
+        bId: '',
+        id: 'fillBlank',
+        type: 6,
+        label: 'Fill in the Blank',
+        defaultValue: {
+            title: ['Type a question'],
+            meta: [],
+            isRequired: false,
+        },
+    },
     {
         bId: '',
         id: 'shortText',

@@ -95,7 +95,7 @@ const Phone = ({ index, onChange, defaultValue, type = '', error }) => {
                         {title} {required && <span>*</span>}
                     </div>
                 )}
-                {(type === 'edit' || first_field !== '') && (
+                {(type === 'edit' || first_field !== 'Type your description') && (
                     <input
                         className={styles.phone_description}
                         value={first_field}
