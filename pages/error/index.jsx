@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useRouter } from 'next/router';
 import { useLayoutEffect, useState } from 'react';
 import styles from './Error.module.scss';
@@ -14,9 +15,7 @@ const Error = () => {
 
     const onLoadErrorContent = () => {
         const encoded_content = query?.content;
-
-        const content = decodeURIComponent(encoded_content);
-        setContent(content);
+        setContent(decodeURIComponent(encoded_content));
     };
 
     return (

@@ -76,8 +76,17 @@ const CreateForm = () => {
     };
 
     useLayoutEffect(() => {
-        onGetFormDetail();
-    }, []);
+        const { id, transactionHashes } = query;
+        if (id !== '') {
+            if (transactionHashes !== null && transactionHashes !== '' && typeof transactionHashes !== 'undefined') {
+                console.log(123);
+                setForms([...(JSON.parse(localStorage.getItem('temp')) || [])]);
+            } else {
+                console.log(1233123);
+                onGetFormDetail();
+            }
+        }
+    }, [query]);
 
     const onGetFormDetail = () => {
         const { contract, walletConnection } = wallet;
@@ -160,31 +169,31 @@ const CreateForm = () => {
                             });
                             let temp_forms = [];
                             raws.map((raw) => {
-                                const transform_form = raw?.data
-                                    ?.map((form_data) => {
-                                        return {
-                                            bId: form_data.id,
-                                            id: listElement?.[form_data.type]?.id,
-                                            type: form_data.type,
-                                            label: listElement?.[form_data.type]?.label,
-                                            icon: ShortTextOutlinedIcon,
-                                            defaultValue: {
-                                                title: form_data?.title,
-                                                meta: form_data?.meta,
-                                                isRequire: form_data?.isRequired,
-                                                error: '',
-                                            },
-                                            numth: form_data.numth,
-                                        };
-                                    })
-                                    ?.sort((x, y) => {
-                                        if (x?.numth < y?.numth) return -1;
-                                        if (x?.numth > y?.numth) return 1;
-                                        return 0;
-                                    });
+                                const transform_form = raw?.data?.map((form_data) => {
+                                    return {
+                                        bId: form_data.id,
+                                        id: listElement?.[form_data.type]?.id,
+                                        type: form_data.type,
+                                        label: listElement?.[form_data.type]?.label,
+                                        icon: ShortTextOutlinedIcon,
+                                        defaultValue: {
+                                            title: form_data?.title,
+                                            meta: form_data?.meta,
+                                            isRequire: form_data?.isRequired,
+                                            error: '',
+                                        },
+                                        numth: form_data.numth,
+                                    };
+                                });
                                 temp_forms = [...temp_forms, ...(transform_form || [])];
                                 return '';
                             });
+                            temp_forms = temp_forms?.sort((x, y) => {
+                                if (x?.numth < y?.numth) return -1;
+                                if (x?.numth > y?.numth) return 1;
+                                return 0;
+                            });
+
                             setRawForms([...temp_forms]);
                             setForms([...temp_forms]);
                         }
@@ -235,6 +244,8 @@ const CreateForm = () => {
         if (!valid) {
             return;
         }
+
+        localStorage.setItem('temp', JSON.stringify(forms));
         setSuccess(false);
         setModalSave(true);
 
@@ -341,6 +352,7 @@ const CreateForm = () => {
 
     const onCloseModalSuccess = () => {
         if (isSuccess) {
+            localStorage.removeItem('temp');
             const { id } = query;
             return router.push(`/form/view-form?id=${id}`);
         }
@@ -359,6 +371,9 @@ const CreateForm = () => {
     };
 
     const renderElements = (item, index) => {
+        if (item.id === 'fillBlank') {
+            return;
+        }
         return (
             <Fragment key={item.id}>
                 <div className={styles.line} />
@@ -428,13 +443,13 @@ const CreateForm = () => {
 
                 <div className={styles.element_action_area}>
                     {(typeof item.bId === 'undefined' || item.bId === '') && (
-                        <button className={styles.element_action_area__edit}>
-                            <UploadIcon className={styles.button_delete_icon} onClick={() => onUploadElementClick(item, index)} />
+                        <button className={styles.element_action_area__edit} onClick={() => onUploadElementClick(item, index)}>
+                            <UploadIcon className={styles.button_delete_icon} />
                         </button>
                     )}
                     {(typeof item.bId === 'undefined' || item.bId === '') && (
-                        <button className={styles.element_action_area__delete}>
-                            <DeleteForeverOutlinedIcon className={styles.button_delete_icon} onClick={() => onDeleteElement(index)} />
+                        <button className={styles.element_action_area__delete} onClick={() => onDeleteElement(index)}>
+                            <DeleteForeverOutlinedIcon className={styles.button_delete_icon} />
                         </button>
                     )}
                 </div>
@@ -642,18 +657,17 @@ const listElement = [
             error: '',
         },
     },
-    // {
-    //     bId: '',
-    //     id: 'fillBlank',
-    //     type: 6,
-    //     label: 'Fill in the Blank',
-    //     icon: FormatSizeOutlinedIcon,
-    //     defaultValue: {
-    //         title: ['Type a question'],
-    //         meta: [],
-    //         isRequired: false,
-    //     },
-    // },
+    {
+        bId: '',
+        id: 'fillBlank',
+        type: 6,
+        label: 'Fill in the Blank',
+        defaultValue: {
+            title: ['Type a question'],
+            meta: [],
+            isRequired: false,
+        },
+    },
     {
         bId: '',
         id: 'shortText',

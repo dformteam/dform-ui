@@ -95,7 +95,7 @@ const Phone = ({ index, onChange, defaultValue, type = '', error }) => {
                         {title} {required && <span>*</span>}
                     </div>
                 )}
-                {(type === 'edit' || first_field !== '') && (
+                {(type === 'edit' || first_field !== 'Type your description') && (
                     <input
                         className={styles.phone_description}
                         value={first_field}
@@ -119,7 +119,7 @@ const Phone = ({ index, onChange, defaultValue, type = '', error }) => {
                             disabled={type === 'edit' ? false : true}
                         />
                         <input className={styles.phone_input} type={'tel'} value={phone} onChange={onPhoneChange} disabled={type === 'answer' ? false : true} />
-                        {error !== '' && <div className={styles.text_error}>{error}</div>}
+                        {error !== '' && typeof error !== "undefined" && <div className={styles.text_error}>{error}</div>}
                     </div>
                 </div>
             </div>

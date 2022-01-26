@@ -67,7 +67,6 @@ const Email = ({ index, onChange, defaultValue, type = '', error }) => {
 
     const onFillValue = () => {
         if (type !== 'edit') {
-            console.log(initValue);
             setEmail(initValue?.meta?.[0] || '');
             setRequired(initValue?.isRequired || false);
         }
@@ -98,11 +97,11 @@ const Email = ({ index, onChange, defaultValue, type = '', error }) => {
                         {title} {required && <span>*</span>}
                     </div>
                 )}
-                {(type === 'edit' || second_field !== '') && (
+                {(type === 'edit' || first_field !== 'Type your description') && (
                     <input
                         className={styles.email_description}
                         value={first_field}
-                        placeholder={'Type a description'}
+                        placeholder={'Type your description'}
                         onChange={onFirstFieldChange}
                         disabled={type === 'edit' ? false : true}
                     />
@@ -129,7 +128,7 @@ const Email = ({ index, onChange, defaultValue, type = '', error }) => {
                             value={email}
                             onChange={onEmailChange}
                         />
-                        {error !== '' && <div className={styles.text_error}>{error}</div>}
+                        {error !== '' && typeof error !== 'undefined' && <div className={styles.text_error}>{error}</div>}
                     </div>
                 </div>
             </div>

@@ -188,20 +188,37 @@ const FormAnalysis = () => {
                                 tmp_answers = [];
                                 raw_answers.map((raw) => {
                                     const transform_form = raw?.data?.map((form_data) => {
-                                        return {
+                                        const tmp_data = {
                                             bId: form_data.element_id,
                                             id: listElement?.[form_data.type]?.id,
                                             type: form_data.type,
                                             label: listElement?.[form_data.type]?.label,
                                             defaultValue: {
                                                 title: form_data?.title,
-                                                meta: form_data?.answer,
                                                 isRequire: form_data?.isRequired,
+                                                meta: form_data?.answer,
                                             },
+                                            numth: form_data.numth,
                                         };
+
+                                        if (tmp_data.id === 'singleChoice' || tmp_data.id === 'multiChoice') {
+                                            tmp_data.defaultValue.meta = form_data?.meta?.map((x) => {
+                                                return {
+                                                    content: x,
+                                                    check: form_data?.answer?.includes(x) ? true : false,
+                                                };
+                                            });
+                                        }
+                                        return tmp_data;
                                     });
                                     tmp_answers = [...tmp_answers, ...(transform_form || [])];
                                     return '';
+                                });
+
+                                tmp_answers = tmp_answers?.sort((x, y) => {
+                                    if (x?.numth < y?.numth) return -1;
+                                    if (x?.numth > y?.numth) return 1;
+                                    return 0;
                                 });
 
                                 setAnswers([...tmp_answers]);

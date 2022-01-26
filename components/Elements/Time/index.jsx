@@ -82,7 +82,7 @@ const Time = ({ index, onChange, defaultValue, type = '', error }) => {
                         {title} {required && <span>*</span>}
                     </div>
                 )}
-                {(type === 'edit' || first_field !== '') && (
+                {(type === 'edit' || first_field !== 'Type your description') && (
                     <input
                         className={styles.time_description}
                         value={first_field}
@@ -101,7 +101,7 @@ const Time = ({ index, onChange, defaultValue, type = '', error }) => {
                         <input className={styles.time_input} type={'time'} disabled={type === 'answer' ? false : true} value={time} onChange={onTimeChange} />
                     </div>
                 </div>
-                {error !== '' && <div className={styles.text_error}>{error}</div>}
+                {error !== '' && typeof error !== "undefined" && <div className={styles.text_error}>{error}</div>}
             </div>
         </div>
     );

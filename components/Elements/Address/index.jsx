@@ -184,7 +184,7 @@ const Address = ({ index, onChange, defaultValue, type = '', error }) => {
                         {title} {required && <span>*</span>}
                     </div>
                 )}
-                {type !== 'answer' && type !== 'analysis' && (
+                {type !== 'answer' && type !== 'analysis'  && (
                     <div className={styles.address_require}>
                         Question required: <Switch value={required} checked={required} onChange={onChangeRequired} />
                     </div>
@@ -245,7 +245,7 @@ const Address = ({ index, onChange, defaultValue, type = '', error }) => {
                         </div>
                         <div className={styles.address_form_right}></div>
                     </div>
-                    {error !== '' && <div className={styles.text_error}>{error}</div>}
+                    {error !== '' && typeof error !== "undefined" && <div className={styles.text_error}>{error}</div>}
                 </div>
             </div>
         </div>

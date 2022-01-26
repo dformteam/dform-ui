@@ -83,7 +83,7 @@ const LongText = ({ index, onChange, defaultValue, type = '', error }) => {
                         {title} {required && <span>*</span>}
                     </div>
                 )}
-                {(type === 'edit' || first_field !== '') && (
+                {(type === 'edit' || first_field !== 'Type your description') && (
                     <input
                         className={styles.long_text_description}
                         value={first_field}
@@ -100,7 +100,7 @@ const LongText = ({ index, onChange, defaultValue, type = '', error }) => {
                 <div className={styles.long_text}>
                     <div className={styles.long_text_form}>
                         <textarea className={styles.long_text_input} disabled={type === 'answer' ? false : true} value={text} onChange={onTextChange} />
-                        {error !== '' && <div className={styles.text_error}>{error}</div>}
+                        {error !== '' && typeof error !== 'undefined' && <div className={styles.text_error}>{error}</div>}
                     </div>
                 </div>
             </div>

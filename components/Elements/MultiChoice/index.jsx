@@ -99,12 +99,12 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '', error }) => {
     const onOptionClick = (item, indexx) => {
         if (type === 'answer') {
             aAnswers[indexx].check = !aAnswers?.[indexx].check;
-            const choosen = aAnswers?.filter((x) => x.check).map((x) => x.content);
+            // const choosen = aAnswers?.filter((x) => x.check).map((x) => x.content);
             setAnswers([...aAnswers]);
             onChange?.({
                 index,
                 title: [title, first_field],
-                meta: [...choosen],
+                meta: [...aAnswers],
                 isRequired: required,
             });
         }
@@ -120,7 +120,7 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '', error }) => {
                         {title} {required && <span>*</span>}
                     </div>
                 )}
-                {(type === 'edit' || first_field !== '') && (
+                {(type === 'edit' || first_field !== 'Type your description') && (
                     <input
                         className={styles.multi_choice_description}
                         value={first_field}
@@ -172,7 +172,7 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '', error }) => {
                         </div>
                     )}
                 </div>
-                {error !== '' && <div className={styles.text_error}>{error}</div>}
+                {error !== '' && typeof error !== "undefined" && <div className={styles.text_error}>{error}</div>}
             </div>
         </div>
     );

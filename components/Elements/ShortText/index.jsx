@@ -76,13 +76,19 @@ const ShortText = ({ index, onChange, defaultValue, type = '', error }) => {
         <div className={styles.root_short_text}>
             <div className={styles.short_text_content}>
                 {type === 'edit' ? (
-                    <input className={styles.short_text_title} value={title} onChange={onTitleChange} placeholder={'Type a title'} />
+                    <input
+                        className={styles.short_text_title}
+                        value={title}
+                        onChange={onTitleChange}
+                        placeholder={'Type a title'}
+                        disabled={type === 'edit' ? false : true}
+                    />
                 ) : (
                     <div className={styles.short_text_title}>
                         {title} {required && <span>*</span>}
                     </div>
                 )}
-                {(type === 'edit' || first_field !== '') && (
+                {(type === 'edit' || first_field !== 'Type your description') && (
                     <input
                         className={styles.short_text_description}
                         value={first_field}
@@ -99,7 +105,7 @@ const ShortText = ({ index, onChange, defaultValue, type = '', error }) => {
                 <div className={styles.short_text}>
                     <div className={styles.short_text_form}>
                         <input className={styles.short_text_input} disabled={type === 'answer' ? false : true} value={text} onChange={onTextChange} />
-                        {error !== '' && <div className={styles.text_error}>{error}</div>}
+                        {error !== '' && typeof error !== 'undefined' && <div className={styles.text_error}>{error}</div>}
                     </div>
                 </div>
             </div>

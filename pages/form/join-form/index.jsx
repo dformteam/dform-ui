@@ -13,7 +13,7 @@ const JoinForm = () => {
     const { query } = router;
 
     const [form, setForm] = useState({});
-    
+
     const [openLoading, setOpenLoading] = useState(false);
     const [openSnack, setOpenSnack] = useState(false);
     const [alertType, setAlertType] = useState('success');

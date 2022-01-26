@@ -19,7 +19,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '', error }) => {
     }
     const [title, setTitle] = useState(initValue?.title?.[0] || 'Type a question');
     const [first_field, setFirstField] = useState(initValue?.title?.[1] || 'Type your description.');
-    const [aAnswers, setAnswers] = useState([]);
+    const [aAnswers, setAnswers] = useState(initValue?.meta);
     const [required, setRequired] = useState(initValue.isRequired || false);
 
     const onTitleChange = (e) => {
@@ -95,12 +95,12 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '', error }) => {
             if (!check) {
                 aAnswers[indexx].check = true;
             }
-            const choosen = aAnswers?.filter((x) => x.check).map((x) => x.content);
+            // const choosen = aAnswers?.filter((x) => x.check).map((x) => x.content);
             setAnswers([...aAnswers]);
             onChange?.({
                 index,
                 title: [title, first_field],
-                meta: [...choosen],
+                meta: [...aAnswers],
                 isRequired: required,
             });
         }
@@ -108,14 +108,14 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '', error }) => {
 
     const onFillValue = () => {
         setAnswers([
-            ...initValue?.meta?.map((mt, indexn) => {
-                const check = type === 'analysis' ? true : false;
+            ...(initValue?.meta?.map?.((mt, indexn) => {
+                // const check = type === 'analysis' ? true : false;
                 return {
                     id: indexn,
-                    content: mt,
-                    check,
+                    content: mt?.content,
+                    check: mt.check,
                 };
-            }),
+            }) || []),
         ]);
     };
 
@@ -139,13 +139,19 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '', error }) => {
         <div className={styles.root_single_choice}>
             <div className={styles.single_choice_content}>
                 {type === 'edit' ? (
-                    <input className={styles.single_choice_title} value={title} onChange={onTitleChange} placeholder={'Type a title'} />
+                    <input
+                        className={styles.single_choice_title}
+                        value={title}
+                        onChange={onTitleChange}
+                        placeholder={'Type a title'}
+                        disabled={type === 'edit' ? false : true}
+                    />
                 ) : (
                     <div className={styles.single_choice_title}>
                         {title} {required && <span>*</span>}
                     </div>
                 )}
-                {(type === 'edit' || first_field !== '') && (
+                {(type === 'edit' || first_field !== 'Type your description') && (
                     <input
                         className={styles.single_choice_description}
                         value={first_field}
@@ -198,7 +204,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '', error }) => {
                         </div>
                     )}
                 </div>
-                {error !== '' && <div className={styles.text_error}>{error}</div>}
+                {error !== '' && typeof error !== 'undefined' && <div className={styles.text_error}>{error}</div>}
             </div>
         </div>
     );

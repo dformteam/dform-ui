@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import styles from './Form.module.scss';
 import Image from 'next/image';
@@ -9,9 +10,8 @@ import { useRouter } from 'next/router';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { connect } from 'react-redux';
-import Notify from '../../components/Notify';
 import { useSelector } from 'react-redux';
+import Notify from '../../components/Notify';
 
 const style = {
     position: 'absolute',
@@ -29,8 +29,6 @@ const style = {
 const Form = () => {
     const wallet = useSelector((state) => state.wallet);
     const router = useRouter();
-    const create_form_raws = [];
-    const joined_form_raws = [];
 
     const [open, setOpen] = useState(false);
     const [new_form_title, setNewFormTitle] = useState('');
@@ -291,11 +289,7 @@ const Form = () => {
     );
 };
 
-export default connect((state) => {
-    return {
-        wallet: state.wallet,
-    };
-})(Form);
+export default Form;
 
 const aTemplate = [
     { id: 'blank', title: 'Blank', name: 'Create a blank form', route: '/form/create-form' },
