@@ -126,7 +126,7 @@ const DatePicker = ({ index, onChange, defaultValue, type = '', error }) => {
                             value={date}
                             onChange={onDateChange}
                         />
-                        {error !== '' && <div className={styles.text_error}>{error}</div>}
+                        {error !== '' && typeof error !== "undefined" && <div className={styles.text_error}>{error}</div>}
                     </div>
                 </div>
             </div>

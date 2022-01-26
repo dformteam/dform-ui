@@ -159,7 +159,7 @@ const FullName = ({ index, onChange, defaultValue, type = '', error }) => {
                         <input className={styles.full_name_input} disabled={type === 'answer' ? false : true} value={last_name} onChange={onLastNameChange} />
                     </div>
                 </div>
-                {error !== '' && <div className={styles.text_error}>{error}</div>}
+                {error !== '' && typeof error !== "undefined" && <div className={styles.text_error}>{error}</div>}
             </div>
         </div>
     );

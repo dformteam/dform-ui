@@ -67,7 +67,6 @@ const Email = ({ index, onChange, defaultValue, type = '', error }) => {
 
     const onFillValue = () => {
         if (type !== 'edit') {
-            console.log(initValue);
             setEmail(initValue?.meta?.[0] || '');
             setRequired(initValue?.isRequired || false);
         }
@@ -129,7 +128,7 @@ const Email = ({ index, onChange, defaultValue, type = '', error }) => {
                             value={email}
                             onChange={onEmailChange}
                         />
-                        {error !== '' && <div className={styles.text_error}>{error}</div>}
+                        {error !== '' && typeof error !== "undefined" && <div className={styles.text_error}>{error}</div>}
                     </div>
                 </div>
             </div>
