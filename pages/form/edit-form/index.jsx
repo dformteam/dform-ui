@@ -176,7 +176,12 @@ const CreateForm = () => {
                                         icon: ShortTextOutlinedIcon,
                                         defaultValue: {
                                             title: form_data?.title,
-                                            meta: form_data?.meta,
+                                            meta: form_data?.meta.map((x) => {
+                                                return {
+                                                    content: x,
+                                                    checked: false,
+                                                };
+                                            }),
                                             isRequire: form_data?.isRequired,
                                             error: '',
                                         },
