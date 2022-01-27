@@ -48,12 +48,12 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '', error }) => {
         let copyAnswers = [...aAnswers];
         copyAnswers[indexz].content = value;
         setAnswers(copyAnswers);
-        const metaAnswer = copyAnswers?.filter((x) => x.content !== '')?.map((x) => x.content);
+        // const metaAnswer = copyAnswers?.filter((x) => x.content !== '')?.map((x) => x.content);
         type === 'edit' &&
             onChange?.({
                 index,
                 title: [title, first_field],
-                meta: [...metaAnswer],
+                meta: [...copyAnswers],
                 isRequired: required,
             });
     };
