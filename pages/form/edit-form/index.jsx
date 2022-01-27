@@ -79,10 +79,8 @@ const CreateForm = () => {
         const { id, transactionHashes } = query;
         if (id !== '') {
             if (transactionHashes !== null && transactionHashes !== '' && typeof transactionHashes !== 'undefined') {
-                console.log(123);
                 setForms([...(JSON.parse(localStorage.getItem('temp')) || [])]);
             } else {
-                console.log(1233123);
                 onGetFormDetail();
             }
         }
@@ -178,7 +176,12 @@ const CreateForm = () => {
                                         icon: ShortTextOutlinedIcon,
                                         defaultValue: {
                                             title: form_data?.title,
-                                            meta: form_data?.meta,
+                                            meta: form_data?.meta.map((x) => {
+                                                return {
+                                                    content: x,
+                                                    checked: false,
+                                                };
+                                            }),
                                             isRequire: form_data?.isRequired,
                                             error: '',
                                         },
