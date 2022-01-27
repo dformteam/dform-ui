@@ -182,7 +182,7 @@ const CreateForm = () => {
                                                     checked: false,
                                                 };
                                             }),
-                                            isRequire: form_data?.isRequired,
+                                            isRequired: form_data?.isRequired,
                                             error: '',
                                         },
                                         numth: form_data.numth,
