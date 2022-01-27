@@ -295,6 +295,23 @@ const Publish = () => {
             });
             return false;
         }
+
+        if (end_date < start_date) {
+            onShowResult({
+                type: 'error',
+                msg: 'ending date could not less than starting date',
+            });
+            return false;
+        }
+
+        const cTime = Date.now();
+        if (end_date < cTime) {
+            onShowResult({
+                type: 'error',
+                msg: 'ending date could not less than current time',
+            });
+            return false;
+        }
         return true;
     };
 
@@ -342,12 +359,12 @@ const Publish = () => {
         router.back();
     };
 
-    const onDeleteBlackItem = (chipToDelete) => () => {
-        setBlackAccount([...black_list.filter((chip) => chip !== chipToDelete)]);
+    const onDeleteBlackItem = (chipToDelete) => {
+        setBlackList([...black_list.filter((chip) => chip !== chipToDelete)]);
     };
 
     const onDeleteWhiteItem = (chipToDelete) => {
-        setWhiteAccount([...white_list.filter((chip) => chip !== chipToDelete)]);
+        setWhiteList([...white_list.filter((chip) => chip !== chipToDelete)]);
     };
 
     const ListItem = styled('div')(({ theme }) => ({
