@@ -181,7 +181,7 @@ const JoinForm = () => {
                     </div>
                     <div className={styles.fee_row}>
                         <div className={styles.fee_label}>Joining Fee</div>
-                        <div className={styles.fee_input}>{form?.fee > 0 ? form?.fee + ' NEAR' : 'FREE'}</div>
+                        <div className={styles.fee_input}>{form?.enroll_fee > 0 ? form?.enroll_fee + ' Ⓝ' : 'FREE'}</div>
                     </div>
                     <div className={styles.fee_row}>
                         <div className={styles.fee_label}>Starting time</div>
