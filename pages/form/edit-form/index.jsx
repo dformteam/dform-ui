@@ -286,12 +286,17 @@ const CreateForm = () => {
         const { id } = query;
         const { type, defaultValue } = element;
 
+        let metax = defaultValue.meta;
+        if (element.id === 'singleChoice' || element.id === 'multiChoice') {
+            metax = defaultValue?.meta?.map?.((x) => x.content);
+        }
+
         return contract
             .new_element({
                 formId: id,
                 type,
                 title: defaultValue.title,
-                meta: defaultValue.meta,
+                meta: metax,
                 isRequired: defaultValue.isRequired,
                 numth: index,
             })
