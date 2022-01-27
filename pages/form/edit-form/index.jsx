@@ -79,10 +79,8 @@ const CreateForm = () => {
         const { id, transactionHashes } = query;
         if (id !== '') {
             if (transactionHashes !== null && transactionHashes !== '' && typeof transactionHashes !== 'undefined') {
-                console.log(123);
                 setForms([...(JSON.parse(localStorage.getItem('temp')) || [])]);
             } else {
-                console.log(1233123);
                 onGetFormDetail();
             }
         }
