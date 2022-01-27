@@ -256,7 +256,7 @@ const CreateForm = () => {
             forms?.map(async (element, index) => {
                 const { bId } = element;
                 if (typeof bId === 'undefined' || bId === null || bId === '') {
-                    // await seph.acquire();
+                    await seph.acquire();
                     const bId_result = await uploadNewElement(element, index);
                     element.bId = bId_result;
                 }
@@ -287,30 +287,27 @@ const CreateForm = () => {
         const { type, defaultValue } = element;
 
         let metax = defaultValue.meta;
-        console.log(metax);
         if (element.id === 'singleChoice' || element.id === 'multiChoice') {
             metax = defaultValue?.meta?.map?.((x) => x.content);
         }
 
-        console.log(metax);
-
-        // return contract
-        //     .new_element({
-        //         formId: id,
-        //         type,
-        //         title: defaultValue.title,
-        //         meta: metax,
-        //         isRequired: defaultValue.isRequired,
-        //         numth: index,
-        //     })
-        //     .then((res) => {
-        //         seph.release();
-        //         return res?.id;
-        //     })
-        //     .catch((err) => {
-        //         seph.release();
-        //         return undefined;
-        //     });
+        return contract
+            .new_element({
+                formId: id,
+                type,
+                title: defaultValue.title,
+                meta: metax,
+                isRequired: defaultValue.isRequired,
+                numth: index,
+            })
+            .then((res) => {
+                seph.release();
+                return res?.id;
+            })
+            .catch((err) => {
+                seph.release();
+                return undefined;
+            });
     };
 
     const onValidateQuestion = (elements) => {
