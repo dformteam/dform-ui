@@ -286,7 +286,6 @@ const CreateForm = () => {
         const { id } = query;
         const { type, defaultValue } = element;
 
-
         let metax = defaultValue.meta;
         if (element.id === 'singleChoice' || element.id === 'multiChoice') {
             metax = defaultValue?.meta?.map?.((x) => x.content);
@@ -378,7 +377,7 @@ const CreateForm = () => {
     };
 
     const renderElements = (item, index) => {
-        if (item.id === 'fillBlank') {
+        if (item.id === 'fillBlank' || item.id === 'header') {
             return;
         }
         return (
@@ -400,8 +399,8 @@ const CreateForm = () => {
         const editableType = 'edit';
 
         switch (id) {
-            case 'header':
-                return <Header />;
+            // case 'header':
+            //     return <Header />;
             case 'fullName':
                 return <FullName index={index} onChange={onElementChanged} elType={type} type={editableType} defaultValue={defaultValue} />;
             case 'email':
