@@ -35,8 +35,12 @@ const JoinForm = () => {
     }, []);
 
     const onGetFormDetail = () => {
-        const { contract } = wallet;
+        const { contract, walletConnection } = wallet;
         const { id } = query;
+
+        if (!walletConnection.isSignedIn()) {
+            return redirectError('Please login to your wallet first');
+        }
 
         if (id === null || id === '' || typeof id === 'undefined') {
             return redirectError('Could not found any object have that id!');
@@ -78,6 +82,11 @@ const JoinForm = () => {
     const getParticipantFormDetail = () => {
         const { contract, walletConnection } = wallet;
         const { id } = query;
+
+        if (!walletConnection.isSignedIn()) {
+            return redirectError('Please login to your wallet first');
+        }
+
         const userId = walletConnection.getAccountId();
 
         if (id === null || id === '' || typeof id === 'undefined') {

@@ -236,7 +236,7 @@ const Publish = () => {
         contract
             ?.publish_form?.({
                 formId: id,
-                limit_participants: parseInt(participant),
+                limit_participants: parseInt(participant || 0),
                 enroll_fee: yocto_enroll_fee,
                 start_date,
                 end_date,
@@ -466,7 +466,7 @@ const Publish = () => {
                         <div className={styles.publish_fee_label_paid}>Ending time</div>
                         <input className={styles.publish_fee_input_date} type={'datetime-local'} onChange={onEndingDateChange} />
                     </div>
-                    <div className={styles.publish_invite}>INVITE BY NEAR ACCOUNT</div>
+                    {/* <div className={styles.publish_invite}>INVITE BY NEAR ACCOUNT</div>
                     <div className={styles.publish_invite_content}>
                         <EmailOutlinedIcon className={styles.publish_invite_email_icon} />
                         <div className={styles.publish_invite_label}>To:</div>
@@ -480,7 +480,7 @@ const Publish = () => {
                             </button>
                             <button className={styles.publish_invite_button_send}>Send invitation</button>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
                 {status === 'private' && (
                     <div className={styles.list}>
