@@ -1,4 +1,4 @@
-const CONTRACT_NAME = 'xtest3.testnet';
+const CONTRACT_NAME = 'mtoan2193.near';
 
 function getConfig(env) {
     switch (env) {
