@@ -221,8 +221,6 @@ const FormAnalysis = () => {
                                     if (x?.numth > y?.numth) return 1;
                                     return 0;
                                 });
-
-                                setAnswers([...tmp_answers]);
                             }
                         }
                     })
@@ -236,6 +234,7 @@ const FormAnalysis = () => {
                 setRaws({
                     ...raws,
                 });
+                setAnswers([...tmp_answers]);
                 setOpenLoading(false);
             })
             .catch((err) => {

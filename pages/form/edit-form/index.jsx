@@ -286,6 +286,7 @@ const CreateForm = () => {
         const { id } = query;
         const { type, defaultValue } = element;
 
+
         let metax = defaultValue.meta;
         if (element.id === 'singleChoice' || element.id === 'multiChoice') {
             metax = defaultValue?.meta?.map?.((x) => x.content);
