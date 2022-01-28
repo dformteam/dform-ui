@@ -40,6 +40,7 @@ import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Notify from '../../../components/Notify';
+import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 
 const CreateForm = () => {
     const raws = [];
@@ -435,22 +436,24 @@ const CreateForm = () => {
         return (
             <div className={styles.element_content} key={index}>
                 {renderElement(item, index)}
-                <div className={styles.button_submit}>
-                    {index !== 0 && (
-                        <div className={styles.button_prev}>
-                            <ArrowBackOutlinedIcon className={styles.icon_prev} />
-                            Previous
+                {modalPreview && (
+                    <div className={styles.button_submit}>
+                        {index !== 0 && (
+                            <div className={styles.button_prev}>
+                                <ArrowBackOutlinedIcon className={styles.icon_prev} />
+                                Previous
+                            </div>
+                        )}
+                        <div className={styles.button_next} style={index === 0 ? { borderBottomLeftRadius: 24, justifyContent: 'center' } : null}>
+                            {index < forms.length - 1 ? 'Next' : 'Submit'} <ArrowForwardOutlinedIcon className={styles.icon_next} />
                         </div>
-                    )}
-                    <div className={styles.button_next} style={index === 0 ? { borderBottomLeftRadius: 24, justifyContent: 'center' } : null}>
-                        {index < forms.length - 1 ? 'Next' : 'Submit'} <ArrowForwardOutlinedIcon className={styles.icon_next} />
                     </div>
-                </div>
+                )}
 
                 <div className={styles.element_action_area}>
                     {(typeof item.bId === 'undefined' || item.bId === '') && (
                         <button className={styles.element_action_area__edit} onClick={() => onUploadElementClick(item, index)}>
-                            <UploadIcon className={styles.button_delete_icon} />
+                            <SaveOutlinedIcon className={styles.button_delete_icon} />
                         </button>
                     )}
                     {(typeof item.bId === 'undefined' || item.bId === '') && (
@@ -678,7 +681,7 @@ const listElement = [
         bId: '',
         id: 'shortText',
         type: 7,
-        label: 'Shot Text',
+        label: 'Short Text',
         icon: ShortTextOutlinedIcon,
         defaultValue: {
             title: ['Type a question', 'Type your description'],
