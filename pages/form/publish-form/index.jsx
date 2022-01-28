@@ -6,7 +6,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import LinkOutlinedIcon from '@mui/icons-material/LinkOutlined';
 import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
-import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
+// import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -35,7 +35,7 @@ const Publish = () => {
     const router = useRouter();
     const { query } = router;
     const [status, setStatus] = useState('private');
-    const [focus, setFocus] = useState(false);
+    // const [focus, setFocus] = useState(false);
     const [open, setOpen] = useState(false);
     const [free, setFree] = useState(true);
     const [fee, setFee] = useState('0');
@@ -123,13 +123,13 @@ const Publish = () => {
         setOpen(false);
     };
 
-    const onInputEmailFocus = () => {
-        setFocus(true);
-    };
+    // const onInputEmailFocus = () => {
+    //     setFocus(true);
+    // };
 
-    const onCloseInputEmail = () => {
-        setFocus(false);
-    };
+    // const onCloseInputEmail = () => {
+    //     setFocus(false);
+    // };
 
     const onFeeChange = (e) => {
         setFee(e.target.value);

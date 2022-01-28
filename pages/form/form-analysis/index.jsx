@@ -42,6 +42,8 @@ const FormAnalysis = () => {
     const router = useRouter();
     const { query } = router;
 
+    const [intervalId, setIntervalId] = useState(-1);
+
     const [form, setForm] = useState({});
     const [participant, setParticipant] = useState([]);
     const [answers, setAnswers] = useState([]);
@@ -68,7 +70,24 @@ const FormAnalysis = () => {
 
     useEffect(() => {
         onGetFormDetail();
+
+        const id = setInterval(() => {
+            onGetFormDetail();
+        }, 30000);
+
+        console.log(id);
+
+        setIntervalId(id);
     }, []);
+
+    useEffect(() => {
+        return () => {
+            console.log(intervalId);
+            if (intervalId !== -1) {
+                clearInterval(intervalId);
+            }
+        };
+    }, [intervalId]);
 
     const onGetFormDetail = () => {
         const { contract } = wallet;
@@ -154,7 +173,7 @@ const FormAnalysis = () => {
     };
 
     const getAnswers = async (part, total) => {
-        if (typeof raws[part] !== 'undefined') {
+        if (typeof raws[part] !== 'undefined' && raws[part].length === total) {
             setOpenLoading(false);
             return setAnswers([...raws[part]]);
         }
