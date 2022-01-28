@@ -1,6 +1,7 @@
 import getConfig from './config';
 import * as nearAPI from 'near-api-js';
 
+// const nearConfig = getConfig('testnet');
 const nearConfig = getConfig('mainnet');
 
 export async function initContract() {
