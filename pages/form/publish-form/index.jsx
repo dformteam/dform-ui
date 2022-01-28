@@ -15,6 +15,7 @@ import { styled } from '@mui/material/styles';
 import { useRouter } from 'next/router';
 import { useSelector } from 'react-redux';
 import Notify from '../../../components/Notify';
+import { utils } from 'near-api-js';
 
 const style = {
     position: 'absolute',
@@ -229,11 +230,14 @@ const Publish = () => {
 
         setOpenLoading(true);
 
+        let yocto_enroll_fee = utils.format.parseNearAmount(`${enroll_fee}`);
+        // console.log(yocto_enroll_fee);
+
         contract
             ?.publish_form?.({
                 formId: id,
                 limit_participants: parseInt(participant),
-                enroll_fee,
+                enroll_fee: yocto_enroll_fee,
                 start_date,
                 end_date,
                 black_list: [...black_list_set],
