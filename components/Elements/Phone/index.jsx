@@ -119,7 +119,7 @@ const Phone = ({ index, onChange, defaultValue, type = '', error }) => {
                             disabled={type === 'edit' ? false : true}
                         />
                         <input className={styles.phone_input} type={'tel'} value={phone} onChange={onPhoneChange} disabled={type === 'answer' ? false : true} />
-                        {error !== '' && typeof error !== "undefined" && <div className={styles.text_error}>{error}</div>}
+                        {error !== '' && typeof error !== 'undefined' && <div className={styles.text_error}>{error}</div>}
                     </div>
                 </div>
             </div>
