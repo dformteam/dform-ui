@@ -76,7 +76,7 @@ const Phone = ({ index, onChange, defaultValue, type = '', error }) => {
 
     const onChangeRequired = (e) => {
         setRequired(e.target.checked);
-        type !== 'edit' &&
+        type === 'edit' &&
             onChange?.({
                 index,
                 title: [title, first_field, second_field],
