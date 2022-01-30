@@ -71,23 +71,20 @@ const FormAnalysis = () => {
     useEffect(() => {
         onGetFormDetail();
 
-        const id = setInterval(() => {
-            onGetFormDetail();
-        }, 30000);
+        // const id = setInterval(() => {
+        //     onGetFormDetail();
+        // }, 30000);
 
-        console.log(id);
-
-        setIntervalId(id);
+        // setIntervalId(id);
     }, []);
 
-    useEffect(() => {
-        return () => {
-            console.log(intervalId);
-            if (intervalId !== -1) {
-                clearInterval(intervalId);
-            }
-        };
-    }, [intervalId]);
+    // useEffect(() => {
+    //     return () => {
+    //         if (intervalId !== -1) {
+    //             clearInterval(intervalId);
+    //         }
+    //     };
+    // }, [intervalId]);
 
     const onGetFormDetail = () => {
         const { contract } = wallet;
@@ -119,6 +116,9 @@ const FormAnalysis = () => {
 
                     setForm(res);
                     const prt = participants?.map((pt) => {
+                        // console.log(participant);
+                        // const existedPtIndex = participant.findIndex((x) => x.name === pt);
+                        // console.log(existedPtIndex);
                         return {
                             name: pt,
                             checked: false,
@@ -142,6 +142,7 @@ const FormAnalysis = () => {
             return setNotify('You only see your answers!');
         }
 
+        console.log(participant);
         setParticipant([...participant]);
         setCurrentParticipant(item);
         getMaxAnswers(item);
