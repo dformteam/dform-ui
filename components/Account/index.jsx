@@ -13,8 +13,8 @@ const UserAccount = () => {
     const wallet = useSelector((state) => state.wallet);
     const router = useRouter();
     const aMenu = [
-        { id: 'my-form', label: 'My Form', icon: AssignmentOutlinedIcon },
-        { id: 'my-event', label: 'My Event', icon: DateRangeOutlinedIcon },
+        { id: 'my-form', label: 'My Form', icon: AssignmentOutlinedIcon, router: '/form/my-form' },
+        { id: 'my-event', label: 'My Event', icon: DateRangeOutlinedIcon, router: 'event/my-event' },
     ];
     const wrapperRef = useRef(null);
 
@@ -34,9 +34,8 @@ const UserAccount = () => {
         }
     };
 
-    const onNavItemClick = (id) => {
+    const onNavItemClick = (route) => {
         setPopoverVisible(false);
-        let route = '/form/' + id;
         router.push(route);
     };
 
@@ -99,7 +98,7 @@ const UserAccount = () => {
                         {aMenu.map((item, index) => {
                             return (
                                 <Fragment key={index}>
-                                    <div className={styles.account_popover_label} onClick={() => onNavItemClick(item.id)}>
+                                    <div className={styles.account_popover_label} onClick={() => onNavItemClick(item.router)}>
                                         <item.icon className={styles.account_popover_icon} />
                                         {item.label}
                                     </div>
