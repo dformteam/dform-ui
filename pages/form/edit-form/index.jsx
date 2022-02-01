@@ -40,6 +40,7 @@ import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Notify from '../../../components/Notify';
+import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 
 const CreateForm = () => {
     const raws = [];
@@ -79,10 +80,8 @@ const CreateForm = () => {
         const { id, transactionHashes } = query;
         if (id !== '') {
             if (transactionHashes !== null && transactionHashes !== '' && typeof transactionHashes !== 'undefined') {
-                console.log(123);
                 setForms([...(JSON.parse(localStorage.getItem('temp')) || [])]);
             } else {
-                console.log(1233123);
                 onGetFormDetail();
             }
         }
@@ -178,8 +177,13 @@ const CreateForm = () => {
                                         icon: ShortTextOutlinedIcon,
                                         defaultValue: {
                                             title: form_data?.title,
-                                            meta: form_data?.meta,
-                                            isRequire: form_data?.isRequired,
+                                            meta: form_data?.meta.map((x) => {
+                                                return {
+                                                    content: x,
+                                                    checked: false,
+                                                };
+                                            }),
+                                            isRequired: form_data?.isRequired,
                                             error: '',
                                         },
                                         numth: form_data.numth,
@@ -283,22 +287,25 @@ const CreateForm = () => {
         const { id } = query;
         const { type, defaultValue } = element;
 
+        let metax = defaultValue.meta;
+        if (element.id === 'singleChoice' || element.id === 'multiChoice') {
+            metax = defaultValue?.meta?.map?.((x) => x.content);
+        }
+
         return contract
             .new_element({
                 formId: id,
                 type,
                 title: defaultValue.title,
-                meta: defaultValue.meta,
+                meta: metax,
                 isRequired: defaultValue.isRequired,
                 numth: index,
             })
             .then((res) => {
-                // setProcessing(processing + 1);
                 seph.release();
                 return res?.id;
             })
             .catch((err) => {
-                // setProcessing(processing + 1);
                 seph.release();
                 return undefined;
             });
@@ -371,7 +378,7 @@ const CreateForm = () => {
     };
 
     const renderElements = (item, index) => {
-        if (item.id === 'fillBlank') {
+        if (item.id === 'fillBlank' || item.id === 'header') {
             return;
         }
         return (
@@ -393,8 +400,8 @@ const CreateForm = () => {
         const editableType = 'edit';
 
         switch (id) {
-            case 'header':
-                return <Header />;
+            // case 'header':
+            //     return <Header />;
             case 'fullName':
                 return <FullName index={index} onChange={onElementChanged} elType={type} type={editableType} defaultValue={defaultValue} />;
             case 'email':
@@ -429,22 +436,24 @@ const CreateForm = () => {
         return (
             <div className={styles.element_content} key={index}>
                 {renderElement(item, index)}
-                <div className={styles.button_submit}>
-                    {index !== 0 && (
-                        <div className={styles.button_prev}>
-                            <ArrowBackOutlinedIcon className={styles.icon_prev} />
-                            Previous
+                {modalPreview && (
+                    <div className={styles.button_submit}>
+                        {index !== 0 && (
+                            <div className={styles.button_prev}>
+                                <ArrowBackOutlinedIcon className={styles.icon_prev} />
+                                Previous
+                            </div>
+                        )}
+                        <div className={styles.button_next} style={index === 0 ? { borderBottomLeftRadius: 24, justifyContent: 'center' } : null}>
+                            {index < forms.length - 1 ? 'Next' : 'Submit'} <ArrowForwardOutlinedIcon className={styles.icon_next} />
                         </div>
-                    )}
-                    <div className={styles.button_next} style={index === 0 ? { borderBottomLeftRadius: 24, justifyContent: 'center' } : null}>
-                        {index < forms.length - 1 ? 'Next' : 'Submit'} <ArrowForwardOutlinedIcon className={styles.icon_next} />
                     </div>
-                </div>
+                )}
 
                 <div className={styles.element_action_area}>
                     {(typeof item.bId === 'undefined' || item.bId === '') && (
                         <button className={styles.element_action_area__edit} onClick={() => onUploadElementClick(item, index)}>
-                            <UploadIcon className={styles.button_delete_icon} />
+                            <SaveOutlinedIcon className={styles.button_delete_icon} />
                         </button>
                     )}
                     {(typeof item.bId === 'undefined' || item.bId === '') && (
@@ -672,7 +681,7 @@ const listElement = [
         bId: '',
         id: 'shortText',
         type: 7,
-        label: 'Shot Text',
+        label: 'Short Text',
         icon: ShortTextOutlinedIcon,
         defaultValue: {
             title: ['Type a question', 'Type your description'],

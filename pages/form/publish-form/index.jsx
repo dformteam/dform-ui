@@ -15,6 +15,7 @@ import { styled } from '@mui/material/styles';
 import { useRouter } from 'next/router';
 import { useSelector } from 'react-redux';
 import Notify from '../../../components/Notify';
+import { utils } from 'near-api-js';
 
 const style = {
     position: 'absolute',
@@ -229,11 +230,14 @@ const Publish = () => {
 
         setOpenLoading(true);
 
+        let yocto_enroll_fee = utils.format.parseNearAmount(`${enroll_fee}`);
+        // console.log(yocto_enroll_fee);
+
         contract
             ?.publish_form?.({
                 formId: id,
-                limit_participants: parseInt(participant),
-                enroll_fee,
+                limit_participants: parseInt(participant || 0),
+                enroll_fee: yocto_enroll_fee,
                 start_date,
                 end_date,
                 black_list: [...black_list_set],
@@ -295,6 +299,23 @@ const Publish = () => {
             });
             return false;
         }
+
+        if (end_date < start_date) {
+            onShowResult({
+                type: 'error',
+                msg: 'ending date could not less than starting date',
+            });
+            return false;
+        }
+
+        const cTime = Date.now();
+        if (end_date < cTime) {
+            onShowResult({
+                type: 'error',
+                msg: 'ending date could not less than current time',
+            });
+            return false;
+        }
         return true;
     };
 
@@ -342,12 +363,12 @@ const Publish = () => {
         router.back();
     };
 
-    const onDeleteBlackItem = (chipToDelete) => () => {
-        setBlackAccount([...black_list.filter((chip) => chip !== chipToDelete)]);
+    const onDeleteBlackItem = (chipToDelete) => {
+        setBlackList([...black_list.filter((chip) => chip !== chipToDelete)]);
     };
 
     const onDeleteWhiteItem = (chipToDelete) => {
-        setWhiteAccount([...white_list.filter((chip) => chip !== chipToDelete)]);
+        setWhiteList([...white_list.filter((chip) => chip !== chipToDelete)]);
     };
 
     const ListItem = styled('div')(({ theme }) => ({
@@ -445,7 +466,7 @@ const Publish = () => {
                         <div className={styles.publish_fee_label_paid}>Ending time</div>
                         <input className={styles.publish_fee_input_date} type={'datetime-local'} onChange={onEndingDateChange} />
                     </div>
-                    <div className={styles.publish_invite}>INVITE BY NEAR ACCOUNT</div>
+                    {/* <div className={styles.publish_invite}>INVITE BY NEAR ACCOUNT</div>
                     <div className={styles.publish_invite_content}>
                         <EmailOutlinedIcon className={styles.publish_invite_email_icon} />
                         <div className={styles.publish_invite_label}>To:</div>
@@ -459,7 +480,7 @@ const Publish = () => {
                             </button>
                             <button className={styles.publish_invite_button_send}>Send invitation</button>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
                 {status === 'private' && (
                     <div className={styles.list}>

@@ -35,8 +35,12 @@ const JoinForm = () => {
     }, []);
 
     const onGetFormDetail = () => {
-        const { contract } = wallet;
+        const { contract, walletConnection } = wallet;
         const { id } = query;
+
+        if (!walletConnection.isSignedIn()) {
+            return redirectError('Please login to your wallet first');
+        }
 
         if (id === null || id === '' || typeof id === 'undefined') {
             return redirectError('Could not found any object have that id!');
@@ -78,6 +82,11 @@ const JoinForm = () => {
     const getParticipantFormDetail = () => {
         const { contract, walletConnection } = wallet;
         const { id } = query;
+
+        if (!walletConnection.isSignedIn()) {
+            return redirectError('Please login to your wallet first');
+        }
+
         const userId = walletConnection.getAccountId();
 
         if (id === null || id === '' || typeof id === 'undefined') {
@@ -130,14 +139,14 @@ const JoinForm = () => {
                     });
                 });
         } else if (fee !== '0') {
-            const yoctoNear = utils.format.parseNearAmount(`${fee}`);
+            // const yoctoNear = utils.format.parseNearAmount(`${fee}`);
             contract
                 ?.join_form(
                     {
                         formId: id,
                     },
                     100000000000000,
-                    yoctoNear,
+                    fee,
                 )
                 .then((res) => {
                     if (res) {
@@ -181,7 +190,9 @@ const JoinForm = () => {
                     </div>
                     <div className={styles.fee_row}>
                         <div className={styles.fee_label}>Joining Fee</div>
-                        <div className={styles.fee_input}>{form?.fee > 0 ? form?.fee + ' NEAR' : 'FREE'}</div>
+                        <div className={styles.fee_input}>
+                            {form?.enroll_fee !== '0' ? utils.format.formatNearAmount(form?.enroll_fee || 0) + ' Ⓝ' : 'FREE'}
+                        </div>
                     </div>
                     <div className={styles.fee_row}>
                         <div className={styles.fee_label}>Starting time</div>

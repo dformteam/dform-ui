@@ -2,14 +2,35 @@ import { useState } from 'react';
 import styles from './Event.module.scss';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import SearchIcon from '@mui/icons-material/Search';
 import ChevronRightOutlinedIcon from '@mui/icons-material/ChevronRightOutlined';
 import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { useRouter } from 'next/router';
+import ModalShare from '../../components/Share';
+
+const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    minWidth: 400,
+    bgcolor: '#fff',
+    borderRadius: '24px',
+    boxShadow: 24,
+    p: 4,
+    outline: 'none',
+    paddingTop: '20px',
+};
 
 const Event = () => {
+    const router = useRouter();
     const [type, setType] = useState('both');
+    const [modalShare, setModalShare] = useState(false);
     const aEvents = [
         {
             id: 1,
@@ -39,7 +60,7 @@ const Event = () => {
                     <div className={styles.event_item_name}>{item.name}</div>
                     <div className={styles.event_item_footer}>
                         <div className={styles.event_item_attendees}>{item.attendees} attendees</div>
-                        <ShareOutlinedIcon className={styles.event_item_icon} />
+                        <ShareOutlinedIcon className={styles.event_item_icon} onClick={() => setModalShare(true)} />
                         <FavoriteBorderIcon className={styles.event_item_icon_favor} />
                     </div>
                 </div>
@@ -47,10 +68,20 @@ const Event = () => {
         );
     };
 
+    const onCreateEvent = () => {
+        router.push('/event/create-event');
+    };
+
+    const onCloseModalShare = () => {
+        setModalShare(false);
+    };
+
     return (
         <div className={styles.root}>
             <div className={styles.label_create}>Start to create your event</div>
-            <button className={styles.button_create}>Create Event</button>
+            <button className={styles.button_create} onClick={onCreateEvent}>
+                Create Event
+            </button>
             <div className={styles.label}>
                 <div className={styles.label_title}>Your next event</div>
                 <div className={styles.label_text}>
@@ -94,12 +125,22 @@ const Event = () => {
             </div>
             <div className={styles.label}>
                 <div className={styles.label_title}>Attend an event</div>
-                <div className={styles.label_text}>
+                <div className={styles.label_text} onClick={() => router.push('/event/more-events')}>
                     More events <ChevronRightOutlinedIcon className={styles.icon_collapse} />
                 </div>
             </div>
             <div className={styles.line} />
             <div className={styles.list_event}>{aEvents.map((item) => renderEventItem(item))}</div>
+
+            <Modal open={modalShare} onClose={onCloseModalShare} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+                <Box sx={style}>
+                    <Typography id="modal-modal-title" variant="h6" component="h2" textAlign={'center'}>
+                        Share this event
+                    </Typography>
+                    <div className={styles.line_gradient}></div>
+                    <ModalShare />
+                </Box>
+            </Modal>
         </div>
     );
 };
