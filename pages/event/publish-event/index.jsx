@@ -96,12 +96,24 @@ const Publish = () => {
         }
     };
 
+    const onDeleteBlackItem = (chipToDelete) => {
+        setBlackList([...black_list.filter((chip) => chip !== chipToDelete)]);
+    };
+
+    const onDeleteWhiteItem = (chipToDelete) => {
+        setWhiteList([...white_list.filter((chip) => chip !== chipToDelete)]);
+    };
+
     const renderActiveStatus = (id) => {
         if (status === id) {
             let tmp = 'publish_status_content_active_' + id;
             return styles[tmp];
         }
     };
+
+    const ListItem = styled('div')(({ theme }) => ({
+        margin: theme.spacing(1),
+    }));
 
     return (
         <div className={styles.root}>
@@ -116,9 +128,7 @@ const Publish = () => {
                     )}
                     {sharedLink !== '' && (
                         <div className={styles.publish_button_area}>
-                            <button className={styles.publish_button}>
-                                Go back
-                            </button>
+                            <button className={styles.publish_button}>Go back</button>
                         </div>
                     )}
                 </div>
@@ -129,9 +139,7 @@ const Publish = () => {
                         <div className={styles.publish_row}>
                             <LinkOutlinedIcon className={styles.publish_icon_link} />
                             <div className={styles.publish_link_input}>{sharedLink}</div>
-                            <div className={styles.publish_link_copy} >
-                                Copy link
-                            </div>
+                            <div className={styles.publish_link_copy}>Copy link</div>
                         </div>
                     </>
                 )}
@@ -146,13 +154,9 @@ const Publish = () => {
                 })}
                 <div className={styles.publish_row_input} style={{ height: status === 'private' ? 64 : 0 }}>
                     <input className={styles.publish_black_input} placeholder={'Enter black list'} />
-                    <div className={styles.publish_black_button}>
-                        Add to Black List
-                    </div>
+                    <div className={styles.publish_black_button}>Add to Black List</div>
                     <input className={styles.publish_black_input} placeholder={'Enter white list'} />
-                    <div className={styles.publish_white_button} >
-                        Add to White List
-                    </div>
+                    <div className={styles.publish_white_button}>Add to White List</div>
                 </div>
                 <div className={styles.publish_fee_row + ' ' + styles.margin_top}>
                     <div className={styles.publish_fee_label}>Limit participant</div>

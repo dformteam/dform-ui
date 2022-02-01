@@ -42,17 +42,17 @@ const CreateEvent = () => {
                 if (res) {
                     router.push(`/form/edit-form?id=${res}`);
                 } else {
-                    onShowResult({
-                        type: 'error',
-                        msg: 'Creat form failure',
-                    });
+                    // onShowResult({
+                    //     type: 'error',
+                    //     msg: 'Creat form failure',
+                    // });
                 }
             })
             .catch((err) => {
-                onShowResult({
-                    type: 'error',
-                    msg: String(err),
-                });
+                // onShowResult({
+                //     type: 'error',
+                //     msg: String(err),
+                // });
             });
     };
 
