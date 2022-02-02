@@ -28,6 +28,32 @@
     flex-direction: column;
     margin-top: 5%;
 
+    &_button_area {
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 3% 10%;
+
+
+        &_button {
+            min-width: 100px;
+            height: 48px;
+            padding: 0 20px;
+            // margin: 8px;
+            background: var(--color-background);
+            box-shadow: var(--color-boxshadow);
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+
+            &_icon {
+                margin-right: 10px;
+            }
+        }
+
+    }
+
     &_event {
         display: flex;
         align-items: center;
@@ -129,6 +155,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow: hidden;
+
+            &_img {
+                width: 100%;
+                height: 100%;
+            }
         }
 
         &_info {

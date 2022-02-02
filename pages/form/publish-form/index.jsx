@@ -123,13 +123,13 @@ const Publish = () => {
         setOpen(false);
     };
 
-    const onInputEmailFocus = () => {
-        setFocus(true);
-    };
+    // const onInputEmailFocus = () => {
+    //     setFocus(true);
+    // };
 
-    const onCloseInputEmail = () => {
-        setFocus(false);
-    };
+    // const onCloseInputEmail = () => {
+    //     setFocus(false);
+    // };
 
     const onFeeChange = (e) => {
         setFee(e.target.value);

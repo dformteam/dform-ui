@@ -39,6 +39,8 @@ export async function initContract() {
             'get_passed_element_count',
             'get_joined_forms_count',
             'get_event',
+            'get_user',
+            'get_event_participants'
         ],
         changeMethods: [
             'init_new_form',
