@@ -181,28 +181,46 @@ const CreateEvent = () => {
         setEventDescription([...event_descriptions]);
     };
 
+    const onPreviewClick = () => {
+        router.push('/event/preview-event');
+    };
+
     return (
         <>
             <Notify openLoading={openLoading} openSnack={openSnack} alertType={alertType} snackMsg={snackMsg} onClose={onCloseSnack} />
             <div className={styles.root}>
+                <div className={styles.button_area}>
+                    <button className={styles.button_area_button} onClick={onPreviewClick}>
+                        Preview Form
+                    </button>
+                    <button className={styles.button_area_button_save} onClick={onAttendEventClick}>
+                        Save
+                    </button>
+                </div>
                 <div className={styles.content}>
                     <div className={styles.content_title}>Create Event</div>
                     <div className={styles.content_label}>Event's name</div>
                     <input className={styles.content_input} placeholder="Enter event name" value={event_name} onChange={onChangeEventName} />
-                    <div className={styles.content_label}>Starting time</div>
-                    <input
-                        type={'datetime-local'}
-                        className={styles.content_input}
-                        placeholder="pick your event starting time"
-                        onChange={onStartingTimeChange}
-                    />
-                    <div className={styles.content_label}>Ending time</div>
-                    <input
-                        type={'datetime-local'}
-                        className={styles.content_input}
-                        placeholder="pick your event ending time"
-                        onChange={onEndingTimeChange}
-                    ></input>
+                    <div className={styles.content_row}>
+                        <div className={styles.content_time}>
+                            <div className={styles.content_label}>Starting time</div>
+                            <input
+                                type={'datetime-local'}
+                                className={styles.content_input}
+                                placeholder="pick your event starting time"
+                                onChange={onStartingTimeChange}
+                            />
+                        </div>
+                        <div className={styles.content_time_right}>
+                            <div className={styles.content_label}>Ending time</div>
+                            <input
+                                type={'datetime-local'}
+                                className={styles.content_input}
+                                placeholder="pick your event ending time"
+                                onChange={onEndingTimeChange}
+                            />
+                        </div>
+                    </div>
                     <div className={styles.content_label}>Details</div>
                     {event_descriptions?.map?.((des, index) => {
                         return (
@@ -215,9 +233,9 @@ const CreateEvent = () => {
                             />
                         );
                     })}
-                    <button className={styles.content_attend_button} onClick={onAddNewDescriptionClick}>
-                        Add new description
-                    </button>
+                    {/* <button className={styles.content_add_des} onClick={onAddNewDescriptionClick}>
+                        + Add new description
+                    </button> */}
                     <div className={styles.content_label}>Image Cover</div>
                     <input className={styles.content_input_file} type={'file'} id={'create_event_file'} ref={fileInput} onChange={onChangeCover} />
                     <label htmlFor={'create_event_file'}>{imgSelected ? imgSelected : 'Choose a file...'}</label>
@@ -234,9 +252,6 @@ const CreateEvent = () => {
                             );
                         })}
                     </div>
-                    <button className={styles.content_attend_button} onClick={onAttendEventClick}>
-                        Attend
-                    </button>
                 </div>
             </div>
         </>
