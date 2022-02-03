@@ -196,7 +196,35 @@ const EventDetail = ({ id }) => {
         router.push(`/event/publish-event?id=${id}`);
     };
 
-    const onUnpublishEventClick = () => {};
+    const onUnpublishEventClick = () => {
+        const { contract } = wallet;
+
+        setOpenLoading(true);
+
+        contract
+            ?.publish_event?.({
+                eventId: id,
+            })
+            .then((res) => {
+                if (res) {
+                    onShowResult({
+                        type: 'success',
+                        msg: 'Event has been unpublished',
+                    });
+                } else {
+                    onShowResult({
+                        type: 'error',
+                        msg: 'Somethings went wrong, please try again!',
+                    });
+                }
+            })
+            .catch((err) => {
+                onShowResult({
+                    type: 'error',
+                    msg: String(err),
+                });
+            });
+    };
 
     const redirectError = (content) => {
         const encoded_content = encodeURIComponent(content);
