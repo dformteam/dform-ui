@@ -24,12 +24,13 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '', error }) => {
 
     const onTitleChange = (e) => {
         setTitle(e.target.value);
-        const metaAnswer = aAnswers?.filter((x) => x.content !== '')?.map((x) => x.content);
+        // const metaAnswer = aAnswers?.filter((x) => x.content !== '')?.map((x) => x.content);
         type === 'edit' &&
             onChange?.({
                 index,
                 title: [e.target.value, first_field],
-                meta: [...metaAnswer],
+                meta: [...aAnswers],
+                isRequired: required,
             });
     };
 
@@ -39,7 +40,7 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '', error }) => {
             onChange?.({
                 index,
                 title: [title, e.target.value],
-                meta: [],
+                meta: [...aAnswers],
                 isRequired: required,
             });
     };
@@ -48,12 +49,12 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '', error }) => {
         let copyAnswers = [...aAnswers];
         copyAnswers[indexz].content = value;
         setAnswers(copyAnswers);
-        const metaAnswer = copyAnswers?.filter((x) => x.content !== '')?.map((x) => x.content);
+        // const metaAnswer = copyAnswers?.filter((x) => x.content !== '')?.map((x) => x.content);
         type === 'edit' &&
             onChange?.({
                 index,
                 title: [title, first_field],
-                meta: [...metaAnswer],
+                meta: [...copyAnswers],
                 isRequired: required,
             });
     };
@@ -68,7 +69,7 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '', error }) => {
         let copyAnswers = [...aAnswers];
         copyAnswers.splice(indexz, 1);
         setAnswers(copyAnswers);
-        const metaAnswer = copyAnswers?.filter((x) => x.content !== '')?.map((x) => x.content);
+        // const metaAnswer = copyAnswers?.filter((x) => x.content !== '')?.map((x) => x.content);
         setAnswers([
             ...copyAnswers.map((x, aIndex) => {
                 x.placeholder = 'Type option ' + (aIndex + 1);
@@ -79,19 +80,19 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '', error }) => {
             onChange?.({
                 index,
                 title: [title, first_field],
-                meta: [...metaAnswer],
+                meta: [...copyAnswers],
                 isRequired: required,
             });
     };
 
     const onChangeRequired = (e) => {
         setRequired(e.target.checked);
-        const metaAnswer = aAnswers?.filter((x) => x.content !== '')?.map((x) => x.content);
+        // const metaAnswer = aAnswers?.filter((x) => x.content !== '')?.map((x) => x.content);
         type === 'edit' &&
             onChange?.({
                 index,
                 title: [title, first_field],
-                meta: [...metaAnswer],
+                meta: [...aAnswers],
                 isRequired: e.target.checked,
             });
     };
@@ -156,12 +157,14 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '', error }) => {
                                     onChange={(e) => onOptionChange(e.target.value, indexx)}
                                     disabled={type !== 'edit' ? true : false}
                                 />
-                                <div
-                                    className={indexx % 2 === 0 ? styles.multi_choice_delete_left : styles.multi_choice_delete_right}
-                                    onClick={() => onDeleteOption(indexx)}
-                                >
-                                    <DeleteOutlinedIcon className={styles.multi_choice_delete_icon} />
-                                </div>
+                                {type === 'edit' && (
+                                    <div
+                                        className={indexx % 2 === 0 ? styles.multi_choice_delete_left : styles.multi_choice_delete_right}
+                                        onClick={() => onDeleteOption(indexx)}
+                                    >
+                                        <DeleteOutlinedIcon className={styles.multi_choice_delete_icon} />
+                                    </div>
+                                )}
                             </div>
                         );
                     })}
@@ -172,7 +175,7 @@ const MultiChoice = ({ index, onChange, defaultValue, type = '', error }) => {
                         </div>
                     )}
                 </div>
-                {error !== '' && typeof error !== "undefined" && <div className={styles.text_error}>{error}</div>}
+                {error !== '' && typeof error !== 'undefined' && <div className={styles.text_error}>{error}</div>}
             </div>
         </div>
     );

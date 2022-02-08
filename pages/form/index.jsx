@@ -12,6 +12,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { useSelector } from 'react-redux';
 import Notify from '../../components/Notify';
+import { utils } from 'near-api-js';
 
 const style = {
     position: 'absolute',
@@ -40,6 +41,7 @@ const Form = () => {
     const [snackMsg, setSnackMsg] = useState('');
     const [created_forms, setCreateForms] = useState([]);
     const [joined_forms, setJoinedForms] = useState([]);
+    const [user, setUser] = useState(null);
 
     const onCloseSnack = () => {
         setOpenSnack(false);
@@ -54,10 +56,29 @@ const Form = () => {
 
     useEffect(() => {
         (async () => {
+            await getUserDetail();
             await getNewestCreatedForms();
             await getNewestJoinedForms();
         })();
     }, []);
+
+    const getUserDetail = async () => {
+        const { contract, walletConnection } = wallet;
+        setCreateForms([]);
+        const userId = walletConnection.getAccountId();
+        await contract
+            .get_user({
+                userId,
+            })
+            .then((data) => {
+                if (data) {
+                    console.log(data);
+                    console.log(data.forms_owner, data.forms_owner < 3);
+                    setUser({ ...data });
+                }
+            })
+            .catch((err) => console.log(err));
+    };
 
     const getNewestCreatedForms = async () => {
         const { contract, walletConnection } = wallet;
@@ -92,6 +113,13 @@ const Form = () => {
     };
 
     const onCreateClick = () => {
+        if (user == null) {
+            return onShowResult({
+                type: 'error',
+                msg: 'System busy! try again later',
+            });
+        }
+
         if (new_form_title === '' || new_form_title === null || typeof new_form_title === 'undefined') {
             return onShowResult({
                 type: 'error',
@@ -111,31 +139,63 @@ const Form = () => {
         const { contract } = wallet;
         const form_type = new_form_type === 'card' ? 1 : 0;
 
-        contract
-            ?.init_new_form?.(
-                {
-                    title: new_form_title,
-                    description: new_form_description,
-                    type: form_type,
-                },
-                100000000000000,
-            )
-            .then((res) => {
-                if (res) {
-                    router.push(`/form/edit-form?id=${res}`);
-                } else {
+        if (user.forms_owner < 3) {
+            contract
+                ?.init_new_form?.(
+                    {
+                        title: new_form_title,
+                        description: new_form_description,
+                        type: form_type,
+                    },
+                    50000000000000,
+                )
+                .then((res) => {
+                    if (res) {
+                        router.push(`/form/edit-form?id=${res}`);
+                    } else {
+                        onShowResult({
+                            type: 'error',
+                            msg: 'Creat form failure',
+                        });
+                    }
+                })
+                .catch((err) => {
                     onShowResult({
                         type: 'error',
-                        msg: 'Creat form failure',
+                        msg: String(err),
                     });
-                }
-            })
-            .catch((err) => {
-                onShowResult({
-                    type: 'error',
-                    msg: String(err),
                 });
-            });
+        } else {
+            const halfNear = utils.format.parseNearAmount('0.5');
+            console.log(halfNear);
+
+            contract
+                ?.init_new_form?.(
+                    {
+                        title: new_form_title,
+                        description: new_form_description,
+                        type: form_type,
+                    },
+                    50000000000000,
+                    halfNear,
+                )
+                .then((res) => {
+                    if (res) {
+                        router.push(`/form/edit-form?id=${res}`);
+                    } else {
+                        onShowResult({
+                            type: 'error',
+                            msg: 'Creat form failure',
+                        });
+                    }
+                })
+                .catch((err) => {
+                    onShowResult({
+                        type: 'error',
+                        msg: String(err),
+                    });
+                });
+        }
     };
 
     const on_new_form_title_change = (e) => {

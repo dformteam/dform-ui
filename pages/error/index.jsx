@@ -11,7 +11,7 @@ const Error = () => {
 
     useLayoutEffect(() => {
         onLoadErrorContent();
-    }, []);
+    }, [query]);
 
     const onLoadErrorContent = () => {
         const encoded_content = query?.content;

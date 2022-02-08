@@ -30,22 +30,22 @@ const style = {
     outline: 'none',
 };
 
-const Publish = () => {
-    const wallet = useSelector((state) => state.wallet);
+const Publish = ({ id }) => {
     const router = useRouter();
-    const { query } = router;
+    const wallet = useSelector((state) => state.wallet);
+
     const [status, setStatus] = useState('private');
     // const [focus, setFocus] = useState(false);
     const [open, setOpen] = useState(false);
     const [free, setFree] = useState(true);
     const [fee, setFee] = useState('0');
-    const [participant, setParticipant] = useState(0);
     const [black_list, setBlackList] = useState([]);
     const [white_list, setWhiteList] = useState([]);
-    const [start_date, setStartDate] = useState('');
     const [black_account, setBlackAccount] = useState('');
     const [white_account, setWhiteAccount] = useState('');
+    const [start_date, setStartDate] = useState('');
     const [end_date, setEndDate] = useState('');
+    const [participant, setParticipant] = useState(0);
     const [openLoading, setOpenLoading] = useState(false);
     const [openSnack, setOpenSnack] = useState(false);
     const [alertType, setAlertType] = useState('success');
@@ -72,15 +72,16 @@ const Publish = () => {
 
     const onGetFormDetail = () => {
         const { contract, walletConnection } = wallet;
-        const { id } = query;
+
         let content = '';
+
         let encoded_content = encodeURIComponent(content);
         if (id === null || id === '' || typeof id === 'undefined') {
             content = 'Could not found any object have that id!';
             router.push(`/error?content=${encoded_content}`);
         }
         contract
-            ?.get_form?.({
+            ?.get_event?.({
                 id: id,
             })
             .then((res) => {
@@ -106,12 +107,6 @@ const Publish = () => {
             });
     };
 
-    const aStatus = [
-        { id: 'private', title: 'PRIVATE FORM', sub: 'Only available to invited people' },
-        { id: 'public', title: 'PUBLIC FORM', sub: 'Available to everyone' },
-        // { id: 'share', title: 'SHARE FORM AS A TEMPLATE', sub: 'Share your form as a template ' },
-    ];
-
     const onStatusItemClick = (item) => {
         setStatus(item.id);
         if (item.id === 'share') {
@@ -123,27 +118,13 @@ const Publish = () => {
         setOpen(false);
     };
 
-    // const onInputEmailFocus = () => {
-    //     setFocus(true);
-    // };
-
     // const onCloseInputEmail = () => {
     //     setFocus(false);
     // };
 
-    const onFeeChange = (e) => {
-        setFee(e.target.value);
-    };
-
-    const onStartingDateChange = (e) => {
-        const date = new Date(e.target.value);
-        setStartDate(date.getTime().toString());
-    };
-
-    const onEndingDateChange = (e) => {
-        const date = new Date(e.target.value);
-        setEndDate(date.getTime().toString());
-    };
+    // const onInputEmailFocus = () => {
+    //     setFocus(true);
+    // };
 
     const onBlackListChange = (e) => {
         setBlackAccount(e.target.value);
@@ -203,12 +184,41 @@ const Publish = () => {
         setWhiteAccount('');
     };
 
-    const onGetSharedLink = () => {
-        navigator.clipboard.writeText(sharedLink);
-        onShowResult({
-            type: 'success',
-            msg: 'copied',
-        });
+    const renderStatus = () => {
+        switch (status) {
+            case 'private':
+                return (
+                    <div className={styles.publish_title_button}>
+                        <LockOutlinedIcon className={styles.icon_lock} />
+                        Private Event
+                    </div>
+                );
+            case 'public':
+                return (
+                    <div className={styles.publish_title_button_public}>
+                        <LockOpenOutlinedIcon className={styles.icon_lock} />
+                        Public Event
+                    </div>
+                );
+            case 'share':
+                return (
+                    <div className={styles.publish_title_button_share}>
+                        <ShareOutlinedIcon className={styles.icon_lock} />
+                        SHARE FORM AS A TEMPLATE
+                    </div>
+                );
+
+            default:
+                break;
+        }
+    };
+
+    const onDeleteBlackItem = (chipToDelete) => {
+        setBlackList([...black_list.filter((chip) => chip !== chipToDelete)]);
+    };
+
+    const onDeleteWhiteItem = (chipToDelete) => {
+        setWhiteList([...white_list.filter((chip) => chip !== chipToDelete)]);
     };
 
     const onPublishForm = () => {
@@ -220,7 +230,6 @@ const Publish = () => {
         let black_list_set = new Set(black_list);
         let white_list_set = new Set(white_list);
         let enroll_fee = fee;
-        const { id } = query;
 
         if (status.id === 'public') {
             black_list_set = new Set();
@@ -234,8 +243,8 @@ const Publish = () => {
         // console.log(yocto_enroll_fee);
 
         contract
-            ?.publish_form?.({
-                formId: id,
+            ?.publish_event?.({
+                eventId: id,
                 limit_participants: parseInt(participant || 0),
                 enroll_fee: yocto_enroll_fee,
                 start_date,
@@ -247,7 +256,7 @@ const Publish = () => {
                 if (res) {
                     const uri = new URL(window.location.href);
                     const { origin } = uri;
-                    setSharedLink(`${origin}/form/form-answer?id=${id}`);
+                    setSharedLink(`${origin}/event/event-detail?id=${id}`);
                     onShowResult({
                         type: 'success',
                         msg: 'Form has been published',
@@ -274,6 +283,7 @@ const Publish = () => {
                 msg: 'enroll fee could be negative',
             });
             return false;
+            
         }
 
         if (participant < 0) {
@@ -319,56 +329,33 @@ const Publish = () => {
         return true;
     };
 
-    const renderStatus = () => {
-        switch (status) {
-            case 'private':
-                return (
-                    <div className={styles.publish_title_button}>
-                        <LockOutlinedIcon className={styles.icon_lock} />
-                        Private Form
-                    </div>
-                );
-            case 'public':
-                return (
-                    <div className={styles.publish_title_button_public}>
-                        <LockOpenOutlinedIcon className={styles.icon_lock} />
-                        Public Form
-                    </div>
-                );
-            case 'share':
-                return (
-                    <div className={styles.publish_title_button_share}>
-                        <ShareOutlinedIcon className={styles.icon_lock} />
-                        SHARE FORM AS A TEMPLATE
-                    </div>
-                );
-
-            default:
-                break;
-        }
+    const onGoBack = () => {
+        router.back();
     };
 
-    const renderActiveStatus = (id) => {
-        if (status === id) {
-            let tmp = 'publish_status_content_active_' + id;
-            return styles[tmp];
-        }
+    const onFeeChange = (e) => {
+        setFee(e.target.value);
+    };
+
+    const onStartingDateChange = (e) => {
+        const date = new Date(e.target.value);
+        setStartDate(date.getTime().toString());
+    };
+
+    const onEndingDateChange = (e) => {
+        const date = new Date(e.target.value);
+        setEndDate(date.getTime().toString());
     };
 
     const onParticipantChange = (e) => {
         setParticipant(e.target.value);
     };
 
-    const onGoBack = () => {
-        router.back();
-    };
-
-    const onDeleteBlackItem = (chipToDelete) => {
-        setBlackList([...black_list.filter((chip) => chip !== chipToDelete)]);
-    };
-
-    const onDeleteWhiteItem = (chipToDelete) => {
-        setWhiteList([...white_list.filter((chip) => chip !== chipToDelete)]);
+    const renderActiveStatus = (sid) => {
+        if (status === sid) {
+            let tmp = 'publish_status_content_active_' + sid;
+            return styles[tmp];
+        }
     };
 
     const ListItem = styled('div')(({ theme }) => ({
@@ -381,7 +368,7 @@ const Publish = () => {
             <div className={styles.root}>
                 <div className={styles.publish_content}>
                     <div className={styles.publish_title}>
-                        <div className={styles.publish_title_text}>Publish Form</div>
+                        <div className={styles.publish_title_text}>Publish Event</div>
                         <div className={styles.publish_title_status}>{renderStatus()}</div>
                         {sharedLink === '' && (
                             <div className={styles.publish_button_area}>
@@ -405,9 +392,7 @@ const Publish = () => {
                             <div className={styles.publish_row}>
                                 <LinkOutlinedIcon className={styles.publish_icon_link} />
                                 <div className={styles.publish_link_input}>{sharedLink}</div>
-                                <div className={styles.publish_link_copy} onClick={onGetSharedLink}>
-                                    Copy link
-                                </div>
+                                <div className={styles.publish_link_copy}>Copy link</div>
                             </div>
                         </>
                     )}
@@ -424,6 +409,7 @@ const Publish = () => {
                             </div>
                         );
                     })}
+
                     <div className={styles.publish_row_input} style={{ height: status === 'private' ? 64 : 0 }}>
                         <input className={styles.publish_black_input} value={black_account} onChange={onBlackListChange} placeholder={'Enter black list'} />
                         <div className={styles.publish_black_button} onClick={onAddToBlackList}>
@@ -547,4 +533,15 @@ const Publish = () => {
     );
 };
 
+Publish.getInitialProps = async (ctx) => {
+    const id = ctx.query.id;
+    return { id };
+};
+
 export default Publish;
+
+const aStatus = [
+    { id: 'private', title: 'PRIVATE EVENT', sub: 'Only available to invited people' },
+    { id: 'public', title: 'PUBLIC EVENT', sub: 'Available to everyone' },
+    // { id: 'share', title: 'SHARE FORM AS A TEMPLATE', sub: 'Share your form as a template ' },
+];

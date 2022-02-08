@@ -28,7 +28,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '', error }) => {
             onChange?.({
                 index,
                 title: [e.target.value, first_field],
-                meta: [],
+                meta: [...aAnswers],
                 isRequired: required,
             });
     };
@@ -39,7 +39,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '', error }) => {
             onChange?.({
                 index,
                 title: [title, e.target.value],
-                meta: [],
+                meta: [...aAnswers],
                 isRequired: required,
             });
     };
@@ -48,12 +48,12 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '', error }) => {
         let copyAnswers = [...aAnswers];
         copyAnswers[indexz].content = value;
         setAnswers(copyAnswers);
-        const metaAnswer = copyAnswers?.filter((x) => x.content !== '')?.map((x) => x.content);
+        // const metaAnswer = copyAnswers?.filter((x) => x.content !== '')?.map((x) => x.content);
         type === 'edit' &&
             onChange?.({
                 index,
                 title: [title, first_field],
-                meta: [...metaAnswer],
+                meta: [...copyAnswers],
                 isRequired: required,
             });
     };
@@ -67,7 +67,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '', error }) => {
     const onDeleteOption = (e, indexz) => {
         let copyAnswers = [...aAnswers];
         copyAnswers.splice(indexz, 1);
-        const metaAnswer = copyAnswers?.filter((x) => x.content !== '')?.map((x) => x.content);
+        // const metaAnswer = copyAnswers?.filter((x) => x.content !== '')?.map((x) => x.content);
         setAnswers([
             ...copyAnswers.map((x, aIndex) => {
                 x.placeholder = 'Type option ' + (aIndex + 1);
@@ -79,7 +79,7 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '', error }) => {
             onChange?.({
                 index,
                 title: [title, first_field],
-                meta: [...metaAnswer],
+                meta: [...copyAnswers],
                 isRequired: required,
             });
     };
@@ -125,12 +125,12 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '', error }) => {
 
     const onChangeRequired = (e) => {
         setRequired(e.target.checked);
-        const metaAnswer = aAnswers?.filter((x) => x.content !== '')?.map((x) => x.content);
+        // const metaAnswer = aAnswers?.filter((x) => x.content !== '')?.map((x) => x.content);
         type === 'edit' &&
             onChange?.({
                 index,
                 title: [title],
-                meta: [...metaAnswer],
+                meta: [...aAnswers],
                 isRequired: e.target.checked,
             });
     };
@@ -188,12 +188,14 @@ const SingleChoice = ({ index, onChange, defaultValue, type = '', error }) => {
                                     placeholder={item.placeholder}
                                     onChange={(e) => onOptionChange(e.target.value, indexx)}
                                 />
-                                <div
-                                    className={indexx % 2 === 0 ? styles.single_choice_delete_left : styles.single_choice_delete_right}
-                                    onClick={(e) => onDeleteOption(e, indexx)}
-                                >
-                                    <DeleteOutlinedIcon className={styles.single_choice_delete_icon} />
-                                </div>
+                                {type === 'edit' && (
+                                    <div
+                                        className={indexx % 2 === 0 ? styles.single_choice_delete_left : styles.single_choice_delete_right}
+                                        onClick={(e) => onDeleteOption(e, indexx)}
+                                    >
+                                        <DeleteOutlinedIcon className={styles.single_choice_delete_icon} />
+                                    </div>
+                                )}
                             </div>
                         );
                     })}

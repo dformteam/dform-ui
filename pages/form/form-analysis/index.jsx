@@ -114,10 +114,12 @@ const FormAnalysis = () => {
     };
 
     const onParticipantDetailClicked = (item, index) => {
+        setAnswers([]);
         participant[index].checked = true;
         const { walletConnection } = wallet;
         const userId = walletConnection.getAccountId();
         if (userId !== form.owner && userId !== item) {
+            setCurrentParticipant('');
             return setNotify('You only see your answers!');
         }
 
@@ -128,13 +130,12 @@ const FormAnalysis = () => {
 
     const getMaxAnswers = (part) => {
         setOpenLoading(true);
-        const { contract, walletConnection } = wallet;
+        const { contract } = wallet;
         const { id } = query;
-        const userId = walletConnection.getAccountId();
         contract
             ?.get_passed_element_count?.({
                 formId: id,
-                userId,
+                userId: part,
             })
             .then((res) => {
                 if (res) {
@@ -220,8 +221,6 @@ const FormAnalysis = () => {
                                     if (x?.numth > y?.numth) return 1;
                                     return 0;
                                 });
-
-                                setAnswers([...tmp_answers]);
                             }
                         }
                     })
@@ -235,6 +234,7 @@ const FormAnalysis = () => {
                 setRaws({
                     ...raws,
                 });
+                setAnswers([...tmp_answers]);
                 setOpenLoading(false);
             })
             .catch((err) => {
@@ -316,7 +316,7 @@ const FormAnalysis = () => {
                 <div
                     className={styles.participant_area_name}
                     style={{
-                        color: item.checked ? '#bebebe' : '',
+                        color: item.checked ? 'var(--color-secondary)' : '',
                     }}
                 >
                     {name}
