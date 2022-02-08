@@ -78,6 +78,7 @@ const CreateEvent = () => {
             )
             .then((res) => {
                 if (res) {
+                    console.log("Haluu => ", res);
                     router.push(`/event/event-detail?id=${res}`);
                 } else {
                     onShowResult({
