@@ -117,7 +117,37 @@ const EventDetail = ({ id }) => {
     const onAttendClick = () => {
         const { contract } = wallet;
         setOpenLoading(true);
-
+        if (isRegistered) {
+            contract
+                ?.leave_event(
+                    {
+                        eventId: id,
+                    },
+                    50000000000000,
+                )
+                .then((res) => {
+                    if (res) {
+                        onGetEventDetail();
+                        onShowResult({
+                            type: 'success',
+                            msg: 'Leaved',
+                        });
+                    } else {
+                        onShowResult({
+                            type: 'error',
+                            msg: 'Could not leave',
+                        });
+                    }
+                })
+                .catch((err) => {
+                    onShowResult({
+                        type: 'error',
+                        msg: String(err),
+                    });
+                });
+            setIsRegistered(false);
+            return;
+        }
         if (event?.enroll_fee !== '0') {
             contract
                 ?.join_event(
@@ -202,7 +232,7 @@ const EventDetail = ({ id }) => {
         setOpenLoading(true);
 
         contract
-            ?.publish_event?.({
+            ?.unpublish_event?.({
                 eventId: id,
             })
             .then((res) => {
