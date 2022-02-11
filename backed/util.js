@@ -42,7 +42,8 @@ export async function initContract() {
             'get_user',
             'get_event_participants',
             'get_event_count',
-            'get_events'
+            'get_events',
+            'get_newest_events'
         ],
         changeMethods: [
             'init_new_form',

@@ -12,7 +12,6 @@ const MyEvent = () => {
     const [eventList, setEventList] = useState([]);
     const [pastEventList, setPastEventList] = useState([]);
     const [upcomingEventList, setUpcomingEventList] = useState([]);
-    const [isInterest, setIsInterest] = useState(false);
     const [openLoading, setOpenLoading] = useState(false);
     const [openSnack, setOpenSnack] = useState(false);
     const [alertType, setAlertType] = useState('success');
@@ -107,7 +106,8 @@ const MyEvent = () => {
                                     name: event.name,
                                     type: event_type,
                                     date: onExportDateTime(event.start_date),
-                                    attendees: event.participants.length
+                                    attendees: event.participants.length,
+                                    date_timestamp: event.start_date
                                 }
                                 aEvents.push(eventInfo);
                                 if (current_timestamp >= event.end_date) {
@@ -117,6 +117,12 @@ const MyEvent = () => {
                                 }
                             });
                             // setEventList([...aEvents]);
+                            upcomingEvents.sort(function (a, b) {
+                                return b.date_timestamp - a.date_timestamp;
+                            });
+                            pastEvents.sort(function (a, b) {
+                                return b.date_timestamp - a.date_timestamp;
+                            });
                             setUpcomingEventList(upcomingEvents);
                             setPastEventList(pastEvents);
                             setEventList([...upcomingEvents]);
@@ -136,70 +142,40 @@ const MyEvent = () => {
         navigator.clipboard.writeText(`${origin}/event/event-detail?id=${id}`);
         onShowResult({
             type: 'success',
-            msg: 'copied',
+            msg: 'Link copied',
         });
     };
 
     const onEventFavoriteClick = (id) => {
         const { contract } = wallet;
         setOpenLoading(true);
-        if (!isInterest) {
-            contract
-                ?.interest_event(
-                    {
-                        eventId: id,
-                    },
-                    50000000000000,
-                )
-                .then((res) => {
-                    if (res) {
-                        onShowResult({
-                            type: 'success',
-                            msg: 'Interested',
-                        });
-                    } else {
-                        onShowResult({
-                            type: 'error',
-                            msg: 'Error when interested',
-                        });
-                    }
-                })
-                .catch((err) => {
+        contract
+            ?.interest_event(
+                {
+                    eventId: id,
+                },
+                50000000000000,
+            )
+            .then((res) => {
+                if (res) {
+                    onShowResult({
+                        type: 'success',
+                        msg: 'Interested',
+                    });
+                } else {
                     onShowResult({
                         type: 'error',
-                        msg: String(err),
+                        msg: 'Error when interested',
                     });
+                }
+            })
+            .catch((err) => {
+                onShowResult({
+                    type: 'error',
+                    msg: String(err),
                 });
-            setIsInterest(true);
-        } else {
-            contract
-                ?.not_interest_event(
-                    {
-                        eventId: id,
-                    },
-                    50000000000000,
-                )
-                .then((res) => {
-                    if (res) {
-                        onShowResult({
-                            type: 'success',
-                            msg: 'Disinterested',
-                        });
-                    } else {
-                        onShowResult({
-                            type: 'error',
-                            msg: 'Error when disinterested',
-                        });
-                    }
-                })
-                .catch((err) => {
-                    onShowResult({
-                        type: 'error',
-                        msg: String(err),
-                    });
-                });
-            setIsInterest(false);
-        }
+            });
+
     };
 
     const onUpcomingTabClick = () => {
@@ -253,7 +229,7 @@ const MyEvent = () => {
                 </div>
                 <div className={styles.content}>
                     <div className={styles.content_title}>Your Event</div>
-                    <div className={styles.content_today}>Today, January 17, 2022</div>
+                    <div className={styles.content_today}>Today, {new Date().toLocaleString('en-US', { month: 'long' })} {new Date().getDate()}, {new Date().getFullYear()}</div>
                     <div className={styles.line} />
                     <div className={styles.content_event}>
                         {eventList?.map?.((item) => {

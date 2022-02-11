@@ -60,7 +60,7 @@ const CreateEvent = () => {
         const rootCid = await client.put(fileInput.current);
 
         const des = event_descriptions.filter((x) => x.value !== null && typeof x.value !== 'undefined' && x.value !== '').map((x) => x.value);
-
+        console.log("huuuu");
         contract
             ?.init_new_event?.(
                 {
