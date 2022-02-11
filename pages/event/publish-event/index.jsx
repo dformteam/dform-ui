@@ -63,6 +63,14 @@ const Publish = ({ id }) => {
         setSnackMsg(msg);
     };
 
+    const onGetSharedLink = () => {
+        navigator.clipboard.writeText(sharedLink);
+        onShowResult({
+            type: 'success',
+            msg: 'copied',
+        });
+    };
+
     useEffect(() => {
         onGetFormDetail();
         return () => {
@@ -283,7 +291,7 @@ const Publish = ({ id }) => {
                 msg: 'enroll fee could be negative',
             });
             return false;
-            
+
         }
 
         if (participant < 0) {
@@ -392,7 +400,7 @@ const Publish = ({ id }) => {
                             <div className={styles.publish_row}>
                                 <LinkOutlinedIcon className={styles.publish_icon_link} />
                                 <div className={styles.publish_link_input}>{sharedLink}</div>
-                                <div className={styles.publish_link_copy}>Copy link</div>
+                                <div className={styles.publish_link_copy} onClick={onGetSharedLink}>Copy link</div>
                             </div>
                         </>
                     )}

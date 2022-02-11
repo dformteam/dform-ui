@@ -65,8 +65,8 @@ const CreateEvent = () => {
             ?.init_new_event?.(
                 {
                     title: event_name,
-                    description: des,
                     location: 'Hanoi',
+                    description: des,
                     privacy: [],
                     cover_image: rootCid,
                     type: parseInt(event_type),

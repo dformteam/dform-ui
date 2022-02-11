@@ -40,7 +40,9 @@ export async function initContract() {
             'get_joined_forms_count',
             'get_event',
             'get_user',
-            'get_event_participants'
+            'get_event_participants',
+            'get_event_count',
+            'get_events'
         ],
         changeMethods: [
             'init_new_form',
@@ -58,6 +60,9 @@ export async function initContract() {
             'publish_event',
             'join_event',
             'unpublish_event',
+            'leave_event',
+            'interest_event',
+            'not_interest_event'
         ],
         sender: walletConnection.getAccountId(),
     });
