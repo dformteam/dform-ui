@@ -13,6 +13,8 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useRouter } from 'next/router';
 import ModalShare from '../../components/Share';
 import { useSelector } from 'react-redux';
+import { display } from '@mui/system';
+import Notify from '../../components/Notify';
 
 const style = {
     position: 'absolute',
@@ -34,7 +36,12 @@ const Event = () => {
     const [modalShare, setModalShare] = useState(false);
     const [searchEventValue, setSearchEventValue] = useState('');
     const [eventList, setEventList] = useState([]);
+    const [newestEventList, setNewestEventList] = useState([]);
     const [nextEvent, setNextEvent] = useState({});
+    const [openLoading, setOpenLoading] = useState(false);
+    const [openSnack, setOpenSnack] = useState(false);
+    const [alertType, setAlertType] = useState('success');
+    const [snackMsg, setSnackMsg] = useState('');
 
     const wallet = useSelector((state) => state.wallet);
 
@@ -51,9 +58,94 @@ const Event = () => {
         // { id: 4, name: 'Event 4', type: 'Online', date: 'Sat, Jan 15 @ 5:30 PM', attendees: 16 },
     ];
 
+    const newestEvents = [];
+
     useLayoutEffect(() => {
         onGetMaxRows();
     }, []);
+
+    useLayoutEffect(() => {
+        onGetNewestEvents();
+    }, []);
+
+    const onCloseSnack = () => {
+        setOpenSnack(false);
+    };
+
+    const onShowResult = ({ type, msg }) => {
+        setOpenSnack(true);
+        setOpenLoading(false);
+        setAlertType(type);
+        setSnackMsg(msg);
+    };
+
+    const onGetNewestEvents = () => {
+        let isMounted = true;
+        const { contract, walletConnection } = wallet;
+        const userId = walletConnection.getAccountId();
+        contract
+            ?.get_newest_events?.({})
+            .then((newest_events) => {
+                if (newestEvents) {
+                    newest_events.data.map((event) => {
+                        let event_type = 'Online';
+                        switch (event.event_type) {
+                            case 1:
+                                event_type = 'In person';
+                                break;
+                            case 2:
+                                event_type = 'Online + In person';
+                                break;
+                        }
+                        let eventInfo = {
+                            id: event.id,
+                            name: event.name,
+                            type: event_type,
+                            date: onExportDateTime(event.start_date),
+                            attendees: event.participants.length
+                        }
+                        newestEvents.push(eventInfo);
+                    });
+                    if (isMounted) setNewestEventList([...newestEvents]);
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+        return () => { isMounted = false };
+    };
+
+
+    const onEventFavoriteClick = (id) => {
+        const { contract } = wallet;
+        setOpenLoading(true);
+        contract
+            ?.interest_event(
+                {
+                    eventId: id,
+                },
+                50000000000000,
+            )
+            .then((res) => {
+                if (res) {
+                    onShowResult({
+                        type: 'success',
+                        msg: res,
+                    });
+                } else {
+                    onShowResult({
+                        type: 'error',
+                        msg: 'Error when interested',
+                    });
+                }
+            })
+            .catch((err) => {
+                onShowResult({
+                    type: 'error',
+                    msg: String(err),
+                });
+            });
+    };
 
     const onGetMaxRows = () => {
         const { contract, walletConnection } = wallet;
@@ -114,7 +206,7 @@ const Event = () => {
                                     name: event.name,
                                     type: event_type,
                                     date: onExportDateTime(event.start_date),
-                                    attendees: event.participants.length
+                                    attendees: event.participants.length,
                                 }
                                 aEvents.push(eventInfo);
                                 let tmp_dt = current_timestamp - event.start_date;
@@ -142,18 +234,18 @@ const Event = () => {
 
     const renderEventItem = (item) => {
         return (
-            <div className={styles.event_item} key={item.id}>
+            <div className={styles.event_item} key={item.id} >
                 <div className={styles.event_item_header}>
                     <div className={styles.event_item_type}>{item.type}</div>
                     <img src={'/calendar.svg'} className={styles.event_item_img} alt="img" />
                 </div>
                 <div className={styles.event_item_info}>
                     <div className={styles.event_item_date}>{item.date}</div>
-                    <div className={styles.event_item_name}>{item.name}</div>
+                    <div className={styles.event_item_name} onClick={() => router.push(`/event/event-detail?id=${item.id}`)}>{item.name}</div>
                     <div className={styles.event_item_footer}>
                         <div className={styles.event_item_attendees}>{item.attendees} attendees</div>
                         <ShareOutlinedIcon className={styles.event_item_icon} onClick={() => setModalShare(true)} />
-                        <FavoriteBorderIcon className={styles.event_item_icon_favor} />
+                        <FavoriteBorderIcon className={styles.event_item_icon_favor} onClick={() => onEventFavoriteClick(item.id)} />
                     </div>
                 </div>
             </div>
@@ -174,74 +266,89 @@ const Event = () => {
         }
     };
 
+    const onGetSharedLink = (id) => {
+        const uri = new URL(window.location.href);
+        const { origin } = uri;
+        navigator.clipboard.writeText(`${origin}/event/event-detail?id=${id}`);
+        onShowResult({
+            type: 'success',
+            msg: 'Link copied',
+        });
+    };
     return (
-        <div className={styles.root}>
-            <div className={styles.label_create}>Start to create your event</div>
-            <button className={styles.button_create} onClick={onCreateEvent}>
-                Create Event
-            </button>
-            <div className={styles.label}>
-                <div className={styles.label_title}>Your next event</div>
-                <div className={styles.label_text} onClick={() => router.push('/event/my-event')}>
-                    More events you're attending <ChevronRightOutlinedIcon className={styles.icon_collapse} />
-                </div>
-            </div>
-            <div className={styles.line} />
-            <div className={styles.attend_event}>
-                <div className={styles.attend_item_header}>
-                    <div className={styles.attend_item_type}>{'Online'}</div>
-                    <img src={'/calendar.svg'} className={styles.attend_item_img} alt="img" />
-                </div>
-                <div className={styles.attend_item_info} onClick={() => router.push(`/event/event-detail?id=${nextEvent.id}`)}>
-                    {/* <div className={styles.attend_item_date}>{'Sat, Jan 15 @ 5:30 PM'}</div> */}
-                    {/* <div className={styles.attend_item_name}>{'Demo day © 2021 Learn NEAR Club © 2021 Learn NEAR Club © 2021 Learn NEAR Club'}</div> */}
-                    <div className={styles.attend_item_date}>{nextEvent.start_date}</div>
-                    <div className={styles.attend_item_name}>{nextEvent.name}</div>
-                </div>
-                <div className={styles.attend_item_footer}>
-                    <div className={styles.attending}>
-                        <CheckCircleIcon className={styles.attending_icon} />
-                        Attending
+        <>
+            <Notify openLoading={openLoading} openSnack={openSnack} alertType={alertType} snackMsg={snackMsg} onClose={onCloseSnack} />
+            <div className={styles.root} >
+                <div className={styles.label_create}>Start to create your event</div>
+                <button className={styles.button_create} onClick={onCreateEvent}>
+                    Create Event
+                </button>
+                <div style={{ visibility: (nextEvent.id == null) ? 'hidden' : 'visible' }}>
+                    <div className={styles.label}>
+                        <div className={styles.label_title}>Your next event</div>
+                        <div className={styles.label_text} onClick={() => router.push('/event/my-event')}>
+                            More events you're attending <ChevronRightOutlinedIcon className={styles.icon_collapse} />
+                        </div>
                     </div>
-                    <ShareOutlinedIcon className={styles.attend_item_icon} />
+                    <div className={styles.line} />
+                    <div className={styles.attend_event}>
+                        <div className={styles.attend_item_header}>
+                            <div className={styles.attend_item_type}>{'Online'}</div>
+                            <img src={'/calendar.svg'} className={styles.attend_item_img} alt="img" />
+                        </div>
+                        <div className={styles.attend_item_info} onClick={() => router.push(`/event/event-detail?id=${nextEvent.id}`)}>
+                            {/* <div className={styles.attend_item_date}>{'Sat, Jan 15 @ 5:30 PM'}</div> */}
+                            {/* <div className={styles.attend_item_name}>{'Demo day © 2021 Learn NEAR Club © 2021 Learn NEAR Club © 2021 Learn NEAR Club'}</div> */}
+                            <div className={styles.attend_item_date}>{nextEvent.start_date}</div>
+                            <div className={styles.attend_item_name}>{nextEvent.name}</div>
+                        </div>
+                        <div className={styles.attend_item_footer}>
+                            <div className={styles.attending}>
+                                <CheckCircleIcon className={styles.attending_icon} />
+                                Attending
+                            </div>
+                            <ShareOutlinedIcon className={styles.attend_item_icon} onClick={() => onGetSharedLink(nextEvent.id)} />
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div className={styles.label}>
-                <div className={styles.label_title}>Find your next event</div>
-            </div>
-            <div className={styles.search_row}>
-                <div className={styles.search_area}>
-                    <input placeholder={'Find your next event'} className={styles.input_search} value={searchEventValue} onChange={e => { setSearchEventValue(e.currentTarget.value); }} />
-                    <SearchIcon className={styles.search_icon} />
+                <div className={styles.label}>
+                    <div className={styles.label_title}>Find your next event</div>
                 </div>
-                <input className={styles.input_location} placeholder={'Location'} />
-                <Select value={type} onChange={onTypeChange} className={styles.button_select} inputProps={{ 'aria-label': 'Without label' }} displayEmpty>
-                    <MenuItem value={'both'}>Online + In person</MenuItem>
-                    <MenuItem value={'online'}>Online</MenuItem>
-                    <MenuItem value={'inPerson'}>In person</MenuItem>
-                </Select>
-                <input type={'date'} className={styles.input_location} placeholder={'Date'} />
-                <button className={styles.button_search} onClick={() => onSearchEvent(searchEventValue)}>Search</button>
-            </div>
-            <div className={styles.label}>
-                <div className={styles.label_title}>Attend an event</div>
-                <div className={styles.label_text} onClick={() => router.push('/event/more-events')}>
-                    More events <ChevronRightOutlinedIcon className={styles.icon_collapse} />
+                <div className={styles.search_row}>
+                    <div className={styles.search_area}>
+                        <input placeholder={'Find your next event'} className={styles.input_search} value={searchEventValue} onChange={e => { setSearchEventValue(e.currentTarget.value); }} />
+                        <SearchIcon className={styles.search_icon} />
+                    </div>
+                    <input className={styles.input_location} placeholder={'Location'} />
+                    <Select value={type} onChange={onTypeChange} className={styles.button_select} inputProps={{ 'aria-label': 'Without label' }} displayEmpty>
+                        <MenuItem value={'both'}>Online + In person</MenuItem>
+                        <MenuItem value={'online'}>Online</MenuItem>
+                        <MenuItem value={'inPerson'}>In person</MenuItem>
+                    </Select>
+                    <input type={'date'} className={styles.input_location} placeholder={'Date'} />
+                    <button className={styles.button_search} onClick={() => onSearchEvent(searchEventValue)}>Search</button>
                 </div>
-            </div>
-            <div className={styles.line} />
-            <div className={styles.list_event}>{eventList.map((item) => renderEventItem(item))}</div>
+                <div className={styles.label}>
+                    <div className={styles.label_title}>Attend an event</div>
+                    <div className={styles.label_text} onClick={() => router.push('/event/more-events')}>
+                        More events <ChevronRightOutlinedIcon className={styles.icon_collapse} />
+                    </div>
+                </div>
+                <div className={styles.line} />
+                <div className={styles.list_event}>{newestEventList.map((item) => renderEventItem(item))}</div>
 
-            <Modal open={modalShare} onClose={onCloseModalShare} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
-                <Box sx={style}>
-                    <Typography id="modal-modal-title" variant="h6" component="h2" textAlign={'center'}>
-                        Share this event
-                    </Typography>
-                    <div className={styles.line_gradient}></div>
-                    <ModalShare />
-                </Box>
-            </Modal>
-        </div>
+                <Modal open={modalShare} onClose={onCloseModalShare} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+                    <Box sx={style}>
+                        <Typography id="modal-modal-title" variant="h6" component="h2" textAlign={'center'}>
+                            Share this event
+                        </Typography>
+                        <div className={styles.line_gradient}></div>
+                        <ModalShare />
+                    </Box>
+                </Modal>
+            </div>
+        </>
+
     );
 };
 
