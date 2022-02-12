@@ -267,7 +267,7 @@ const EventDetail = ({ id }) => {
 
     const onExtractFee = () => {
         if (event?.enroll_fee === '0') {
-            return 'Free';
+            return 'FREE';
         } else {
             return `${utils.format.formatNearAmount(event?.enroll_fee || 0)} Ⓝ`;
         }
@@ -304,19 +304,8 @@ const EventDetail = ({ id }) => {
                                 </div>
                             </div>
                         </div>
-                        {event?.status !== 0 && <div>{onExtractFee()}</div>}
-                        {event?.status !== 0 && event?.owner !== userId && (
-                            <>
-                                <div className={styles.content_action}>
-                                    <ShareOutlinedIcon className={styles.content_action_icon} />
-                                    <FavoriteBorderIcon className={styles.content_action_icon_favor} />
-                                </div>
-                                <button className={styles.content_button_attend} onClick={onAttendClick}>
-                                    {isRegistered ? 'Un-Register' : 'Register'}
-                                </button>
-                            </>
-                        )}
                     </div>
+                    <div className={styles.line} />
                     <div className={styles.content_detail}>
                         <div className={styles.content_detail_row}>
                             <div className={styles.content_detail_cover}>
@@ -359,15 +348,19 @@ const EventDetail = ({ id }) => {
                                     <div className={styles.content_detail_label}>Attendees ({attendees?.length || 0})</div>
                                     <div className={styles.content_detail_see_all}>See all</div>
                                 </div>
-                                <div className={styles.content_detail_list}>
-                                    {attendees?.map?.((item, index) => {
-                                        return (
-                                            <div className={styles.content_detail_list_wallet} key={index}>
-                                                {item}
-                                            </div>
-                                        );
-                                    })}
-                                </div>
+                                {attendees?.length > 0 ? (
+                                    <div className={styles.content_detail_list}>
+                                        {attendees?.map?.((item, index) => {
+                                            return (
+                                                <div className={styles.content_detail_list_wallet} key={index}>
+                                                    {item}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                ) : (
+                                    <div className={styles.content_detail_list_nothing}>No thing to display</div>
+                                )}
                             </>
                         )}
                         {event?.status !== 0 && (
@@ -388,6 +381,26 @@ const EventDetail = ({ id }) => {
                                         );
                                     })}
                                 </div>
+                            </>
+                        )}
+                    </div>
+                </div>
+                <div className={styles.footer}>
+                    <div className={styles.footer_content}>
+                        <div className={styles.footer_content_info}>
+                            <div className={styles.footer_content_info_date}>{exportStartDate(event?.start_date)}</div>
+                            <div className={styles.footer_content_info_name}>{event?.title}</div>
+                        </div>
+                        {event?.status !== 0 && <div className={styles.content_info_row_fee}>{onExtractFee()}</div>}
+                        {event?.status !== 0 && event?.owner !== userId && (
+                            <>
+                                <div className={styles.content_action}>
+                                    <ShareOutlinedIcon className={styles.content_action_icon} />
+                                    <FavoriteBorderIcon className={styles.content_action_icon_favor} />
+                                </div>
+                                <button className={styles.content_button_attend} onClick={onAttendClick}>
+                                    {isRegistered ? 'Un-Register' : 'Register'}
+                                </button>
                             </>
                         )}
                     </div>

@@ -24,6 +24,7 @@ const CreateEvent = () => {
     const [snackMsg, setSnackMsg] = useState('');
     const [start_date, setStartingDate] = useState('');
     const [end_date, setEndingDate] = useState('');
+    const [event_link, setEventLink] = useState('');
 
     const onCloseSnack = () => {
         setOpenSnack(false);
@@ -185,13 +186,17 @@ const CreateEvent = () => {
         router.push('/event/preview-event');
     };
 
+    const onChangeEventLink = (e) => {
+        setEventLink(e.target.value);
+    };
+
     return (
         <>
             <Notify openLoading={openLoading} openSnack={openSnack} alertType={alertType} snackMsg={snackMsg} onClose={onCloseSnack} />
             <div className={styles.root}>
                 <div className={styles.button_area}>
                     <button className={styles.button_area_button} onClick={onPreviewClick}>
-                        Preview Form
+                        Preview Event
                     </button>
                     <button className={styles.button_area_button_save} onClick={onAttendEventClick}>
                         Save
@@ -233,9 +238,9 @@ const CreateEvent = () => {
                             />
                         );
                     })}
-                    {/* <button className={styles.content_add_des} onClick={onAddNewDescriptionClick}>
+                    <button className={styles.content_add_des} onClick={onAddNewDescriptionClick}>
                         + Add new description
-                    </button> */}
+                    </button>
                     <div className={styles.content_label}>Image Cover</div>
                     <input className={styles.content_input_file} type={'file'} id={'create_event_file'} ref={fileInput} onChange={onChangeCover} />
                     <label htmlFor={'create_event_file'}>{imgSelected ? imgSelected : 'Choose a file...'}</label>
@@ -252,6 +257,8 @@ const CreateEvent = () => {
                             );
                         })}
                     </div>
+                    <div className={styles.content_label}>Online event link</div>
+                    <input className={styles.content_input} placeholder="Enter event link" value={event_link} onChange={onChangeEventLink} />
                 </div>
             </div>
         </>

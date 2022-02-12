@@ -2,27 +2,10 @@ import { useEffect, useState } from 'react';
 import styles from './Calendar.module.scss';
 import Kalend, { CalendarView } from 'kalend';
 import 'kalend/dist/styles/index.css';
+import { useRouter } from 'next/router';
 
 const Calendar = (props) => {
-    const events = [
-        {
-            id: 1,
-            startAt: '2021-11-21T18:00:00.000Z',
-            endAt: '2021-11-21T19:00:00.000Z',
-            timezoneStartAt: 'Europe/Berlin',
-            summary: 'test',
-            color: 'blue',
-            calendarID: 'work',
-        },
-        {
-            id: 2,
-            startAt: '2021-11-21T18:00:00.000Z',
-            endAt: '2021-11-21T19:00:00.000Z',
-            timezoneStartAt: 'Europe/Berlin',
-            summary: 'test',
-            color: 'blue',
-        },
-    ];
+    const router = useRouter();
     const [demoEvents, setDemoEvents] = useState(events);
 
     const onNewEventClick = (data) => {
@@ -43,8 +26,17 @@ const Calendar = (props) => {
         setDemoEvents(data);
     };
 
+    const onCreateEventClick = () => {
+        router.push('/event/create-event');
+    };
+
     return (
         <div className={styles.root}>
+            <div className={styles.button_area}>
+                <button className={styles.button_area_button} onClick={onCreateEventClick}>
+                    Create Event
+                </button>
+            </div>
             <Kalend
                 kalendRef={props.kalendRef}
                 onNewEventClick={onNewEventClick}
@@ -64,3 +56,23 @@ const Calendar = (props) => {
 };
 
 export default Calendar;
+
+const events = [
+    {
+        id: 1,
+        startAt: '2021-11-21T18:00:00.000Z',
+        endAt: '2021-11-21T19:00:00.000Z',
+        timezoneStartAt: 'Europe/Berlin',
+        summary: 'test',
+        color: 'blue',
+        calendarID: 'work',
+    },
+    {
+        id: 2,
+        startAt: '2021-11-21T18:00:00.000Z',
+        endAt: '2021-11-21T19:00:00.000Z',
+        timezoneStartAt: 'Europe/Berlin',
+        summary: 'test',
+        color: 'blue',
+    },
+];

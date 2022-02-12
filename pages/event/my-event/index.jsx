@@ -107,8 +107,8 @@ const MyEvent = () => {
                                     name: event.name,
                                     type: event_type,
                                     date: onExportDateTime(event.start_date),
-                                    attendees: event.participants.length
-                                }
+                                    attendees: event.participants.length,
+                                };
                                 aEvents.push(eventInfo);
                                 if (current_timestamp >= event.end_date) {
                                     pastEvents.push(eventInfo);
@@ -212,7 +212,6 @@ const MyEvent = () => {
         setEventList([...pastEventList]);
     };
 
-
     return (
         <>
             <Notify openLoading={openLoading} openSnack={openSnack} alertType={alertType} snackMsg={snackMsg} onClose={onCloseSnack} />
@@ -248,35 +247,44 @@ const MyEvent = () => {
                         ) : (
                             <div className={styles.left_menu_content_text}>You're attend {pastEvents.length} events in the past</div>
                         )}
-                        <div className={styles.left_menu_content_link} onClick={() => router.push('/event/calendar')}>Go to calendar</div>
+                        <div className={styles.left_menu_content_link} onClick={() => router.push('/event/calendar')}>
+                            Go to calendar
+                        </div>
                     </div>
                 </div>
                 <div className={styles.content}>
                     <div className={styles.content_title}>Your Event</div>
                     <div className={styles.content_today}>Today, January 17, 2022</div>
                     <div className={styles.line} />
-                    <div className={styles.content_event}>
-                        {eventList?.map?.((item) => {
-                            return (
-                                <div className={styles.content_event_item} key={item.id}>
-                                    <img src={'/calendar.svg'} className={styles.content_event_item_img} alt="img" />
-                                    <div className={styles.content_event_item_info} onClick={() => onEventItemClick(item.id)}>
-                                        <div className={styles.content_event_item_date}>{item.date}</div>
-                                        <div className={styles.content_event_item_name}>{item.name}</div>
-                                        <div className={styles.content_event_item_attendees}>{item.attendees} attendees</div>
-                                        <div className={styles.content_event_item_attending}>
-                                            <CheckCircleOutlineOutlinedIcon />
-                                            Attending
+                    {eventList?.length > 0 ? (
+                        <div className={styles.content_event}>
+                            {eventList?.map?.((item) => {
+                                return (
+                                    <div className={styles.content_event_item} key={item.id}>
+                                        <img src={'/calendar.svg'} className={styles.content_event_item_img} alt="img" />
+                                        <div className={styles.content_event_item_info} onClick={() => onEventItemClick(item.id)}>
+                                            <div className={styles.content_event_item_date}>{item.date}</div>
+                                            <div className={styles.content_event_item_name}>{item.name}</div>
+                                            <div className={styles.content_event_item_attendees}>{item.attendees} attendees</div>
+                                            <div className={styles.content_event_item_attending}>
+                                                <CheckCircleOutlineOutlinedIcon />
+                                                Attending
+                                            </div>
+                                        </div>
+                                        <div className={styles.content_event_item_share}>
+                                            <ShareOutlinedIcon className={styles.content_event_item_icon} onClick={() => onGetSharedLink(item.id)} />
+                                            <FavoriteBorderIcon
+                                                className={styles.content_event_item_icon_favor}
+                                                onClick={() => onEventFavoriteClick(item.id)}
+                                            />
                                         </div>
                                     </div>
-                                    <div className={styles.content_event_item_share}>
-                                        <ShareOutlinedIcon className={styles.content_event_item_icon} onClick={() => onGetSharedLink(item.id)} />
-                                        <FavoriteBorderIcon className={styles.content_event_item_icon_favor} onClick={() => onEventFavoriteClick(item.id)} />
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <div className={styles.content_event_nothing}>No thing to display</div>
+                    )}
                 </div>
             </div>
         </>
