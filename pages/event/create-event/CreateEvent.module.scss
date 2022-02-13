@@ -137,3 +137,41 @@
         }
     }
 }
+
+.modal_preview_content {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #fff;
+    position: relative;
+    padding: 2% 10%;
+    overflow: auto;
+
+    &_title {
+        color: var(--color-primary);
+        z-index: 1;
+        position: absolute;
+        top: 2%;
+    }
+}
+
+.modal_preview_close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.preview_content {
+    position: absolute;
+    top: 10%;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+}

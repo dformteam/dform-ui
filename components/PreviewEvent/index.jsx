@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import styles from './PreviewEvent.module.scss';
-import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import AccessAlarmOutlinedIcon from '@mui/icons-material/AccessAlarmOutlined';
 import AttachFileOutlinedIcon from '@mui/icons-material/AttachFileOutlined';
 
@@ -12,10 +11,6 @@ const PreviewEvent = () => {
 
     return (
         <div className={styles.root}>
-            <div className={styles.header}>
-                <div className={styles.header_title}>Preview Event</div>
-                <CloseOutlinedIcon className={styles.header_close} />
-            </div>
             <div className={styles.content}>
                 <div className={styles.content_info}>
                     <div className={styles.content_info_date}>Saturday, January 15, 2022</div>
@@ -30,7 +25,9 @@ const PreviewEvent = () => {
                 </div>
                 <div className={styles.content_detail}>
                     <div className={styles.content_detail_row}>
-                        <div className={styles.content_detail_cover}>Cover</div>
+                        <div className={styles.content_detail_cover}>
+                            <img src={'/calendar.svg'} alt="cover" className={styles.content_detail_cover_img} />
+                        </div>
                         <div className={styles.content_detail_info}>
                             <div className={styles.content_detail_info_row}>
                                 <AccessAlarmOutlinedIcon className={styles.content_detail_info_icon} />

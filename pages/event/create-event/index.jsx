@@ -5,6 +5,11 @@ import styles from './CreateEvent.module.scss';
 import Notify from '../../../components/Notify';
 import { utils } from 'near-api-js';
 import { Web3Storage } from 'web3.storage';
+import PreviewEvent from '../../../components/PreviewEvent';
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import CloseIcon from '@mui/icons-material/Close';
 
 const CreateEvent = () => {
     const wallet = useSelector((state) => state.wallet);
@@ -25,6 +30,7 @@ const CreateEvent = () => {
     const [start_date, setStartingDate] = useState('');
     const [end_date, setEndingDate] = useState('');
     const [event_link, setEventLink] = useState('');
+    const [modalPreview, setModalPreview] = useState(false);
 
     const onCloseSnack = () => {
         setOpenSnack(false);
@@ -182,11 +188,15 @@ const CreateEvent = () => {
     };
 
     const onPreviewClick = () => {
-        router.push('/event/preview-event');
+        setModalPreview(true);
     };
 
     const onChangeEventLink = (e) => {
         setEventLink(e.target.value);
+    };
+
+    const onCloseModalPreview = () => {
+        setModalPreview(false);
     };
 
     return (
@@ -259,6 +269,26 @@ const CreateEvent = () => {
                     <div className={styles.content_label}>Online event link</div>
                     <input className={styles.content_input} placeholder="Enter event link" value={event_link} onChange={onChangeEventLink} />
                 </div>
+
+                <Modal open={modalPreview} onClose={onCloseModalPreview} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+                    <Box sx={{ width: '100vw', height: '100vh' }}>
+                        <div className={styles.modal_preview_content}>
+                            <div className={styles.modal_preview_content_title}>
+                                <Typography id="modal-modal-title" variant="h6" component="h2">
+                                    Preview event
+                                </Typography>
+                                <div className={styles.line} />
+                            </div>
+                            <div className="form_bg" />
+                            <div className={styles.modal_preview_close} onClick={onCloseModalPreview}>
+                                <CloseIcon />
+                            </div>
+                            <div className={styles.preview_content}>
+                                <PreviewEvent />
+                            </div>
+                        </div>
+                    </Box>
+                </Modal>
             </div>
         </>
     );
