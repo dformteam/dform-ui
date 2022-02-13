@@ -27,6 +27,7 @@ const EventDetail = ({ id }) => {
     const [alertType, setAlertType] = useState('success');
     const [snackMsg, setSnackMsg] = useState('');
     const [event, setEvent] = useState({});
+    const [newestEventList, setNewestEventList] = useState([]);
 
     const onCloseSnack = () => {
         setOpenSnack(false);
@@ -42,6 +43,62 @@ const EventDetail = ({ id }) => {
     useEffect(() => {
         onGetEventDetail();
     }, []);
+
+    const onExportDateTime = (datetime) => {
+        try {
+            const timestamp = parseFloat(datetime);
+            const date = new Date(timestamp);
+            const localDate = date.toLocaleDateString();
+            const localTime = date.toLocaleTimeString();
+            return `${localDate} @ ${localTime}`;
+        } catch {
+            return 'unknow';
+        }
+    };
+
+    useEffect(() => {
+        onGetNewestEvents();
+    }, []);
+
+    const newestEvents = [];
+    
+    const onGetNewestEvents = () => {
+        let isMounted = true;
+        const { contract, walletConnection } = wallet;
+        const userId = walletConnection.getAccountId();
+        contract
+            ?.get_newest_events?.({})
+            .then((newest_events) => {
+                if (newestEvents) {
+                    newest_events.data.map((event) => {
+                        let event_type = 'Online';
+                        switch (event.event_type) {
+                            case 1:
+                                event_type = 'In person';
+                                break;
+                            case 2:
+                                event_type = 'Online + In person';
+                                break;
+                        }
+                        let eventInfo = {
+                            id: event.id,
+                            name: event.name,
+                            type: event_type,
+                            date: onExportDateTime(event.start_date),
+                            attendees: event.participants.length
+                        }
+                        newestEvents.push(eventInfo);
+                    });
+                    if (isMounted) setNewestEventList([...newestEvents]);
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+        return () => { isMounted = false };
+    };
+
+
 
     const onGetEventDetail = () => {
         const { contract } = wallet;
@@ -211,14 +268,18 @@ const EventDetail = ({ id }) => {
     const retrieveImageCover = async (cover_id) => {
         const client = new Web3Storage({ token: process.env.NEXT_PUBLIC_w3key });
         const res = await client.get(cover_id);
-        const files = await res.files();
-
-        for (const file of files) {
-            let reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = (e) => {
-                setCoverImage(e.target.result);
-            };
+        console.log(res);
+        if (res.ok) {
+            const files = await res.files();
+            for (const file of files) {
+                let reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (e) => {
+                    setCoverImage(e.target.result);
+                };
+            }
+        } else {
+            setCoverImage('/calendar.svg');
         }
     };
 
@@ -318,14 +379,20 @@ const EventDetail = ({ id }) => {
                                         <div className={styles.content_detail_info_date}>{exportStartDate(event?.start_date)}</div>
                                         <div className={styles.content_detail_info_date}>to</div>
                                         <div className={styles.content_detail_info_date}>{exportStartDate(event?.end_date)}</div>
-                                        <div className={styles.content_detail_info_add}>Add to calendar</div>
+                                        <div className={styles.content_detail_info_add} onClick={onAttendClick}>Add to calendar</div>
                                     </div>
                                 </div>
                                 <div className={styles.content_detail_info_row}>
                                     <AttachFileOutlinedIcon className={styles.content_detail_info_icon} />
                                     <div className={styles.content_detail_info_column}>
-                                        <div className={styles.content_detail_info_date}>Online event</div>
-                                        <div className={styles.content_detail_info_link}>https://vnexpress.net/</div>
+                                        <div className={styles.content_detail_info_date}>{
+                                            eventType.map((type) => {
+                                                if (event.type == type.typeId) {
+                                                    return type.label;
+                                                }
+                                            })
+                                        }</div>
+                                        <div className={styles.content_detail_info_link}>{event.url || 'This event has no link'}</div>
                                     </div>
                                 </div>
                             </div>
@@ -370,7 +437,7 @@ const EventDetail = ({ id }) => {
                                     <div className={styles.content_detail_see_all}>See all</div>
                                 </div>
                                 <div className={styles.content_detail_list}>
-                                    {aEvents.map((item, index) => {
+                                    {newestEventList.map((item, index) => {
                                         return (
                                             <div className={styles.content_detail_list_item} key={index}>
                                                 <div className={styles.content_detail_list_name}>
@@ -418,14 +485,20 @@ EventDetail.getInitialProps = async (ctx) => {
 export default EventDetail;
 
 const aEvents = [
-    {
-        id: 1,
-        name: 'Demo day © 2021 Learn NEAR Club © 2021 Learn NEAR Club © 2021 Learn NEAR Club',
-        type: 'Online',
-        date: 'Sat, Jan 15 @ 5:30 PM',
-        attendees: 16,
-    },
-    { id: 2, name: '© 2021 Learn NEAR Club', type: 'Online + In person', date: 'Sat, Jan 15 @ 5:30 PM', attendees: 66 },
-    { id: 3, name: 'Event 3', type: 'In person', date: 'Sat, Jan 15 @ 5:30 PM', attendees: 16 },
-    { id: 4, name: 'Event 4', type: 'Online', date: 'Sat, Jan 15 @ 5:30 PM', attendees: 16 },
+    // {
+    //     id: 1,
+    //     name: 'Demo day © 2021 Learn NEAR Club © 2021 Learn NEAR Club © 2021 Learn NEAR Club',
+    //     type: 'Online',
+    //     date: 'Sat, Jan 15 @ 5:30 PM',
+    //     attendees: 16,
+    // },
+    // { id: 2, name: '© 2021 Learn NEAR Club', type: 'Online + In person', date: 'Sat, Jan 15 @ 5:30 PM', attendees: 66 },
+    // { id: 3, name: 'Event 3', type: 'In person', date: 'Sat, Jan 15 @ 5:30 PM', attendees: 16 },
+    // { id: 4, name: 'Event 4', type: 'Online', date: 'Sat, Jan 15 @ 5:30 PM', attendees: 16 },
+];
+
+const eventType = [
+    { id: 'online', typeId: 0, label: 'Online' },
+    { id: 'in_person', typeId: 1, label: 'In Person' },
+    { id: 'both', typeId: 2, label: 'Online + In Person' },
 ];

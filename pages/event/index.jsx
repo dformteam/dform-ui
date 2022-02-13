@@ -237,7 +237,7 @@ const Event = () => {
             <div className={styles.event_item} key={item.id} >
                 <div className={styles.event_item_header}>
                     <div className={styles.event_item_type}>{item.type}</div>
-                    <img src={'/calendar.svg'} className={styles.event_item_img} alt="img" />
+                    <img src={'/calendar.svg'} className={styles.event_item_img} alt="img" onClick={() => router.push(`/event/event-detail?id=${item.id}`)} />
                 </div>
                 <div className={styles.event_item_info}>
                     <div className={styles.event_item_date}>{item.date}</div>
@@ -312,20 +312,20 @@ const Event = () => {
                     </div>
                 </div>
                 <div className={styles.label}>
-                    <div className={styles.label_title}>Find your next event</div>
+                    <div className={styles.label_title}>Find your event</div>
                 </div>
                 <div className={styles.search_row}>
                     <div className={styles.search_area}>
-                        <input placeholder={'Find your next event'} className={styles.input_search} value={searchEventValue} onChange={e => { setSearchEventValue(e.currentTarget.value); }} />
+                        <input placeholder={'Find your event'} className={styles.input_search} value={searchEventValue} onChange={e => { setSearchEventValue(e.currentTarget.value); }} />
                         <SearchIcon className={styles.search_icon} />
                     </div>
-                    <input className={styles.input_location} placeholder={'Location'} />
+                    {/* <input className={styles.input_location} placeholder={'Location'} />
                     <Select value={type} onChange={onTypeChange} className={styles.button_select} inputProps={{ 'aria-label': 'Without label' }} displayEmpty>
                         <MenuItem value={'both'}>Online + In person</MenuItem>
                         <MenuItem value={'online'}>Online</MenuItem>
                         <MenuItem value={'inPerson'}>In person</MenuItem>
                     </Select>
-                    <input type={'date'} className={styles.input_location} placeholder={'Date'} />
+                    <input type={'date'} className={styles.input_location} placeholder={'Date'} /> */}
                     <button className={styles.button_search} onClick={() => onSearchEvent(searchEventValue)}>Search</button>
                 </div>
                 <div className={styles.label}>

@@ -51,7 +51,35 @@ const CreateEvent = () => {
         const files = e.target.files;
         fileInput.current = files;
         setImgSelected(files?.[0]?.name);
+        let reader = new FileReader();
+        reader.readAsDataURL(files[0]);
+        reader.onload = (e) => {
+            let img = e.target.result;
+            localStorage.setItem('temp_image', img);
+        }
     };
+
+    const getEventInfo = () => {
+        let type_name = '';
+        eventType.map((type) => {
+            if (event_type == type.typeId) {
+                type_name = type.label;
+            }
+        });
+        const { contract, walletConnection } = wallet;
+        const userId = walletConnection.getAccountId();
+        let event_info = {
+            name: event_name,
+            owner: userId,
+            start_date: parseInt(start_date),
+            end_date: parseInt(end_date),
+            type: type_name,
+            descriptions: event_descriptions,
+            link: event_link,
+        };
+        localStorage.setItem('temp_event', JSON.stringify(event_info));
+        return event_info;
+    }
 
     const onAttendEventClick = async () => {
         if (!onValidateNewEvent()) {
@@ -78,6 +106,7 @@ const CreateEvent = () => {
                     type: parseInt(event_type),
                     start_date,
                     end_date,
+                    url: event_link
                 },
                 100000000000000,
                 depositAmount,
@@ -85,6 +114,12 @@ const CreateEvent = () => {
             .then((res) => {
                 if (res) {
                     router.push(`/event/event-detail?id=${res}`);
+                    localStorage.setItem('date_info', JSON.stringify({
+                        start_date: start_date,
+                        end_date: end_date
+                    }));
+                    console.log(localStorage.getItem('date_info'));
+
                 } else {
                     onShowResult({
                         type: 'error',
@@ -98,6 +133,8 @@ const CreateEvent = () => {
                     msg: String(err),
                 });
             });
+            localStorage.removeItem('temp_event');
+            localStorage.removeItem('temp_image');
     };
 
     const onValidateNewEvent = () => {
@@ -284,7 +321,8 @@ const CreateEvent = () => {
                                 <CloseIcon />
                             </div>
                             <div className={styles.preview_content}>
-                                <PreviewEvent />
+                                <PreviewEvent
+                                    event_info={getEventInfo()} />
                             </div>
                         </div>
                     </Box>

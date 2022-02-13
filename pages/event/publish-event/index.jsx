@@ -12,7 +12,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
 import { styled } from '@mui/material/styles';
-import { useRouter } from 'next/router';
+import { useRouter, withRouter } from 'next/router';
 import { useSelector } from 'react-redux';
 import Notify from '../../../components/Notify';
 import { utils } from 'near-api-js';
@@ -45,6 +45,8 @@ const Publish = ({ id }) => {
     const [white_account, setWhiteAccount] = useState('');
     const [start_date, setStartDate] = useState('');
     const [end_date, setEndDate] = useState('');
+    // const [ini_start_date, setIniStartDate] = useState('');
+    // const [ini_end_date, setIniEndDate] = useState('');
     const [participant, setParticipant] = useState(0);
     const [openLoading, setOpenLoading] = useState(false);
     const [openSnack, setOpenSnack] = useState(false);
@@ -55,6 +57,14 @@ const Publish = ({ id }) => {
     const onCloseSnack = () => {
         setOpenSnack(false);
     };
+
+    useEffect(() => {
+        let initial_date = JSON.parse(localStorage.getItem('date_info'));
+        console.log(localStorage.getItem('date_info'));
+        setStartDate(new Date(parseFloat(initial_date.start_date)).toISOString());
+        setEndDate(new Date(parseFloat(initial_date.end_date)).toISOString());
+        localStorage.removeItem('date_info');
+    }, []);
 
     const onShowResult = ({ type, msg }) => {
         setOpenSnack(true);

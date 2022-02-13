@@ -266,6 +266,7 @@ const MyEvent = () => {
         setActiveTab('upcoming');
         setEventList([...upcomingEventList]);
         setInterestedEventList([...upcomingInterestedEventList]);
+        setHostingEventList([...upcomingHostingEventList]);
         setAttendingState(true);
         setSavedState(true);
         setHostingState(true);
@@ -396,7 +397,7 @@ const MyEvent = () => {
                                         <div className={styles.content_event_item_attendees}>{item.attendees} attendees</div>
                                         <div className={styles.content_event_item_attending}>
                                             <CheckCircleOutlineOutlinedIcon />
-                                            Attending
+                                            {activeTab == 'past' ? 'Attended' : 'Attending'}
                                         </div>
                                     </div>
                                     <div className={styles.content_event_item_share}>
