@@ -6,6 +6,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import Notify from '../../../components/Notify';
+import ModalShare from '../../../components/Share';
 
 const MyEvent = () => {
     const [activeTab, setActiveTab] = useState('upcoming');
@@ -25,6 +26,8 @@ const MyEvent = () => {
     const [attendingState, setAttendingState] = useState(true);
     const [savedState, setSavedState] = useState(true);
     const [hostingState, setHostingState] = useState(true);
+    const [modalShare, setModalShare] = useState(false);
+    const [link, setLink] = useState('');
 
     const wallet = useSelector((state) => state.wallet);
     const router = useRouter();
@@ -224,11 +227,8 @@ const MyEvent = () => {
     const onGetSharedLink = (id) => {
         const uri = new URL(window.location.href);
         const { origin } = uri;
-        navigator.clipboard.writeText(`${origin}/event/event-detail?id=${id}`);
-        onShowResult({
-            type: 'success',
-            msg: 'Link copied',
-        });
+        setLink(`${origin}/event/event-detail?id=${id}`);
+        setModalShare(true);
     };
 
     const onEventFavoriteClick = (id) => {
@@ -313,6 +313,17 @@ const MyEvent = () => {
         }
     };
 
+    const onCloseModalShare = () => {
+        setModalShare(false);
+    };
+
+    const onSuccess = () => {
+        onShowResult({
+            type: 'success',
+            msg: 'copied',
+        });
+    };
+
     return (
         <>
             <Notify openLoading={openLoading} openSnack={openSnack} alertType={alertType} snackMsg={snackMsg} onClose={onCloseSnack} />
@@ -361,13 +372,13 @@ const MyEvent = () => {
                                 <div className={styles.left_menu_row}>
                                     <input
                                         type="checkbox"
-                                        id="saved"
-                                        name="saved"
-                                        value="saved"
+                                        id="hosting"
+                                        name="hosting"
+                                        value="hosting"
                                         checked={hostingState}
                                         onChange={(e) => handleHostingCBChange(e)}
                                     />
-                                    <label htmlFor="saved" className={styles.left_menu_label}>
+                                    <label htmlFor="hosting" className={styles.left_menu_label}>
                                         Hosting
                                     </label>
                                 </div>
@@ -454,6 +465,8 @@ const MyEvent = () => {
                     </div>
                 </div>
             </div>
+
+            {modalShare && <ModalShare link={link} onCloseModal={onCloseModalShare} onSuccess={onSuccess} />}
         </>
     );
 };

@@ -9,10 +9,23 @@
         display: flex;
         align-items: center;
         margin: 10px 0;
+        padding: 0;
 
         &_title {
             font-size: 18px;
             margin-left: 20px;
+        }
+
+        &_icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--color-gradient);
+
+            &_svg {
+                color: var(--color-text-button);
+                margin: 4px;
+            }
         }
     }
 }

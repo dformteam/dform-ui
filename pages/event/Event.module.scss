@@ -292,6 +292,7 @@
     font-size: 32px !important;
     margin-left: 10px;
     color: var(--color-active) !important;
+    cursor: pointer;
 }
 
 .attending {
@@ -303,6 +304,7 @@
     border-radius: 8px;
     display: flex;
     align-items: center;
+    cursor: pointer;
 }
 
 .attending_icon {

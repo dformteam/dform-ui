@@ -1,6 +1,6 @@
 .root {
     width: 100%;
-    flex: 1;
+    height: max-content;
     display: flex;
     padding: 5%;
     justify-content: center;
@@ -413,7 +413,7 @@
 
     &_nothing {
         width: 100%;
-        min-height: 200px;
+        min-height: 150px;
         display: flex;
         justify-content: center;
         align-items: center;

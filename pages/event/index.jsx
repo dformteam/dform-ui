@@ -2,9 +2,6 @@ import { useState, useLayoutEffect } from 'react';
 import styles from './Event.module.scss';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import Modal from '@mui/material/Modal';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
 import SearchIcon from '@mui/icons-material/Search';
 import ChevronRightOutlinedIcon from '@mui/icons-material/ChevronRightOutlined';
 import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
@@ -15,20 +12,6 @@ import ModalShare from '../../components/Share';
 import { useSelector } from 'react-redux';
 import { display } from '@mui/system';
 import Notify from '../../components/Notify';
-
-const style = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    minWidth: 400,
-    bgcolor: '#fff',
-    borderRadius: '24px',
-    boxShadow: 24,
-    p: 4,
-    outline: 'none',
-    paddingTop: '20px',
-};
 
 const Event = () => {
     const router = useRouter();
@@ -42,6 +25,7 @@ const Event = () => {
     const [openSnack, setOpenSnack] = useState(false);
     const [alertType, setAlertType] = useState('success');
     const [snackMsg, setSnackMsg] = useState('');
+    const [link, setLink] = useState('');
 
     const wallet = useSelector((state) => state.wallet);
 
@@ -102,8 +86,8 @@ const Event = () => {
                             name: event.name,
                             type: event_type,
                             date: onExportDateTime(event.start_date),
-                            attendees: event.participants.length
-                        }
+                            attendees: event.participants.length,
+                        };
                         newestEvents.push(eventInfo);
                     });
                     if (isMounted) setNewestEventList([...newestEvents]);
@@ -112,9 +96,10 @@ const Event = () => {
             .catch((err) => {
                 console.log(err);
             });
-        return () => { isMounted = false };
+        return () => {
+            isMounted = false;
+        };
     };
-
 
     const onEventFavoriteClick = (id) => {
         const { contract } = wallet;
@@ -207,7 +192,7 @@ const Event = () => {
                                     type: event_type,
                                     date: onExportDateTime(event.start_date),
                                     attendees: event.participants.length,
-                                }
+                                };
                                 aEvents.push(eventInfo);
                                 let tmp_dt = current_timestamp - event.start_date;
                                 if (dt == -1) {
@@ -234,17 +219,19 @@ const Event = () => {
 
     const renderEventItem = (item) => {
         return (
-            <div className={styles.event_item} key={item.id} >
+            <div className={styles.event_item} key={item.id}>
                 <div className={styles.event_item_header}>
                     <div className={styles.event_item_type}>{item.type}</div>
                     <img src={'/calendar.svg'} className={styles.event_item_img} alt="img" onClick={() => router.push(`/event/event-detail?id=${item.id}`)} />
                 </div>
                 <div className={styles.event_item_info}>
                     <div className={styles.event_item_date}>{item.date}</div>
-                    <div className={styles.event_item_name} onClick={() => router.push(`/event/event-detail?id=${item.id}`)}>{item.name}</div>
+                    <div className={styles.event_item_name} onClick={() => router.push(`/event/event-detail?id=${item.id}`)}>
+                        {item.name}
+                    </div>
                     <div className={styles.event_item_footer}>
                         <div className={styles.event_item_attendees}>{item.attendees} attendees</div>
-                        <ShareOutlinedIcon className={styles.event_item_icon} onClick={() => setModalShare(true)} />
+                        <ShareOutlinedIcon className={styles.event_item_icon} onClick={onGetSharedLink} />
                         <FavoriteBorderIcon className={styles.event_item_icon_favor} onClick={() => onEventFavoriteClick(item.id)} />
                     </div>
                 </div>
@@ -269,21 +256,26 @@ const Event = () => {
     const onGetSharedLink = (id) => {
         const uri = new URL(window.location.href);
         const { origin } = uri;
-        navigator.clipboard.writeText(`${origin}/event/event-detail?id=${id}`);
+        setLink(`${origin}/event/event-detail?id=${id}`);
+        setModalShare(true);
+    };
+
+    const onSuccess = () => {
         onShowResult({
             type: 'success',
-            msg: 'Link copied',
+            msg: 'copied',
         });
     };
+
     return (
         <>
             <Notify openLoading={openLoading} openSnack={openSnack} alertType={alertType} snackMsg={snackMsg} onClose={onCloseSnack} />
-            <div className={styles.root} >
+            <div className={styles.root}>
                 <div className={styles.label_create}>Start to create your event</div>
                 <button className={styles.button_create} onClick={onCreateEvent}>
                     Create Event
                 </button>
-                <div style={{ visibility: (nextEvent.id == null) ? 'hidden' : 'visible' }}>
+                <div style={{ visibility: nextEvent.id == null ? 'hidden' : 'visible' }}>
                     <div className={styles.label}>
                         <div className={styles.label_title}>Your next event</div>
                         <div className={styles.label_text} onClick={() => router.push('/event/my-event')}>
@@ -316,7 +308,14 @@ const Event = () => {
                 </div>
                 <div className={styles.search_row}>
                     <div className={styles.search_area}>
-                        <input placeholder={'Find your event'} className={styles.input_search} value={searchEventValue} onChange={e => { setSearchEventValue(e.currentTarget.value); }} />
+                        <input
+                            placeholder={'Find your event'}
+                            className={styles.input_search}
+                            value={searchEventValue}
+                            onChange={(e) => {
+                                setSearchEventValue(e.currentTarget.value);
+                            }}
+                        />
                         <SearchIcon className={styles.search_icon} />
                     </div>
                     {/* <input className={styles.input_location} placeholder={'Location'} />
@@ -326,10 +325,12 @@ const Event = () => {
                         <MenuItem value={'inPerson'}>In person</MenuItem>
                     </Select>
                     <input type={'date'} className={styles.input_location} placeholder={'Date'} /> */}
-                    <button className={styles.button_search} onClick={() => onSearchEvent(searchEventValue)}>Search</button>
+                    <button className={styles.button_search} onClick={() => onSearchEvent(searchEventValue)}>
+                        Search
+                    </button>
                 </div>
                 <div className={styles.label}>
-                    <div className={styles.label_title}>Attend an event</div>
+                    <div className={styles.label_title}>Attend upcoming events</div>
                     <div className={styles.label_text} onClick={() => router.push('/event/more-events')}>
                         More events <ChevronRightOutlinedIcon className={styles.icon_collapse} />
                     </div>
@@ -337,18 +338,9 @@ const Event = () => {
                 <div className={styles.line} />
                 <div className={styles.list_event}>{newestEventList.map((item) => renderEventItem(item))}</div>
 
-                <Modal open={modalShare} onClose={onCloseModalShare} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
-                    <Box sx={style}>
-                        <Typography id="modal-modal-title" variant="h6" component="h2" textAlign={'center'}>
-                            Share this event
-                        </Typography>
-                        <div className={styles.line_gradient}></div>
-                        <ModalShare />
-                    </Box>
-                </Modal>
+                {modalShare && <ModalShare link={link} onCloseModal={onCloseModalShare} onSuccess={onSuccess} />}
             </div>
         </>
-
     );
 };
 
