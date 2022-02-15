@@ -1,4 +1,4 @@
-import { useState, useRef, Fragment } from 'react';
+import { useState, useRef, Fragment, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import styles from './CreateEvent.module.scss';
@@ -35,6 +35,13 @@ const CreateEvent = () => {
     const onCloseSnack = () => {
         setOpenSnack(false);
     };
+
+    useEffect(() => {
+        console.log("router.query => ", router.query);
+        if(router.query.transactionHashes) {
+            router.push(`/event/event-detail?id=created`);
+        }
+    }, []);
 
     const onShowResult = ({ type, msg }) => {
         setOpenSnack(true);
@@ -113,17 +120,17 @@ const CreateEvent = () => {
             )
             .then((res) => {
                 if (res) {
-                    router.push(`/event/event-detail?id=${res}`);
-                    localStorage.setItem('date_info', JSON.stringify({
-                        start_date: start_date,
-                        end_date: end_date
-                    }));
-                    console.log(localStorage.getItem('date_info'));
+                    router.push(`/event/event-detail?id=created`);
 
+                    // localStorage.setItem('date_info', JSON.stringify({
+                    //     start_date: start_date,
+                    //     end_date: end_date
+                    // }));
+                    // console.log(localStorage.getItem('date_info'));
                 } else {
                     onShowResult({
                         type: 'error',
-                        msg: 'Creat event failure',
+                        msg: 'Create event failure',
                     });
                 }
             })
@@ -133,8 +140,8 @@ const CreateEvent = () => {
                     msg: String(err),
                 });
             });
-            localStorage.removeItem('temp_event');
-            localStorage.removeItem('temp_image');
+        localStorage.removeItem('temp_event');
+        localStorage.removeItem('temp_image');
     };
 
     const onValidateNewEvent = () => {

@@ -20,7 +20,7 @@ const EventDetail = ({ id }) => {
     const userId = walletConnection.getAccountId();
     const router = useRouter();
     const [attendees, setAttendence] = useState([]);
-    const [cover_image, setCoverImage] = useState(null);
+    const [coverImage, setCoverImage] = useState(null);
     const [isRegistered, setIsRegistered] = useState(false);
     const [openLoading, setOpenLoading] = useState(false);
     const [openSnack, setOpenSnack] = useState(false);
@@ -28,6 +28,7 @@ const EventDetail = ({ id }) => {
     const [snackMsg, setSnackMsg] = useState('');
     const [event, setEvent] = useState({});
     const [newestEventList, setNewestEventList] = useState([]);
+    const [eventId, setEventId] = useState(id);
 
     const onCloseSnack = () => {
         setOpenSnack(false);
@@ -41,8 +42,38 @@ const EventDetail = ({ id }) => {
     };
 
     useEffect(() => {
-        onGetEventDetail();
+        let event_id = id;
+        async function fetchEventId() {
+            const { contract, walletConnection } = wallet;
+            const userId = walletConnection.getAccountId();
+            await contract
+                ?.get_recent_event_created?.({})
+                .then((e_id) => {
+                    window.location = `/event/event-detail?id=${e_id}`;
+                })
+                .catch((err) => {
+                    setOpenLoading(false);
+                    onShowResult({
+                        type: 'error',
+                        msg: `${err}`,
+                    });
+                    // setTimeout(() => {
+                    //     router.reload();
+                    // }, 3000);
+                });
+        }
+        if (id == 'created') {
+            setOpenLoading(true);
+            fetchEventId();
+        } else {
+            setOpenLoading(false);
+            onGetEventDetail(event_id);
+        }
     }, []);
+
+    const onTest = (e_id) => {
+        router.reload(`/event/event-detail?id=${eventId}`);
+    }
 
     const onExportDateTime = (datetime) => {
         try {
@@ -61,7 +92,7 @@ const EventDetail = ({ id }) => {
     }, []);
 
     const newestEvents = [];
-    
+
     const onGetNewestEvents = () => {
         let isMounted = true;
         const { contract, walletConnection } = wallet;
@@ -100,12 +131,12 @@ const EventDetail = ({ id }) => {
 
 
 
-    const onGetEventDetail = () => {
+    const onGetEventDetail = (eventId) => {
         const { contract } = wallet;
 
         contract
             ?.get_event({
-                eventId: id,
+                eventId: eventId,
             })
             .then((res) => {
                 if (res) {
@@ -134,7 +165,7 @@ const EventDetail = ({ id }) => {
         page_arr.map((page, index) => {
             return contract
                 .get_event_participants({
-                    eventId: id,
+                    eventId: eventId,
                     page: index + 1,
                 })
                 .then((data) => {
@@ -178,7 +209,7 @@ const EventDetail = ({ id }) => {
             contract
                 ?.leave_event(
                     {
-                        eventId: id,
+                        eventId: eventId,
                     },
                     50000000000000,
                 )
@@ -209,7 +240,7 @@ const EventDetail = ({ id }) => {
             contract
                 ?.join_event(
                     {
-                        eventId: id,
+                        eventId: eventId,
                     },
                     50000000000000,
                     event?.enroll_fee,
@@ -238,7 +269,7 @@ const EventDetail = ({ id }) => {
             contract
                 ?.join_event(
                     {
-                        eventId: id,
+                        eventId: eventId,
                     },
                     50000000000000,
                 )
@@ -284,7 +315,7 @@ const EventDetail = ({ id }) => {
     };
 
     const onPublishEventClick = () => {
-        router.push(`/event/publish-event?id=${id}`);
+        router.push(`/event/publish-event?id=${eventId}`);
     };
 
     const onUnpublishEventClick = () => {
@@ -294,7 +325,7 @@ const EventDetail = ({ id }) => {
 
         contract
             ?.unpublish_event?.({
-                eventId: id,
+                eventId: eventId,
             })
             .then((res) => {
                 if (res) {
@@ -370,7 +401,7 @@ const EventDetail = ({ id }) => {
                     <div className={styles.content_detail}>
                         <div className={styles.content_detail_row}>
                             <div className={styles.content_detail_cover}>
-                                <img src={cover_image} alt="cover" className={styles.content_detail_cover_img} />
+                                <img src={coverImage} alt="cover" className={styles.content_detail_cover_img} />
                             </div>
                             <div className={styles.content_detail_info}>
                                 <div className={styles.content_detail_info_row}>
