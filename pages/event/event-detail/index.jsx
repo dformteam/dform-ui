@@ -12,6 +12,11 @@ import { useRouter } from 'next/router';
 import { utils } from 'near-api-js';
 import { Web3Storage } from 'web3.storage';
 import Notify from '../../../components/Notify';
+import Confirmation from '../../../components/Confirmation';
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import ModalShare from '../../../components/Share';
 
 const EventDetail = ({ id }) => {
     const raws = useRef([]);
@@ -29,6 +34,10 @@ const EventDetail = ({ id }) => {
     const [event, setEvent] = useState({});
     const [newestEventList, setNewestEventList] = useState([]);
     const [eventId, setEventId] = useState(id);
+    const [openConfirmation, setOpenConfirmation] = useState(false);
+    const [modalSuccess, setModalSuccess] = useState(false);
+    const [modalShare, setModalShare] = useState(false);
+    const [link, setLink] = useState('');
 
     const onCloseSnack = () => {
         setOpenSnack(false);
@@ -116,8 +125,8 @@ const EventDetail = ({ id }) => {
                             name: event.name,
                             type: event_type,
                             date: onExportDateTime(event.start_date),
-                            attendees: event.participants.length
-                        }
+                            attendees: event.participants.length,
+                        };
                         newestEvents.push(eventInfo);
                     });
                     if (isMounted) setNewestEventList([...newestEvents]);
@@ -126,7 +135,9 @@ const EventDetail = ({ id }) => {
             .catch((err) => {
                 console.log(err);
             });
-        return () => { isMounted = false };
+        return () => {
+            isMounted = false;
+        };
     };
 
 
@@ -252,6 +263,7 @@ const EventDetail = ({ id }) => {
                             type: 'success',
                             msg: 'Register succesfully',
                         });
+                        setModalSuccess(true);
                     } else {
                         onShowResult({
                             type: 'error',
@@ -280,6 +292,7 @@ const EventDetail = ({ id }) => {
                             type: 'success',
                             msg: 'Register succesfully',
                         });
+                        setModalSuccess(true);
                     } else {
                         onShowResult({
                             type: 'error',
@@ -365,9 +378,39 @@ const EventDetail = ({ id }) => {
         }
     };
 
+    const onAcceptUnpublish = () => {
+        setOpenConfirmation(false);
+        onUnpublishEventClick();
+    };
+
+    const onDenyUnpublish = () => {
+        setOpenConfirmation(false);
+    };
+
+    const onShareClick = () => {
+        setModalSuccess(false);
+        const uri = new URL(window.location.href);
+        const { origin } = uri;
+        setLink(`${origin}/event/event-detail?id=${id}`);
+        setModalShare(true);
+    };
+
+    const onCloseModalShare = () => {
+        setModalShare(false);
+    };
+
+    const onSuccess = () => {
+        onShowResult({
+            type: 'success',
+            msg: 'copied',
+        });
+    };
+
     return (
         <>
             <Notify openLoading={openLoading} openSnack={openSnack} alertType={alertType} snackMsg={snackMsg} onClose={onCloseSnack} />
+            {openConfirmation && <Confirmation label={confirmationLabel} onAccept={onAcceptUnpublish} onCancel={onDenyUnpublish} />}
+
             <div className={styles.root}>
                 <div className={styles.content}>
                     {event?.status === 0 && event?.owner === userId && (
@@ -379,7 +422,7 @@ const EventDetail = ({ id }) => {
                     )}
                     {event?.status !== 0 && event?.owner === userId && (
                         <div className={styles.content_button_area}>
-                            <button className={styles.content_button_area_button} onClick={onUnpublishEventClick}>
+                            <button className={styles.content_button_area_button} onClick={() => setOpenConfirmation(true)}>
                                 <UnpublishedOutlinedIcon className={styles.content_button_area_button_icon} /> Unpublish
                             </button>
                         </div>
@@ -410,19 +453,21 @@ const EventDetail = ({ id }) => {
                                         <div className={styles.content_detail_info_date}>{exportStartDate(event?.start_date)}</div>
                                         <div className={styles.content_detail_info_date}>to</div>
                                         <div className={styles.content_detail_info_date}>{exportStartDate(event?.end_date)}</div>
-                                        <div className={styles.content_detail_info_add} onClick={onAttendClick}>Add to calendar</div>
+                                        <div className={styles.content_detail_info_add} onClick={onAttendClick}>
+                                            Add to calendar
+                                        </div>
                                     </div>
                                 </div>
                                 <div className={styles.content_detail_info_row}>
                                     <AttachFileOutlinedIcon className={styles.content_detail_info_icon} />
                                     <div className={styles.content_detail_info_column}>
-                                        <div className={styles.content_detail_info_date}>{
-                                            eventType.map((type) => {
+                                        <div className={styles.content_detail_info_date}>
+                                            {eventType.map((type) => {
                                                 if (event.type == type.typeId) {
                                                     return type.label;
                                                 }
-                                            })
-                                        }</div>
+                                            })}
+                                        </div>
                                         <div className={styles.content_detail_info_link}>{event.url || 'This event has no link'}</div>
                                     </div>
                                 </div>
@@ -504,6 +549,26 @@ const EventDetail = ({ id }) => {
                     </div>
                 </div>
             </div>
+
+            <Modal open={modalSuccess} onClose={() => setModalSuccess(false)} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+                <Box sx={style}>
+                    <Typography id="modal-modal-title" variant="h6" component="h2" textAlign={'center'}>
+                        Your event
+                    </Typography>
+                    <div className={styles.line} />
+                    <div className={styles.modal}>
+                        <div className={styles.modal_date}>{exportStartDate(event?.start_date)}</div>
+                        <button className={styles.modal_button} onClick={onAttendClick}>
+                            Add to calendar
+                        </button>
+                        <button className={styles.modal_button_share} onClick={onShareClick}>
+                            Share this event
+                        </button>
+                    </div>
+                </Box>
+            </Modal>
+
+            {modalShare && <ModalShare link={link} onCloseModal={onCloseModalShare} onSuccess={onSuccess} />}
         </>
     );
 };
@@ -533,3 +598,24 @@ const eventType = [
     { id: 'in_person', typeId: 1, label: 'In Person' },
     { id: 'both', typeId: 2, label: 'Online + In Person' },
 ];
+
+const confirmationLabel = {
+    title: 'Confirmation',
+    desc: 'Are you sure to unpublish this event?',
+    accept: 'Accept',
+    cancel: 'Deny',
+};
+
+const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    minWidth: 400,
+    bgcolor: '#fff',
+    borderRadius: '24px',
+    boxShadow: 24,
+    p: 4,
+    outline: 'none',
+    paddingTop: '20px',
+};
