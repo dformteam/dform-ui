@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styles from './Share.module.scss';
 import {
     FacebookShareButton,
@@ -10,7 +10,6 @@ import {
     TelegramIcon,
     EmailIcon,
 } from 'react-share';
-import Notify from '../../components/Notify';
 import LinkIcon from '@mui/icons-material/Link';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
