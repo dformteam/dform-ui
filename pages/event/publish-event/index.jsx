@@ -58,13 +58,13 @@ const Publish = ({ id }) => {
         setOpenSnack(false);
     };
 
-    useEffect(() => {
-        let initial_date = JSON.parse(localStorage.getItem('date_info'));
-        console.log(localStorage.getItem('date_info'));
-        setStartDate(new Date(parseFloat(initial_date.start_date)).toISOString());
-        setEndDate(new Date(parseFloat(initial_date.end_date)).toISOString());
-        localStorage.removeItem('date_info');
-    }, []);
+    // useEffect(() => {
+    //     let initial_date = JSON.parse(localStorage.getItem('date_info'));
+    //     console.log(localStorage.getItem('date_info'));
+    //     setStartDate(new Date(parseFloat(initial_date.start_date)).toISOString());
+    //     setEndDate(new Date(parseFloat(initial_date.end_date)).toISOString());
+    //     localStorage.removeItem('date_info');
+    // }, []);
 
     const onShowResult = ({ type, msg }) => {
         setOpenSnack(true);
