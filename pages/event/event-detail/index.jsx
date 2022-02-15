@@ -66,9 +66,6 @@ const EventDetail = ({ id }) => {
                         type: 'error',
                         msg: `${err}`,
                     });
-                    // setTimeout(() => {
-                    //     router.reload();
-                    // }, 3000);
                 });
         }
         if (id == 'created') {
@@ -79,10 +76,6 @@ const EventDetail = ({ id }) => {
             onGetEventDetail(event_id);
         }
     }, []);
-
-    const onTest = (e_id) => {
-        router.reload(`/event/event-detail?id=${eventId}`);
-    }
 
     const onExportDateTime = (datetime) => {
         try {
