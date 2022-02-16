@@ -1,4 +1,4 @@
-import { useState, useLayoutEffect } from 'react';
+import { useState, useLayoutEffect, useEffect } from 'react';
 import styles from './Event.module.scss';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
@@ -12,6 +12,7 @@ import ModalShare from '../../components/Share';
 import { useSelector } from 'react-redux';
 import { display } from '@mui/system';
 import Notify from '../../components/Notify';
+import { Web3Storage } from 'web3.storage';
 
 const Event = () => {
     const router = useRouter();
@@ -63,15 +64,56 @@ const Event = () => {
         setSnackMsg(msg);
     };
 
+    // useEffect(() => {
+    //     let tmp_lst = [];
+    //     tmp_lst.push(nextEvent)
+    //     if (nextEvent !== {}) {
+    //         console.log('nextEvent => ', nextEvent);
+    //         retrieveImagesCover([nextEvent]).then((res) => {
+    //             console.log(res);
+    //         });
+    //     }
+    // }, [nextEvent]);
+
+    useEffect(() => {
+        if (newestEventList !== []) {
+            retrieveImagesCover(newestEventList);
+        }
+    }, [newestEventList]);
+
+    const retrieveImagesCover = async (list_event) => {
+        await Promise.all(
+            list_event.map(async (event) => {
+                return new Promise(async (resolve, reject) => {
+                    const client = new Web3Storage({ token: process.env.NEXT_PUBLIC_w3key });
+                    const res = await client.get(event.cover_image);
+                    if (res.ok) {
+                        const files = await res.files();
+                        for (const file of files) {
+                            let reader = new FileReader();
+                            reader.readAsDataURL(file);
+                            reader.onload = (e) => {
+                                event.img = e.target.result;
+                                resolve(event);
+                            };
+                        }
+                    } else {
+                        resolve(event);
+                    }
+                })
+            }),
+        )
+    }
+
     const onGetNewestEvents = () => {
         let isMounted = true;
         const { contract, walletConnection } = wallet;
         const userId = walletConnection.getAccountId();
         contract
             ?.get_newest_events?.({})
-            .then((newest_events) => {
+            .then(async (newest_events) => {
                 if (newestEvents) {
-                    newest_events.data.map((event) => {
+                    await newest_events.data.map(async (event) => {
                         let event_type = 'Online';
                         switch (event.event_type) {
                             case 1:
@@ -87,10 +129,14 @@ const Event = () => {
                             type: event_type,
                             date: onExportDateTime(event.start_date),
                             attendees: event.participants.length,
+                            cover_image: event.cover_image,
+                            img: '/calendar.svg'
                         };
                         newestEvents.push(eventInfo);
                     });
-                    if (isMounted) setNewestEventList([...newestEvents]);
+                    if (isMounted) {
+                        setNewestEventList([...newestEvents]);
+                    }
                 }
             })
             .catch((err) => {
@@ -192,6 +238,8 @@ const Event = () => {
                                     type: event_type,
                                     date: onExportDateTime(event.start_date),
                                     attendees: event.participants.length,
+                                    cover_image: event.cover_image,
+                                    img: '/calendar.svg'
                                 };
                                 aEvents.push(eventInfo);
                                 let tmp_dt = current_timestamp - event.start_date;
@@ -218,11 +266,13 @@ const Event = () => {
     };
 
     const renderEventItem = (item) => {
+        // console.log('item.img => ', item.img);
         return (
             <div className={styles.event_item} key={item.id}>
                 <div className={styles.event_item_header}>
                     <div className={styles.event_item_type}>{item.type}</div>
-                    <img src={'/calendar.svg'} className={styles.event_item_img} alt="img" onClick={() => router.push(`/event/event-detail?id=${item.id}`)} />
+                    {/* <img src={'/calendar.svg'} className={styles.event_item_img} alt="img" onClick={() => router.push(`/event/event-detail?id=${item.id}`)} /> */}
+                    <img src={item.img} className={styles.event_item_img} alt="img" onClick={() => router.push(`/event/event-detail?id=${item.id}`)} />
                 </div>
                 <div className={styles.event_item_info}>
                     <div className={styles.event_item_date}>{item.date}</div>
@@ -286,12 +336,12 @@ const Event = () => {
                     <div className={styles.attend_event}>
                         <div className={styles.attend_item_header}>
                             <div className={styles.attend_item_type}>{'Online'}</div>
-                            <img src={'/calendar.svg'} className={styles.attend_item_img} alt="img" />
+                            <img src={nextEvent.img} className={styles.attend_item_img} alt="img" />
                         </div>
                         <div className={styles.attend_item_info} onClick={() => router.push(`/event/event-detail?id=${nextEvent.id}`)}>
                             {/* <div className={styles.attend_item_date}>{'Sat, Jan 15 @ 5:30 PM'}</div> */}
                             {/* <div className={styles.attend_item_name}>{'Demo day © 2021 Learn NEAR Club © 2021 Learn NEAR Club © 2021 Learn NEAR Club'}</div> */}
-                            <div className={styles.attend_item_date}>{nextEvent.start_date}</div>
+                            <div className={styles.attend_item_date}>{onExportDateTime(nextEvent.start_date)}</div>
                             <div className={styles.attend_item_name}>{nextEvent.name}</div>
                         </div>
                         <div className={styles.attend_item_footer}>
