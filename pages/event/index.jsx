@@ -64,16 +64,13 @@ const Event = () => {
         setSnackMsg(msg);
     };
 
-    // useEffect(() => {
-    //     let tmp_lst = [];
-    //     tmp_lst.push(nextEvent)
-    //     if (nextEvent !== {}) {
-    //         console.log('nextEvent => ', nextEvent);
-    //         retrieveImagesCover([nextEvent]).then((res) => {
-    //             console.log(res);
-    //         });
-    //     }
-    // }, [nextEvent]);
+    useEffect(() => {
+        let ls = [];
+        if (nextEvent !== {}) {
+            ls.push(nextEvent);
+            retrieveImagesCover(ls);
+        }
+    }, [nextEvent]);
 
     useEffect(() => {
         if (newestEventList !== []) {
@@ -85,6 +82,9 @@ const Event = () => {
         await Promise.all(
             list_event.map(async (event) => {
                 return new Promise(async (resolve, reject) => {
+                    if (!event.cover_image || (event.cover_image == '')) {
+                        resolve(event);
+                    }
                     const client = new Web3Storage({ token: process.env.NEXT_PUBLIC_w3key });
                     const res = await client.get(event.cover_image);
                     if (res.ok) {
@@ -221,6 +221,7 @@ const Event = () => {
                     .then((data) => {
                         if (data) {
                             let current_event = {};
+                            current_event.img = '/calendar.svg';
                             let dt = -1;
                             data.data.map((event) => {
                                 let event_type = 'Online';
@@ -239,16 +240,26 @@ const Event = () => {
                                     date: onExportDateTime(event.start_date),
                                     attendees: event.participants.length,
                                     cover_image: event.cover_image,
-                                    img: '/calendar.svg'
+                                    // img: '/calendar.svg'
                                 };
                                 aEvents.push(eventInfo);
                                 let tmp_dt = current_timestamp - event.start_date;
                                 if (dt == -1) {
                                     dt = tmp_dt;
-                                    current_event = event;
+                                    // current_event = event;
                                 } else if (tmp_dt < dt) {
                                     dt = tmp_dt;
-                                    current_event = event;
+                                    // current_event = event;
+                                }
+                                current_event = {
+                                    id: event.id,
+                                    name: event.name,
+                                    type: event_type,
+                                    start_date: event.start_date,
+                                    date: onExportDateTime(event.start_date),
+                                    attendees: event.participants.length,
+                                    cover_image: event.cover_image,
+                                    img: '/calendar.svg'
                                 }
                             });
                             setNextEvent(current_event);

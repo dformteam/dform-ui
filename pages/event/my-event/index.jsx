@@ -1,4 +1,4 @@
-import { useState, useLayoutEffect } from 'react';
+import { useState, useLayoutEffect, useEffect } from 'react';
 import styles from './MyEvent.module.scss';
 import CheckCircleOutlineOutlinedIcon from '@mui/icons-material/CheckCircleOutlineOutlined';
 import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import Notify from '../../../components/Notify';
 import ModalShare from '../../../components/Share';
+import { Web3Storage } from 'web3.storage';
 
 const MyEvent = () => {
     const [activeTab, setActiveTab] = useState('upcoming');
@@ -69,6 +70,46 @@ const MyEvent = () => {
         setSnackMsg(msg);
     };
 
+    useEffect(() => {
+        if (eventList !== []) {
+            retrieveImagesCover(eventList);
+        }
+    }, [eventList]);
+
+    useEffect(() => {
+        if (hostingEventList !== []) {
+            retrieveImagesCover(hostingEventList);
+        }
+    }, [hostingEventList]);
+
+    const retrieveImagesCover = async (list_event) => {
+        await Promise.all(
+            list_event.map(async (event) => {
+                return new Promise(async (resolve, reject) => {
+                    if (event.cover_image == '') {
+                        resolve(event);
+                    } else {
+                        const client = new Web3Storage({ token: process.env.NEXT_PUBLIC_w3key });
+                        const res = await client.get(event.cover_image);
+                        if (res.ok) {
+                            const files = await res.files();
+                            for (const file of files) {
+                                let reader = new FileReader();
+                                reader.readAsDataURL(file);
+                                reader.onload = (e) => {
+                                    event.img = e.target.result;
+                                    resolve(event);
+                                };
+                            }
+                        } else {
+                            resolve(event);
+                        }
+                    }
+                })
+            }),
+        )
+    }
+
     const generateEvent = (event) => {
         let event_type = 'Online';
         switch (event.event_type) {
@@ -83,6 +124,8 @@ const MyEvent = () => {
             id: event.id,
             name: event.name,
             type: event_type,
+            cover_image: event.cover_image,
+            img: '/calendar.svg',
             date: onExportDateTime(event.start_date),
             attendees: event.participants.length,
             date_timestamp: event.start_date,
@@ -265,7 +308,7 @@ const MyEvent = () => {
     const onUpcomingTabClick = () => {
         setActiveTab('upcoming');
         setEventList([...upcomingEventList]);
-        setInterestedEventList([...upcomingInterestedEventList]);
+        // setInterestedEventList([...upcomingInterestedEventList]);
         setHostingEventList([...upcomingHostingEventList]);
         setAttendingState(true);
         setSavedState(true);
@@ -276,7 +319,7 @@ const MyEvent = () => {
         setActiveTab('past');
         setAttendingState(true);
         setEventList([...pastEventList]);
-        setInterestedEventList([]);
+        // setInterestedEventList([]);
         setHostingEventList([]);
         setSavedState(false);
         setHostingState(false);
@@ -356,7 +399,7 @@ const MyEvent = () => {
                                         Attending
                                     </label>
                                 </div>
-                                <div className={styles.left_menu_row}>
+                                {/* <div className={styles.left_menu_row}>
                                     <input
                                         type="checkbox"
                                         id="saved"
@@ -368,7 +411,7 @@ const MyEvent = () => {
                                     <label htmlFor="saved" className={styles.left_menu_label}>
                                         Saved
                                     </label>
-                                </div>
+                                </div> */}
                                 <div className={styles.left_menu_row}>
                                     <input
                                         type="checkbox"
@@ -401,7 +444,8 @@ const MyEvent = () => {
                         {eventList?.map?.((item) => {
                             return (
                                 <div className={styles.content_event_item} key={item.id}>
-                                    <img src={'/calendar.svg'} className={styles.content_event_item_img} alt="img" />
+                                    {/* <img src={'/calendar.svg'} className={styles.content_event_item_img} alt="img" /> */}
+                                    <img src={item.img} className={styles.content_event_item_img} alt="img" />
                                     <div className={styles.content_event_item_info} onClick={() => onEventItemClick(item.id)}>
                                         <div className={styles.content_event_item_date}>{item.date}</div>
                                         <div className={styles.content_event_item_name}>{item.name}</div>
@@ -419,7 +463,7 @@ const MyEvent = () => {
                             );
                         })}
                     </div>
-                    <div className={styles.content_event} style={{ visibility: !savedState ? 'hidden' : 'visible' }}>
+                    {/* <div className={styles.content_event} style={{ visibility: !savedState ? 'hidden' : 'visible' }}>
                         {interestedEventList?.map?.((item) => {
                             return (
                                 <div className={styles.content_event_item} key={item.id}>
@@ -440,12 +484,13 @@ const MyEvent = () => {
                                 </div>
                             );
                         })}
-                    </div>
+                    </div> */}
                     <div className={styles.content_event} style={{ visibility: !hostingState ? 'hidden' : 'visible' }}>
                         {hostingEventList?.map?.((item) => {
                             return (
                                 <div className={styles.content_event_item} key={item.id}>
-                                    <img src={'/calendar.svg'} className={styles.content_event_item_img} alt="img" />
+                                    {/* <img src={'/calendar.svg'} className={styles.content_event_item_img} alt="img" /> */}
+                                    <img src={item.img} className={styles.content_event_item_img} alt="img" />
                                     <div className={styles.content_event_item_info} onClick={() => onEventItemClick(item.id)}>
                                         <div className={styles.content_event_item_date}>{item.date}</div>
                                         <div className={styles.content_event_item_name}>{item.name}</div>
