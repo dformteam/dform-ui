@@ -58,13 +58,13 @@ const Publish = ({ id }) => {
         setOpenSnack(false);
     };
 
-    useEffect(() => {
-        let initial_date = JSON.parse(localStorage.getItem('date_info'));
-        console.log(localStorage.getItem('date_info'));
-        // setStartDate(new Date(parseFloat(initial_date.start_date)).toISOString());
-        // setEndDate(new Date(parseFloat(initial_date.end_date)).toISOString());
-        localStorage.removeItem('date_info');
-    }, []);
+    // useEffect(() => {
+    //     let initial_date = JSON.parse(localStorage.getItem('date_info'));
+    //     console.log(localStorage.getItem('date_info'));
+    //     setStartDate(new Date(parseFloat(initial_date.start_date)).toISOString());
+    //     setEndDate(new Date(parseFloat(initial_date.end_date)).toISOString());
+    //     localStorage.removeItem('date_info');
+    // }, []);
 
     const onShowResult = ({ type, msg }) => {
         setOpenSnack(true);
@@ -464,12 +464,12 @@ const Publish = ({ id }) => {
                             />
                         )}
                     </div>
-                    {/* <div className={styles.publish_fee_row}>
+                    <div className={styles.publish_fee_row}>
                         <div className={styles.publish_fee_label}>Starting time</div>
                         <input className={styles.publish_fee_input_date} type={'datetime-local'} onChange={onStartingDateChange} />
                         <div className={styles.publish_fee_label_paid}>Ending time</div>
                         <input className={styles.publish_fee_input_date} type={'datetime-local'} onChange={onEndingDateChange} />
-                    </div> */}
+                    </div>
                     {/* <div className={styles.publish_invite}>INVITE BY NEAR ACCOUNT</div>
                     <div className={styles.publish_invite_content}>
                         <EmailOutlinedIcon className={styles.publish_invite_email_icon} />
