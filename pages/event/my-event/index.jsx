@@ -8,13 +8,16 @@ import { useRouter } from 'next/router';
 import Notify from '../../../components/Notify';
 import ModalShare from '../../../components/Share';
 import { Web3Storage } from 'web3.storage';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+
 
 const MyEvent = () => {
     const [activeTab, setActiveTab] = useState('upcoming');
     const [eventList, setEventList] = useState([]);
-    const [interestedEventList, setInterestedEventList] = useState([]);
     const [pastEventList, setPastEventList] = useState([]);
     const [upcomingEventList, setUpcomingEventList] = useState([]);
+
+    const [interestedEventList, setInterestedEventList] = useState([]);
     const [upcomingInterestedEventList, setUpcomingInterestedEventList] = useState([]);
 
     const [hostingEventList, setHostingEventList] = useState([]);
@@ -29,6 +32,7 @@ const MyEvent = () => {
     const [hostingState, setHostingState] = useState(true);
     const [modalShare, setModalShare] = useState(false);
     const [link, setLink] = useState('');
+    const [isInterestedLoad, setIsInterestedLoad] = useState(false);
 
     const wallet = useSelector((state) => state.wallet);
     const router = useRouter();
@@ -43,17 +47,42 @@ const MyEvent = () => {
         // },
         // { id: 2, name: '© 2021 Learn NEAR Club', type: 'Online + In person', date: 'Sat, Jan 15 @ 5:30 PM', attendees: 66 },
     ];
-    const iEvents = [];
+    // const iEvents = [];
 
     const pastEvents = [];
     const upcomingEvents = [];
-    const pastInterestedEvents = [];
-    const upcomingInterestedEvents = [];
+    // const upcomingInterestedEvents = [];
     const hostingEvents = [];
 
     useLayoutEffect(() => {
         onGetMaxRows();
     }, []);
+
+    useEffect(() => {
+        if (interestedEventList !== []) {
+            interestedEventList.map((item) => {
+                setEventList([...eventList].map((event) => {
+                    if (event.id === item) {
+                        event.isInterested = true;
+                    }
+                    return event;
+                }));
+            });
+        }
+    }, [interestedEventList]);
+
+    // useEffect(() => {
+    //     if (interestedEventList !== []) {
+    //         interestedEventList.map((item) => {
+    //             setHostingEventList([...hostingEventList].map((event) => {
+    //                 if (event.id === item) {
+    //                     event.isInterested = true;
+    //                 }
+    //                 return event;
+    //             }));
+    //         });
+    //     }
+    // }, [interestedEventList]);
 
     useLayoutEffect(() => {
         onGetMaxInterestedRows();
@@ -129,6 +158,7 @@ const MyEvent = () => {
             date: onExportDateTime(event.start_date),
             attendees: event.participants.length,
             date_timestamp: event.start_date,
+            isInterested: false
         };
         return eventInfo;
     };
@@ -163,26 +193,28 @@ const MyEvent = () => {
                     })
                     .then((data) => {
                         if (data) {
+                            let ls_itr_event = [];
+                            ls_itr_event.push({})
                             data.data.map((event) => {
-                                let eventInfo = generateEvent(event);
-                                iEvents.push(eventInfo);
-                                upcomingInterestedEvents.push(eventInfo);
+                                // let eventInfo = generateEvent(event);
+                                ls_itr_event.push(event.id);
+                                // upcomingInterestedEvents.push(eventInfo);
                                 // if (current_timestamp >= event.end_date) {
                                 //     pastInterestedEvents.push(eventInfo);
                                 // } else {
                                 //     upcomingInterestedEvents.push(eventInfo);
                                 // }
                             });
-                            upcomingInterestedEvents.sort(function (a, b) {
-                                return b.date_timestamp - a.date_timestamp;
-                            });
+                            // upcomingInterestedEvents.sort(function (a, b) {
+                            //     return b.date_timestamp - a.date_timestamp;
+                            // });
                             // pastInterestedEvents.sort(function (a, b) {
                             //     return b.date_timestamp - a.date_timestamp;
                             // });
                             // setUpcomingEventList(upcomingInterestedEvents);
                             // setPastEventList(pastInterestedEvents);
-                            setUpcomingInterestedEventList(upcomingInterestedEvents);
-                            setInterestedEventList([...upcomingInterestedEvents]);
+                            // setUpcomingInterestedEventList(iEvents);
+                            setInterestedEventList(ls_itr_event);
                         }
                     });
             }),
@@ -274,13 +306,13 @@ const MyEvent = () => {
         setModalShare(true);
     };
 
-    const onEventFavoriteClick = (id) => {
+    const onEventFavoriteClick = (item) => {
         const { contract } = wallet;
         setOpenLoading(true);
         contract
             ?.interest_event(
                 {
-                    eventId: id,
+                    eventId: item.id,
                 },
                 50000000000000,
             )
@@ -288,8 +320,23 @@ const MyEvent = () => {
                 if (res) {
                     onShowResult({
                         type: 'success',
-                        msg: 'Interested',
+                        msg: res,
                     });
+                    item.isInterested = (res == 'Interested' ? true : false);
+                    setEventList([...eventList].map((event) => {
+                        if (event.id === item.id) {
+                            return item;
+                        } else {
+                            return event;
+                        }
+                    }));
+                    // setHostingEventList([...hostingEventList].map((event) => {
+                    //     if (event.id === item.id) {
+                    //         return item;
+                    //     } else {
+                    //         return event;
+                    //     }
+                    // }));
                 } else {
                     onShowResult({
                         type: 'error',
@@ -366,6 +413,18 @@ const MyEvent = () => {
             msg: 'copied',
         });
     };
+
+    const renderInterestedIcon = (item) => {
+        if (item.isInterested) {
+            return (
+                <FavoriteIcon className={styles.content_event_item_icon_favor} onClick={() => onEventFavoriteClick(item)} />
+            )
+        } else {
+            return (
+                <FavoriteBorderIcon className={styles.content_event_item_icon_favor} onClick={() => onEventFavoriteClick(item)} />
+            )
+        }
+    }
 
     return (
         <>
@@ -457,7 +516,8 @@ const MyEvent = () => {
                                     </div>
                                     <div className={styles.content_event_item_share}>
                                         <ShareOutlinedIcon className={styles.content_event_item_icon} onClick={() => onGetSharedLink(item.id)} />
-                                        <FavoriteBorderIcon className={styles.content_event_item_icon_favor} onClick={() => onEventFavoriteClick(item.id)} />
+                                        {/* <FavoriteBorderIcon className={styles.content_event_item_icon_favor} onClick={() => onEventFavoriteClick(item.id)} /> */}
+                                        {renderInterestedIcon(item)}
                                     </div>
                                 </div>
                             );
@@ -502,7 +562,8 @@ const MyEvent = () => {
                                     </div>
                                     <div className={styles.content_event_item_share}>
                                         <ShareOutlinedIcon className={styles.content_event_item_icon} onClick={() => onGetSharedLink(item.id)} />
-                                        <FavoriteBorderIcon className={styles.content_event_item_icon_favor} onClick={() => onEventFavoriteClick(item.id)} />
+                                        {/* <FavoriteBorderIcon className={styles.content_event_item_icon_favor} onClick={() => onEventFavoriteClick(item.id)} /> */}
+                                        {renderInterestedIcon(item)}
                                     </div>
                                 </div>
                             );

@@ -279,6 +279,7 @@ const EventDetail = ({ id }) => {
                     50000000000000,
                 )
                 .then((res) => {
+                    console.log(res);
                     if (res) {
                         onGetEventDetail();
                         onShowResult({

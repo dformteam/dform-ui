@@ -6,6 +6,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import ChevronRightOutlinedIcon from '@mui/icons-material/ChevronRightOutlined';
 import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useRouter } from 'next/router';
 import ModalShare from '../../components/Share';
@@ -27,6 +28,8 @@ const Event = () => {
     const [alertType, setAlertType] = useState('success');
     const [snackMsg, setSnackMsg] = useState('');
     const [link, setLink] = useState('');
+    const [isInterestedLoad, setIsInterestedLoad] = useState(false);
+    const [interestList, setInterestList] = useState([]);
 
     const wallet = useSelector((state) => state.wallet);
 
@@ -44,6 +47,14 @@ const Event = () => {
     ];
 
     const newestEvents = [];
+
+    useEffect(() => {
+        if ((JSON.stringify(newestEventList) !== '[]') && (!isInterestedLoad)) {
+            onGetMaxInterestedRows();
+            setIsInterestedLoad(true);
+        }
+    }, [newestEventList]);
+
 
     useLayoutEffect(() => {
         onGetMaxRows();
@@ -78,6 +89,19 @@ const Event = () => {
         }
     }, [newestEventList]);
 
+    useEffect(() => {
+        if (interestList !== []) {
+            interestList.map((item) => {
+                setNewestEventList([...newestEventList].map((event) => {
+                    if (event.id === item) {
+                        event.isInterested = true;
+                    }
+                    return event;
+                }));
+            })
+        }
+    }, [interestList]);
+
     const retrieveImagesCover = async (list_event) => {
         await Promise.all(
             list_event.map(async (event) => {
@@ -105,6 +129,70 @@ const Event = () => {
         )
     }
 
+    const onGetMaxInterestedRows = () => {
+        const { contract, walletConnection } = wallet;
+        const userId = walletConnection.getAccountId();
+        contract
+            ?.get_interested_event_count?.({
+                userId: userId,
+            })
+            .then((total) => {
+                onGetInterestedRows({ total });
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+
+    const onGetInterestedRows = async ({ total }) => {
+        const { contract, walletConnection } = wallet;
+        const num_page = total % 5 === 0 ? total / 5 : parseInt(total / 5) + 1;
+        const page_arr = new Array(num_page).fill(0);
+        const userId = walletConnection.getAccountId();
+        const current_timestamp = Date.now();
+        await Promise.all(
+            page_arr.map(async (page, index) => {
+                await contract
+                    .get_interested_events({
+                        userId,
+                        page: index + 1,
+                    })
+                    .then((data) => {
+                        if (data) {
+                            let listId = [];
+                            data.data.map((event) => {
+                                listId.push(event.id);
+                            });
+                            setInterestList(listId);
+                        }
+                    });
+            }),
+        );
+    };
+
+    const generateEvent = (event) => {
+        let event_type = 'Online';
+        switch (event.event_type) {
+            case 1:
+                event_type = 'In person';
+                break;
+            case 2:
+                event_type = 'Online + In person';
+                break;
+        }
+        let eventInfo = {
+            id: event.id,
+            name: event.name,
+            type: event_type,
+            date: onExportDateTime(event.start_date),
+            attendees: event.participants.length,
+            cover_image: event.cover_image,
+            img: '/calendar.svg',
+            isInterested: false
+        };
+        return eventInfo;
+    }
+
     const onGetNewestEvents = () => {
         let isMounted = true;
         const { contract, walletConnection } = wallet;
@@ -114,24 +202,7 @@ const Event = () => {
             .then(async (newest_events) => {
                 if (newestEvents) {
                     await newest_events.data.map(async (event) => {
-                        let event_type = 'Online';
-                        switch (event.event_type) {
-                            case 1:
-                                event_type = 'In person';
-                                break;
-                            case 2:
-                                event_type = 'Online + In person';
-                                break;
-                        }
-                        let eventInfo = {
-                            id: event.id,
-                            name: event.name,
-                            type: event_type,
-                            date: onExportDateTime(event.start_date),
-                            attendees: event.participants.length,
-                            cover_image: event.cover_image,
-                            img: '/calendar.svg'
-                        };
+                        let eventInfo = generateEvent(event);
                         newestEvents.push(eventInfo);
                     });
                     if (isMounted) {
@@ -147,13 +218,13 @@ const Event = () => {
         };
     };
 
-    const onEventFavoriteClick = (id) => {
+    const onEventFavoriteClick = (item) => {
         const { contract } = wallet;
         setOpenLoading(true);
         contract
             ?.interest_event(
                 {
-                    eventId: id,
+                    eventId: item.id,
                 },
                 50000000000000,
             )
@@ -163,6 +234,14 @@ const Event = () => {
                         type: 'success',
                         msg: res,
                     });
+                    item.isInterested = (res == 'Interested' ? true : false);
+                    setNewestEventList([...newestEventList].map((event) => {
+                        if (event.id === item.id) {
+                            return item;
+                        } else {
+                            return event;
+                        }
+                    }));
                 } else {
                     onShowResult({
                         type: 'error',
@@ -276,8 +355,19 @@ const Event = () => {
         setType(e.target.value);
     };
 
+    const renderInterestedIcon = (item) => {
+        if (item.isInterested) {
+            return (
+                <FavoriteIcon className={styles.event_item_icon_favor} onClick={() => onEventFavoriteClick(item)} />
+            )
+        } else {
+            return (
+                <FavoriteBorderIcon className={styles.event_item_icon_favor} onClick={() => onEventFavoriteClick(item)} />
+            )
+        }
+    }
+
     const renderEventItem = (item) => {
-        // console.log('item.img => ', item.img);
         return (
             <div className={styles.event_item} key={item.id}>
                 <div className={styles.event_item_header}>
@@ -293,7 +383,7 @@ const Event = () => {
                     <div className={styles.event_item_footer}>
                         <div className={styles.event_item_attendees}>{item.attendees} attendees</div>
                         <ShareOutlinedIcon className={styles.event_item_icon} onClick={onGetSharedLink} />
-                        <FavoriteBorderIcon className={styles.event_item_icon_favor} onClick={() => onEventFavoriteClick(item.id)} />
+                        {renderInterestedIcon(item)}
                     </div>
                 </div>
             </div>
