@@ -1,4 +1,5 @@
-import { useState, useLayoutEffect, useEffect } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useState, useLayoutEffect, useEffect, useRef } from 'react';
 import styles from './MyEvent.module.scss';
 import CheckCircleOutlineOutlinedIcon from '@mui/icons-material/CheckCircleOutlineOutlined';
 import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
@@ -10,7 +11,6 @@ import ModalShare from '../../../components/Share';
 import { Web3Storage } from 'web3.storage';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 
-
 const MyEvent = () => {
     const [activeTab, setActiveTab] = useState('upcoming');
     const [eventList, setEventList] = useState([]);
@@ -18,7 +18,6 @@ const MyEvent = () => {
     const [upcomingEventList, setUpcomingEventList] = useState([]);
 
     const [interestedEventList, setInterestedEventList] = useState([]);
-    const [upcomingInterestedEventList, setUpcomingInterestedEventList] = useState([]);
 
     const [hostingEventList, setHostingEventList] = useState([]);
     const [upcomingHostingEventList, setUpcomingHostingEventList] = useState([]);
@@ -28,26 +27,16 @@ const MyEvent = () => {
     const [alertType, setAlertType] = useState('success');
     const [snackMsg, setSnackMsg] = useState('');
     const [attendingState, setAttendingState] = useState(true);
+    // eslint-disable-next-line no-unused-vars
     const [savedState, setSavedState] = useState(true);
     const [hostingState, setHostingState] = useState(true);
     const [modalShare, setModalShare] = useState(false);
     const [link, setLink] = useState('');
-    const [isInterestedLoad, setIsInterestedLoad] = useState(false);
 
     const wallet = useSelector((state) => state.wallet);
     const router = useRouter();
 
-    const aEvents = [
-        // {
-        //     id: 1,
-        //     name: 'Demo day © 2021 Learn NEAR Club © 2021 Learn NEAR Club © 2021 Learn NEAR Club',
-        //     type: 'Online',
-        //     date: 'Sat, Jan 15 @ 5:30 PM',
-        //     attendees: 16,
-        // },
-        // { id: 2, name: '© 2021 Learn NEAR Club', type: 'Online + In person', date: 'Sat, Jan 15 @ 5:30 PM', attendees: 66 },
-    ];
-    // const iEvents = [];
+    const aEvents = useRef([]);
 
     const pastEvents = [];
     const upcomingEvents = [];
@@ -61,28 +50,18 @@ const MyEvent = () => {
     useEffect(() => {
         if (interestedEventList !== []) {
             interestedEventList.map((item) => {
-                setEventList([...eventList].map((event) => {
-                    if (event.id === item) {
-                        event.isInterested = true;
-                    }
-                    return event;
-                }));
+                setEventList(
+                    [...eventList].map((event) => {
+                        if (event.id === item) {
+                            event.isInterested = true;
+                        }
+                        return event;
+                    }),
+                );
+                return item;
             });
         }
     }, [interestedEventList]);
-
-    // useEffect(() => {
-    //     if (interestedEventList !== []) {
-    //         interestedEventList.map((item) => {
-    //             setHostingEventList([...hostingEventList].map((event) => {
-    //                 if (event.id === item) {
-    //                     event.isInterested = true;
-    //                 }
-    //                 return event;
-    //             }));
-    //         });
-    //     }
-    // }, [interestedEventList]);
 
     useLayoutEffect(() => {
         onGetMaxInterestedRows();
@@ -99,45 +78,24 @@ const MyEvent = () => {
         setSnackMsg(msg);
     };
 
-    useEffect(() => {
-        if (eventList !== []) {
-            retrieveImagesCover(eventList);
+    const retrieveImagesCover = async (event, index) => {
+        if (event.cover_image !== '') {
+            const client = new Web3Storage({ token: process.env.NEXT_PUBLIC_w3key });
+            const res = await client.get(event.cover_image);
+            if (res.ok) {
+                const files = await res.files();
+                for (const file of files) {
+                    let reader = new FileReader();
+                    reader.onload = (e) => {
+                        event.img = e.target.result;
+                        eventList[index] = { ...event };
+                        setEventList([...eventList]);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
         }
-    }, [eventList]);
-
-    useEffect(() => {
-        if (hostingEventList !== []) {
-            retrieveImagesCover(hostingEventList);
-        }
-    }, [hostingEventList]);
-
-    const retrieveImagesCover = async (list_event) => {
-        await Promise.all(
-            list_event.map(async (event) => {
-                return new Promise(async (resolve, reject) => {
-                    if (event.cover_image == '') {
-                        resolve(event);
-                    } else {
-                        const client = new Web3Storage({ token: process.env.NEXT_PUBLIC_w3key });
-                        const res = await client.get(event.cover_image);
-                        if (res.ok) {
-                            const files = await res.files();
-                            for (const file of files) {
-                                let reader = new FileReader();
-                                reader.readAsDataURL(file);
-                                reader.onload = (e) => {
-                                    event.img = e.target.result;
-                                    resolve(event);
-                                };
-                            }
-                        } else {
-                            resolve(event);
-                        }
-                    }
-                })
-            }),
-        )
-    }
+    };
 
     const generateEvent = (event) => {
         let event_type = 'Online';
@@ -148,8 +106,11 @@ const MyEvent = () => {
             case 2:
                 event_type = 'Online + In person';
                 break;
+            default:
+                break;
         }
-        let eventInfo = {
+
+        return {
             id: event.id,
             name: event.name,
             type: event_type,
@@ -158,9 +119,8 @@ const MyEvent = () => {
             date: onExportDateTime(event.start_date),
             attendees: event.participants.length,
             date_timestamp: event.start_date,
-            isInterested: false
+            isInterested: false,
         };
-        return eventInfo;
     };
 
     const onGetMaxInterestedRows = () => {
@@ -183,7 +143,6 @@ const MyEvent = () => {
         const num_page = total % 5 === 0 ? total / 5 : parseInt(total / 5) + 1;
         const page_arr = new Array(num_page).fill(0);
         const userId = walletConnection.getAccountId();
-        const current_timestamp = Date.now();
         await Promise.all(
             page_arr.map(async (page, index) => {
                 await contract
@@ -194,10 +153,11 @@ const MyEvent = () => {
                     .then((data) => {
                         if (data) {
                             let ls_itr_event = [];
-                            ls_itr_event.push({})
+                            ls_itr_event.push({});
                             data.data.map((event) => {
                                 // let eventInfo = generateEvent(event);
                                 ls_itr_event.push(event.id);
+                                return event;
                                 // upcomingInterestedEvents.push(eventInfo);
                                 // if (current_timestamp >= event.end_date) {
                                 //     pastInterestedEvents.push(eventInfo);
@@ -263,33 +223,42 @@ const MyEvent = () => {
                     })
                     .then((data) => {
                         if (data) {
-                            data.data.map((event) => {
-                                let eventInfo = generateEvent(event);
-                                aEvents.push(eventInfo);
-                                if (current_timestamp >= event.end_date) {
-                                    pastEvents.push(eventInfo);
-                                } else {
-                                    upcomingEvents.push(eventInfo);
-                                }
-                                if (event.owner == userId) {
-                                    hostingEvents.push(eventInfo);
-                                }
-                            });
-                            upcomingEvents.sort(function (a, b) {
-                                return b.date_timestamp - a.date_timestamp;
-                            });
-                            pastEvents.sort(function (a, b) {
-                                return b.date_timestamp - a.date_timestamp;
-                            });
-                            hostingEvents.sort(function (a, b) {
-                                return b.date_timestamp - a.date_timestamp;
-                            });
-                            setUpcomingHostingEventList(hostingEvents);
-                            setHostingEventList([...hostingEvents]);
-                            setUpcomingEventList(upcomingEvents);
-                            setPastEventList(pastEvents);
-                            setEventList([...upcomingEvents]);
+                            return data?.data;
                         }
+                    })
+                    .then((value) => {
+                        value.map((event) => {
+                            let eventInfo = generateEvent(event);
+                            aEvents.current.push(eventInfo);
+                            if (current_timestamp >= event.end_date) {
+                                pastEvents.push(eventInfo);
+                            } else {
+                                upcomingEvents.push(eventInfo);
+                            }
+                            if (event.owner === userId) {
+                                hostingEvents.push(eventInfo);
+                            }
+                            return event;
+                        });
+
+                        upcomingEvents.sort((a, b) => {
+                            return b.date_timestamp - a.date_timestamp;
+                        });
+                        pastEvents.sort((a, b) => {
+                            return b.date_timestamp - a.date_timestamp;
+                        });
+                        hostingEvents.sort((a, b) => {
+                            return b.date_timestamp - a.date_timestamp;
+                        });
+
+                        setUpcomingHostingEventList(hostingEvents);
+                        setHostingEventList([...hostingEvents]);
+                        setUpcomingEventList(upcomingEvents);
+                        setPastEventList(pastEvents);
+                        setEventList([...upcomingEvents]);
+                    })
+                    .catch((err) => {
+                        console.log(err);
                     });
             }),
         );
@@ -322,14 +291,16 @@ const MyEvent = () => {
                         type: 'success',
                         msg: res,
                     });
-                    item.isInterested = (res == 'Interested' ? true : false);
-                    setEventList([...eventList].map((event) => {
-                        if (event.id === item.id) {
-                            return item;
-                        } else {
-                            return event;
-                        }
-                    }));
+                    item.isInterested = res === 'Interested' ? true : false;
+                    setEventList(
+                        [...eventList].map((event) => {
+                            if (event.id === item.id) {
+                                return item;
+                            } else {
+                                return event;
+                            }
+                        }),
+                    );
                     // setHostingEventList([...hostingEventList].map((event) => {
                     //     if (event.id === item.id) {
                     //         return item;
@@ -383,15 +354,6 @@ const MyEvent = () => {
         }
     };
 
-    const handleSavedCBChange = (e) => {
-        let isChecked = e.target.checked;
-        setSavedState(isChecked);
-        if (isChecked) {
-            setInterestedEventList([...upcomingInterestedEventList]);
-        } else {
-            setInterestedEventList([]);
-        }
-    };
     // handleHostingCBChange
     const handleHostingCBChange = (e) => {
         let isChecked = e.target.checked;
@@ -416,15 +378,11 @@ const MyEvent = () => {
 
     const renderInterestedIcon = (item) => {
         if (item.isInterested) {
-            return (
-                <FavoriteIcon className={styles.content_event_item_icon_favor} onClick={() => onEventFavoriteClick(item)} />
-            )
+            return <FavoriteIcon className={styles.content_event_item_icon_favor} onClick={() => onEventFavoriteClick(item)} />;
         } else {
-            return (
-                <FavoriteBorderIcon className={styles.content_event_item_icon_favor} onClick={() => onEventFavoriteClick(item)} />
-            )
+            return <FavoriteBorderIcon className={styles.content_event_item_icon_favor} onClick={() => onEventFavoriteClick(item)} />;
         }
-    }
+    };
 
     return (
         <>
@@ -500,7 +458,8 @@ const MyEvent = () => {
                     </div>
                     <div className={styles.line} />
                     <div className={styles.content_event} style={{ visibility: !attendingState ? 'hidden' : 'visible' }}>
-                        {eventList?.map?.((item) => {
+                        {eventList?.map?.((item, index) => {
+                            retrieveImagesCover(item, index);
                             return (
                                 <div className={styles.content_event_item} key={item.id}>
                                     {/* <img src={'/calendar.svg'} className={styles.content_event_item_img} alt="img" /> */}
@@ -511,7 +470,7 @@ const MyEvent = () => {
                                         <div className={styles.content_event_item_attendees}>{item.attendees} attendees</div>
                                         <div className={styles.content_event_item_attending}>
                                             <CheckCircleOutlineOutlinedIcon />
-                                            {activeTab == 'past' ? 'Attended' : 'Attending'}
+                                            {activeTab === 'past' ? 'Attended' : 'Attending'}
                                         </div>
                                     </div>
                                     <div className={styles.content_event_item_share}>
@@ -546,7 +505,8 @@ const MyEvent = () => {
                         })}
                     </div> */}
                     <div className={styles.content_event} style={{ visibility: !hostingState ? 'hidden' : 'visible' }}>
-                        {hostingEventList?.map?.((item) => {
+                        {hostingEventList?.map?.((item, index) => {
+                            retrieveImagesCover(item, index);
                             return (
                                 <div className={styles.content_event_item} key={item.id}>
                                     {/* <img src={'/calendar.svg'} className={styles.content_event_item_img} alt="img" /> */}
