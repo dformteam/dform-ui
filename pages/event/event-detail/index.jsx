@@ -144,7 +144,6 @@ const EventDetail = ({ id }) => {
             })
             .then((res) => {
                 if (res) {
-                    console.log(res);
                     const { status, owner } = res;
                     if (status === 0 && owner !== userId) {
                         redirectError('You do not permission to access this page');
@@ -174,7 +173,7 @@ const EventDetail = ({ id }) => {
                 })
                 .then((data) => {
                     if (data) {
-                        console.log(data);
+                        // console.log(data);
                         const pIndex = raws.current.findIndex((x) => x?.page === data?.page);
                         if (pIndex === -1) {
                             raws.current.push(data);
@@ -188,16 +187,11 @@ const EventDetail = ({ id }) => {
                                 temp_prt = [...temp_prt, ...(raw?.data || [])];
                                 return temp_prt;
                             });
-
-                            console.log(temp_prt);
-
                             setAttendence([...temp_prt]);
                             if (temp_prt.includes(userId)) {
                                 setIsRegistered(true);
                             }
                         }
-
-                        console.log(pIndex);
                     }
                 })
                 .catch((err) => {
@@ -213,17 +207,18 @@ const EventDetail = ({ id }) => {
             contract
                 ?.leave_event(
                     {
-                        eventId: eventId,
+                        'eventId': eventId,
                     },
                     50000000000000,
                 )
                 .then((res) => {
                     if (res) {
-                        onGetEventDetail();
+                        onGetEventDetail(eventId);
                         onShowResult({
                             type: 'success',
                             msg: 'Leaved',
                         });
+                        setIsRegistered(false);
                     } else {
                         onShowResult({
                             type: 'error',
@@ -251,12 +246,13 @@ const EventDetail = ({ id }) => {
                 )
                 .then((res) => {
                     if (res) {
-                        onGetEventDetail();
+                        onGetEventDetail(eventId);
                         onShowResult({
                             type: 'success',
                             msg: 'Register succesfully',
                         });
-                        setModalSuccess(true);
+                        setIsRegistered(true);
+                        // setModalSuccess(true);
                     } else {
                         onShowResult({
                             type: 'error',
@@ -279,13 +275,15 @@ const EventDetail = ({ id }) => {
                     50000000000000,
                 )
                 .then((res) => {
+                    console.log(res);
                     if (res) {
                         onGetEventDetail();
                         onShowResult({
                             type: 'success',
                             msg: 'Register succesfully',
                         });
-                        setModalSuccess(true);
+                        setIsRegistered(true);
+                        // setModalSuccess(true);
                     } else {
                         onShowResult({
                             type: 'error',
@@ -305,7 +303,6 @@ const EventDetail = ({ id }) => {
     const retrieveImageCover = async (cover_id) => {
         const client = new Web3Storage({ token: process.env.NEXT_PUBLIC_w3key });
         const res = await client.get(cover_id);
-        console.log(res);
         if (res.ok) {
             const files = await res.files();
             for (const file of files) {
@@ -446,9 +443,9 @@ const EventDetail = ({ id }) => {
                                         <div className={styles.content_detail_info_date}>{exportStartDate(event?.start_date)}</div>
                                         <div className={styles.content_detail_info_date}>to</div>
                                         <div className={styles.content_detail_info_date}>{exportStartDate(event?.end_date)}</div>
-                                        <div className={styles.content_detail_info_add} onClick={onAttendClick}>
+                                        {/* <div className={styles.content_detail_info_add} onClick={onAttendClick}>
                                             Add to calendar
-                                        </div>
+                                        </div> */}
                                     </div>
                                 </div>
                                 <div className={styles.content_detail_info_row}>
