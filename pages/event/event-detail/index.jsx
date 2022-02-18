@@ -144,7 +144,6 @@ const EventDetail = ({ id }) => {
             })
             .then((res) => {
                 if (res) {
-                    console.log('onGetEventDetail => ', res);
                     const { status, owner } = res;
                     if (status === 0 && owner !== userId) {
                         redirectError('You do not permission to access this page');
@@ -188,16 +187,11 @@ const EventDetail = ({ id }) => {
                                 temp_prt = [...temp_prt, ...(raw?.data || [])];
                                 return temp_prt;
                             });
-
-                            console.log("temp_prt => ", temp_prt);
-
                             setAttendence([...temp_prt]);
                             if (temp_prt.includes(userId)) {
                                 setIsRegistered(true);
                             }
                         }
-
-                        console.log(pIndex);
                     }
                 })
                 .catch((err) => {
@@ -209,9 +203,7 @@ const EventDetail = ({ id }) => {
     const onAttendClick = () => {
         const { contract } = wallet;
         setOpenLoading(true);
-        console.log("isRegistered ", isRegistered);
         if (isRegistered) {
-            console.log("eventId ", eventId);
             contract
                 ?.leave_event(
                     {
