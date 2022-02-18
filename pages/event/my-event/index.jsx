@@ -399,24 +399,7 @@ const MyEvent = () => {
                     <div className={styles.line} />
                     <div className={styles.content_event} style={{ visibility: !attendingState ? 'hidden' : 'visible' }}>
                         {eventList?.map?.((item) => {
-                            return (
-                                <div className={styles.content_event_item} key={item.id}>
-                                    <img src={'/calendar.svg'} className={styles.content_event_item_img} alt="img" />
-                                    <div className={styles.content_event_item_info} onClick={() => onEventItemClick(item.id)}>
-                                        <div className={styles.content_event_item_date}>{item.date}</div>
-                                        <div className={styles.content_event_item_name}>{item.name}</div>
-                                        <div className={styles.content_event_item_attendees}>{item.attendees} attendees</div>
-                                        <div className={styles.content_event_item_attending}>
-                                            <CheckCircleOutlineOutlinedIcon />
-                                            {activeTab == 'past' ? 'Attended' : 'Attending'}
-                                        </div>
-                                    </div>
-                                    <div className={styles.content_event_item_share}>
-                                        <ShareOutlinedIcon className={styles.content_event_item_icon} onClick={() => onGetSharedLink(item.id)} />
-                                        <FavoriteBorderIcon className={styles.content_event_item_icon_favor} onClick={() => onEventFavoriteClick(item.id)} />
-                                    </div>
-                                </div>
-                            );
+                            return <EventItem item={item} activeTab={activeTab} key={item.id} />;
                         })}
                     </div>
                     <div className={styles.content_event} style={{ visibility: !savedState ? 'hidden' : 'visible' }}>
@@ -468,6 +451,28 @@ const MyEvent = () => {
 
             {modalShare && <ModalShare link={link} onCloseModal={onCloseModalShare} onSuccess={onSuccess} />}
         </>
+    );
+};
+
+const EventItem = (props) => {
+    const { item, activeTab } = props;
+    return (
+        <div className={styles.content_event_item}>
+            <img src={'/calendar.svg'} className={styles.content_event_item_img} alt="img" />
+            <div className={styles.content_event_item_info} onClick={() => onEventItemClick(item.id)}>
+                <div className={styles.content_event_item_date}>{item.date}</div>
+                <div className={styles.content_event_item_name}>{item.name}</div>
+                <div className={styles.content_event_item_attendees}>{item.attendees} attendees</div>
+                <div className={styles.content_event_item_attending}>
+                    <CheckCircleOutlineOutlinedIcon />
+                    {activeTab == 'past' ? 'Attended' : 'Attending'}
+                </div>
+            </div>
+            <div className={styles.content_event_item_share}>
+                <ShareOutlinedIcon className={styles.content_event_item_icon} onClick={() => onGetSharedLink(item.id)} />
+                <FavoriteBorderIcon className={styles.content_event_item_icon_favor} onClick={() => onEventFavoriteClick(item.id)} />
+            </div>
+        </div>
     );
 };
 
