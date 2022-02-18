@@ -167,7 +167,6 @@ const Form = () => {
                 });
         } else {
             const halfNear = utils.format.parseNearAmount('0.5');
-            console.log(halfNear);
 
             contract
                 ?.init_new_form?.(

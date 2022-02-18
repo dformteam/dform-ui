@@ -196,6 +196,10 @@ const EventDetail = ({ id }) => {
         router.push(`/event/publish-event?id=${id}`);
     };
 
+    const onEditEventClick = () => {
+        router.push(`/event/edit-event?id=${id}`);
+    };
+
     const onUnpublishEventClick = () => {
         const { contract } = wallet;
 
@@ -249,11 +253,16 @@ const EventDetail = ({ id }) => {
             <div className={styles.root}>
                 <div className={styles.content}>
                     {event?.status === 0 && event?.owner === userId && (
-                        <div className={styles.content_button_area}>
-                            <button className={styles.content_button_area_button} onClick={onPublishEventClick}>
-                                <PublishIcon className={styles.content_button_area_button_icon} /> Publish
-                            </button>
-                        </div>
+                        <>
+                            <div className={styles.content_button_area}>
+                                <button className={styles.content_button_area_button} onClick={onPublishEventClick}>
+                                    <PublishIcon className={styles.content_button_area_button_icon} /> Publish
+                                </button>
+                                <button className={styles.content_button_area_button} onClick={onEditEventClick}>
+                                    <PublishIcon className={styles.content_button_area_button_icon} /> Edit
+                                </button>
+                            </div>
+                        </>
                     )}
                     {event?.status !== 0 && event?.owner === userId && (
                         <div className={styles.content_button_area}>
