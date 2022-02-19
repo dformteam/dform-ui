@@ -40,6 +40,8 @@ const EventDetail = ({ id }) => {
     const [modalSuccess, setModalSuccess] = useState(false);
     const [modalShare, setModalShare] = useState(false);
     const [link, setLink] = useState('');
+    const [isInterestedLoad, setIsInterestedLoad] = useState(false);
+    const [interestList, setInterestList] = useState([]);
 
     const onCloseSnack = () => {
         setOpenSnack(false);
@@ -91,48 +93,6 @@ const EventDetail = ({ id }) => {
         }
     };
 
-
-    const onGetMaxInterestedRows = () => {
-        const { contract, walletConnection } = wallet;
-        const userId = walletConnection.getAccountId();
-        contract
-            ?.get_interested_event_count?.({
-                userId: userId,
-            })
-            .then((total) => {
-                onGetInterestedRows({ total });
-            })
-            .catch((err) => {
-                console.log(err);
-            });
-    };
-
-    const onGetInterestedRows = async ({ total }) => {
-        const { contract, walletConnection } = wallet;
-        const num_page = total % 5 === 0 ? total / 5 : parseInt(total / 5) + 1;
-        const page_arr = new Array(num_page).fill(0);
-        const userId = walletConnection.getAccountId();
-        await Promise.all(
-            page_arr.map(async (page, index) => {
-                await contract
-                    .get_interested_events({
-                        userId,
-                        page: index + 1,
-                    })
-                    .then((data) => {
-                        if (data) {
-                            data.data.map((item) => {
-                                if (item.id === id) {
-                                    setIsInterested(true);
-                                }
-                                return;
-                            });
-                        }
-                    });
-            }),
-        );
-    };
-
     useEffect(() => {
         onGetMaxInterestedRows();
     }, []);
@@ -143,6 +103,31 @@ const EventDetail = ({ id }) => {
 
     const newestEvents = [];
 
+    const generateEvent = (event) => {
+        let event_type = 'Online';
+        switch (event.event_type) {
+            case 1:
+                event_type = 'In person';
+                break;
+            case 2:
+                event_type = 'Online + In person';
+                break;
+        }
+        let eventInfo = {
+            id: event.id,
+            owner: event.owner,
+            name: event.name,
+            type: event_type,
+            date: onExportDateTime(event.start_date),
+            date_timestamp: event.start_date,
+            attendees: event.participants.length,
+            cover_image: event.cover_image,
+            img: '/calendar.svg',
+            isInterested: false,
+        };
+        return eventInfo;
+    };
+
     const onGetNewestEvents = () => {
         let isMounted = true;
         const { contract, walletConnection } = wallet;
@@ -152,22 +137,7 @@ const EventDetail = ({ id }) => {
             .then((newest_events) => {
                 if (newestEvents) {
                     newest_events.data.map((event) => {
-                        let event_type = 'Online';
-                        switch (event.event_type) {
-                            case 1:
-                                event_type = 'In person';
-                                break;
-                            case 2:
-                                event_type = 'Online + In person';
-                                break;
-                        }
-                        let eventInfo = {
-                            id: event.id,
-                            name: event.name,
-                            type: event_type,
-                            date: onExportDateTime(event.start_date),
-                            attendees: event.participants.length,
-                        };
+                        let eventInfo = generateEvent(event);
                         newestEvents.push(eventInfo);
                     });
                     if (isMounted) setNewestEventList([...newestEvents]);
@@ -207,8 +177,16 @@ const EventDetail = ({ id }) => {
             });
     };
 
-    const onEventFavoriteClick = () => {
-        const { contract } = wallet;
+    const onEventFavoriteClick = (item) => {
+        const { contract, walletConnection } = wallet;
+        const userId = walletConnection.getAccountId();
+        if (userId == item.owner) {
+            onShowResult({
+                type: 'error',
+                msg: 'You are the owner of this event',
+            });
+            return;
+        }
         setOpenLoading(true);
         contract
             ?.interest_event(
@@ -223,7 +201,16 @@ const EventDetail = ({ id }) => {
                         type: 'success',
                         msg: res,
                     });
-                    setIsInterested(res == 'Interested' ? true : false);
+                    // setIsInterested(res == 'Interested' ? true : false);
+                    setNewestEventList(
+                        [...newestEventList].map((event) => {
+                            if (event.id === item.id) {
+                                return item;
+                            } else {
+                                return event;
+                            }
+                        }),
+                    );
                 } else {
                     onShowResult({
                         type: 'error',
@@ -238,18 +225,6 @@ const EventDetail = ({ id }) => {
                 });
             });
     };
-
-    const renderInterestedIcon = () => {
-        if (isInterested) {
-            return (
-                <FavoriteIcon className={styles.content_action_icon_favor} onClick={() => onEventFavoriteClick()} />
-            )
-        } else {
-            return (
-                <FavoriteBorderIcon className={styles.content_action_icon_favor} onClick={() => onEventFavoriteClick()} />
-            )
-        }
-    }
 
     const onGetParticipants = ({ total }) => {
         const { contract } = wallet;
@@ -420,10 +395,6 @@ const EventDetail = ({ id }) => {
         router.push(`/event/publish-event?id=${eventId}`);
     };
 
-    const onEventClick = (item) => {
-        router.push(`/event/event-detail?id=${item.id}`)
-    };
-
     const onUnpublishEventClick = () => {
         const { contract } = wallet;
 
@@ -502,6 +473,121 @@ const EventDetail = ({ id }) => {
             type: 'success',
             msg: 'copied',
         });
+    };
+
+    useEffect(() => {
+        if (newestEventList !== []) {
+            retrieveImagesCover(newestEventList);
+        }
+    }, [newestEventList]);
+
+    useEffect(() => {
+        if (JSON.stringify(newestEventList) !== '[]' && !isInterestedLoad) {
+            onGetMaxInterestedRows();
+            setIsInterestedLoad(true);
+        }
+    }, [newestEventList]);
+
+
+    const onGetMaxInterestedRows = () => {
+        const { contract, walletConnection } = wallet;
+        const userId = walletConnection.getAccountId();
+        contract
+            ?.get_interested_event_count?.({
+                userId: userId,
+            })
+            .then((total) => {
+                onGetInterestedRows({ total });
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+
+    const onGetInterestedRows = async ({ total }) => {
+        const { contract, walletConnection } = wallet;
+        const num_page = total % 5 === 0 ? total / 5 : parseInt(total / 5) + 1;
+        const page_arr = new Array(num_page).fill(0);
+        const userId = walletConnection.getAccountId();
+        const current_timestamp = Date.now();
+        await Promise.all(
+            page_arr.map(async (page, index) => {
+                await contract
+                    .get_interested_events({
+                        userId,
+                        page: index + 1,
+                    })
+                    .then((data) => {
+                        if (data) {
+                            let listId = [];
+                            data.data.map((event) => {
+                                listId.push(event.id);
+                            });
+                            setInterestList(listId);
+                        }
+                    });
+            }),
+        );
+    };
+
+    const retrieveImagesCover = async (list_event) => {
+        await Promise.all(
+            list_event.map(async (event) => {
+                return new Promise(async (resolve, reject) => {
+                    if (!event.cover_image || event.cover_image == '') {
+                        resolve(event);
+                    }
+                    const client = new Web3Storage({ token: process.env.NEXT_PUBLIC_w3key });
+                    const res = await client.get(event.cover_image);
+                    if (res.ok) {
+                        const files = await res.files();
+                        for (const file of files) {
+                            let reader = new FileReader();
+                            reader.readAsDataURL(file);
+                            reader.onload = (e) => {
+                                event.img = e.target.result;
+                                resolve(event);
+                            };
+                        }
+                    } else {
+                        resolve(event);
+                    }
+                });
+            }),
+        );
+    };
+
+    const renderInterestedIcon = (item) => {
+        if (item.isInterested) {
+            return <FavoriteIcon className={styles.event_item_icon_favor} onClick={() => onEventFavoriteClick(item)} />;
+        } else {
+            return <FavoriteBorderIcon className={styles.event_item_icon_favor} onClick={() => onEventFavoriteClick(item)} />;
+        }
+    };
+
+    const renderEventItem = (item) => {
+        return (
+            <div className={styles.event_item} key={item.id}>
+                <div className={styles.event_item_header}>
+                    <div className={styles.event_item_type}>{item.type}</div>
+                    {/* <img src={'/calendar.svg'} className={styles.event_item_img} alt="img" onClick={() => router.push(`/event/event-detail?id=${item.id}`)} /> */}
+                    <img src={item.img} className={styles.event_item_img} alt="img" onClick={() => router.push(`/event/event-detail?id=${item.id}`)} />
+                </div>
+                <div className={styles.event_item_info}>
+                    <div className={styles.event_item_date}>{item.date}</div>
+                    <div className={styles.event_item_name} onClick={() => router.push(`/event/event-detail?id=${item.id}`)}>
+                        {item.name}
+                    </div>
+                    <div className={styles.event_item_footer}>
+                        <div className={styles.event_item_attendees}>{item.attendees} attendees</div>
+                        <ShareOutlinedIcon className={styles.event_item_icon} onClick={() => {
+                            onGetSharedLink(item.id)
+                        }} />
+                        {renderInterestedIcon(item)}
+                    </div>
+                </div>
+            </div>
+        );
     };
 
     return (
@@ -604,26 +690,17 @@ const EventDetail = ({ id }) => {
                                 )}
                             </>
                         )}
-                        {/* {event?.status !== 0 && (
+                        {event?.status !== 0 && (
                             <>
                                 <div className={styles.content_detail_row_space}>
                                     <div className={styles.content_detail_label}>Similar Events</div>
                                     <div className={styles.content_detail_see_all}>See all</div>
                                 </div>
                                 <div className={styles.content_detail_list}>
-                                    {newestEventList.map((item, index) => {
-                                        return (
-                                            <div className={styles.content_detail_list_item} key={index}>
-                                                <div className={styles.content_detail_list_name}>
-                                                    <div className={styles.content_detail_list_name_text}>{item.name}</div>
-                                                </div>
-                                                <button className={styles.content_detail_list_attend}>Attend</button>
-                                            </div>
-                                        );
-                                    })}
+                                    {newestEventList.map((item) => renderEventItem(item))}
                                 </div>
                             </>
-                        )} */}
+                        )}
                     </div>
                 </div>
                 <div className={styles.footer}>
@@ -638,7 +715,7 @@ const EventDetail = ({ id }) => {
                                 <div className={styles.content_action}>
                                     <ShareOutlinedIcon className={styles.content_action_icon} onClick={onShareClick} />
                                     {/* <FavoriteBorderIcon className={styles.content_action_icon_favor} /> */}
-                                    {renderInterestedIcon()}
+                                    {renderInterestedIcon(isInterested)}
                                 </div>
                                 <button className={styles.content_button_attend} onClick={onAttendClick}>
                                     {isRegistered ? 'Un-Register' : 'Register'}

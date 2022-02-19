@@ -9,7 +9,8 @@ const PreviewEvent = (event_info) => {
         { id: '2', wallet: 'alice.near' },
     ]);
     const [start_date, setStartingDate] = useState('');
-    const [start_time, setStartingTime] = useState('');
+    // const [start_time, setStartingTime] = useState('');
+    const [end_date, setEndDate] = useState('');
     const [event_link, setEventLink] = useState('');
     const [event_name, setEventName] = useState('');
     const [event_descriptions, setEventDescription] = useState([
@@ -46,9 +47,14 @@ const PreviewEvent = (event_info) => {
         setEventLink(temp_event.link);
         setEventDescription(temp_event.descriptions);
         setEventType(temp_event.type);
-        setStartingDate(start_date_str);
-        setStartingTime(start_time_str);
+        setStartingDate(temp_event.start_date);
+        setEndDate(temp_event.end_date);
+        // setStartingTime(start_time_str);
     }, []);
+
+    const exportStartDate = (date) => {
+        return new Date(parseFloat(date)).toLocaleString();
+    };
 
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     return (
@@ -74,9 +80,12 @@ const PreviewEvent = (event_info) => {
                             <div className={styles.content_detail_info_row}>
                                 <AccessAlarmOutlinedIcon className={styles.content_detail_info_icon} />
                                 <div className={styles.content_detail_info_column}>
-                                    <div className={styles.content_detail_info_date}>{start_date}</div>
-                                    <div className={styles.content_detail_info_date}>{start_time}</div>
-                                    <div className={styles.content_detail_info_add}>Add to calendar</div>
+                                    {/* <div className={styles.content_detail_info_date}>{start_date}</div>
+                                    <div className={styles.content_detail_info_date}>{start_time}</div> */}
+                                    <div className={styles.content_detail_info_date}>{exportStartDate(start_date)}</div>
+                                    <div className={styles.content_detail_info_date}>to</div>
+                                    <div className={styles.content_detail_info_date}>{exportStartDate(end_date)}</div>
+                                    {/* <div className={styles.content_detail_info_add}>Add to calendar</div> */}
                                 </div>
                             </div>
                             <div className={styles.content_detail_info_row}>

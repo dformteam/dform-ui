@@ -18,6 +18,7 @@ const MyEvent = () => {
     const [upcomingEventList, setUpcomingEventList] = useState([]);
 
     const [interestedEventList, setInterestedEventList] = useState([]);
+    const [displayInterestedEventList, setDisplayInterestedEventList] = useState([]);
 
     const [hostingEventList, setHostingEventList] = useState([]);
     const [upcomingHostingEventList, setUpcomingHostingEventList] = useState([]);
@@ -27,6 +28,7 @@ const MyEvent = () => {
     const [alertType, setAlertType] = useState('success');
     const [snackMsg, setSnackMsg] = useState('');
     const [attendingState, setAttendingState] = useState(true);
+    const [pastState, setPastState] = useState(false);
     // eslint-disable-next-line no-unused-vars
     const [savedState, setSavedState] = useState(true);
     const [hostingState, setHostingState] = useState(true);
@@ -36,29 +38,38 @@ const MyEvent = () => {
     const wallet = useSelector((state) => state.wallet);
     const router = useRouter();
 
-    const aEvents = useRef([]);
-
-    const pastEvents = [];
-    const upcomingEvents = [];
-    // const upcomingInterestedEvents = [];
-    const hostingEvents = [];
-
     useLayoutEffect(() => {
         onGetMaxRows();
     }, []);
 
     useEffect(() => {
-        if (interestedEventList !== []) {
+        if (JSON.stringify(interestedEventList) !== '[]') {
             interestedEventList.map((item) => {
-                setEventList(
-                    [...eventList].map((event) => {
-                        if (event.id === item) {
-                            event.isInterested = true;
-                        }
-                        return event;
-                    }),
-                );
-                return item;
+                if (item !== {}) {
+                    setEventList(
+                        [...eventList].map((event) => {
+                            if (event.id == item?.id) {
+                                event.isInterested = true;
+                                displayInterestedEventList.splice(displayInterestedEventList.indexOf(item), 1)
+                                setDisplayInterestedEventList(displayInterestedEventList);
+                            }
+                            return event;
+                        }),
+                    );
+
+                    setPastEventList(
+                        [...pastEventList].map((event) => {
+                            if (event.id == item?.id) {
+                                event.isInterested = true;
+                                displayInterestedEventList.splice(displayInterestedEventList.indexOf(item), 1)
+                                setDisplayInterestedEventList(displayInterestedEventList);
+                            }
+                            return event;
+                        }),
+                    );
+
+                    return item;
+                }
             });
         }
     }, [interestedEventList]);
@@ -78,8 +89,8 @@ const MyEvent = () => {
         setSnackMsg(msg);
     };
 
-    const retrieveImagesCover = async (event, index) => {
-        if (event.cover_image !== '') {
+    const retrieveImagesCover = async (event, index, type) => {
+        if (event && event.cover_image && event.cover_image !== '' && event.img === '/calendar.svg') {
             const client = new Web3Storage({ token: process.env.NEXT_PUBLIC_w3key });
             const res = await client.get(event.cover_image);
             if (res.ok) {
@@ -88,8 +99,27 @@ const MyEvent = () => {
                     let reader = new FileReader();
                     reader.onload = (e) => {
                         event.img = e.target.result;
-                        eventList[index] = { ...event };
-                        setEventList([...eventList]);
+                        switch (type) {
+                            case eventItemType.ATTENDING:
+                                eventList[index] = { ...event };
+                                setEventList([...eventList]);
+                                break;
+                            case eventItemType.HOSTING:
+                                hostingEventList[index] = { ...event };
+                                setHostingEventList([...hostingEventList]);
+                                break;
+                            case eventItemType.PAST:
+                                pastEventList[index] = { ...event };
+                                setPastEventList([...pastEventList]);
+                                break;
+                            case eventItemType.SAVE:
+                                displayInterestedEventList[index] = { ...event };
+                                setDisplayInterestedEventList([...displayInterestedEventList]);
+                                break;
+                            default:
+                                break;
+                        }
+
                     };
                     reader.readAsDataURL(file);
                 }
@@ -155,26 +185,16 @@ const MyEvent = () => {
                             let ls_itr_event = [];
                             ls_itr_event.push({});
                             data.data.map((event) => {
-                                // let eventInfo = generateEvent(event);
-                                ls_itr_event.push(event.id);
-                                return event;
-                                // upcomingInterestedEvents.push(eventInfo);
-                                // if (current_timestamp >= event.end_date) {
-                                //     pastInterestedEvents.push(eventInfo);
-                                // } else {
-                                //     upcomingInterestedEvents.push(eventInfo);
-                                // }
+                                let eventInfo = generateEvent(event);
+                                eventInfo.isInterested = true;
+                                ls_itr_event.push(eventInfo);
+                                // return event;
                             });
-                            // upcomingInterestedEvents.sort(function (a, b) {
-                            //     return b.date_timestamp - a.date_timestamp;
-                            // });
-                            // pastInterestedEvents.sort(function (a, b) {
-                            //     return b.date_timestamp - a.date_timestamp;
-                            // });
-                            // setUpcomingEventList(upcomingInterestedEvents);
-                            // setPastEventList(pastInterestedEvents);
-                            // setUpcomingInterestedEventList(iEvents);
-                            setInterestedEventList(ls_itr_event);
+                            ls_itr_event.sort(function (a, b) {
+                                return b.date_timestamp - a.date_timestamp;
+                            });
+                            setInterestedEventList([...ls_itr_event]);
+                            setDisplayInterestedEventList([...ls_itr_event]);
                         }
                     });
             }),
@@ -227,35 +247,34 @@ const MyEvent = () => {
                         }
                     })
                     .then((value) => {
+                        let tmpHosting = [];
+                        let tmpUpcoming = [];
+                        let tmpPast = [];
                         value.map((event) => {
                             let eventInfo = generateEvent(event);
-                            aEvents.current.push(eventInfo);
-                            if (current_timestamp >= event.end_date) {
-                                pastEvents.push(eventInfo);
-                            } else {
-                                upcomingEvents.push(eventInfo);
+                            if (current_timestamp >= parseFloat(event.end_date)) {
+                                tmpPast.push(eventInfo);
+                            } else if (event.owner == userId) {
+                                tmpHosting.push(eventInfo);
                             }
-                            if (event.owner === userId) {
-                                hostingEvents.push(eventInfo);
+                            else {
+                                tmpUpcoming.push(eventInfo);
                             }
-                            return event;
-                        });
 
-                        upcomingEvents.sort((a, b) => {
+                        });
+                        tmpUpcoming.sort((a, b) => {
                             return b.date_timestamp - a.date_timestamp;
                         });
-                        pastEvents.sort((a, b) => {
+                        tmpPast.sort((a, b) => {
                             return b.date_timestamp - a.date_timestamp;
                         });
-                        hostingEvents.sort((a, b) => {
+                        tmpHosting.sort((a, b) => {
                             return b.date_timestamp - a.date_timestamp;
                         });
-
-                        setUpcomingHostingEventList(hostingEvents);
-                        setHostingEventList([...hostingEvents]);
-                        setUpcomingEventList(upcomingEvents);
-                        setPastEventList(pastEvents);
-                        setEventList([...upcomingEvents]);
+                        setHostingEventList([...tmpHosting]);
+                        setEventList([...tmpUpcoming]);
+                        setPastEventList([...tmpPast]);
+                        setInterestedEventList(interestedEventList => [...interestedEventList, {}]);
                     })
                     .catch((err) => {
                         console.log(err);
@@ -276,7 +295,15 @@ const MyEvent = () => {
     };
 
     const onEventFavoriteClick = (item) => {
-        const { contract } = wallet;
+        const { contract, walletConnection } = wallet;
+        const userId = walletConnection.getAccountId();
+        if (userId == item.owner) {
+            onShowResult({
+                type: 'error',
+                msg: 'You are the owner of this event',
+            });
+            return;
+        }
         setOpenLoading(true);
         contract
             ?.interest_event(
@@ -301,13 +328,13 @@ const MyEvent = () => {
                             }
                         }),
                     );
-                    // setHostingEventList([...hostingEventList].map((event) => {
-                    //     if (event.id === item.id) {
-                    //         return item;
-                    //     } else {
-                    //         return event;
-                    //     }
-                    // }));
+                    setHostingEventList([...hostingEventList].map((event) => {
+                        if (event.id === item.id) {
+                            return item;
+                        } else {
+                            return event;
+                        }
+                    }));
                 } else {
                     onShowResult({
                         type: 'error',
@@ -325,44 +352,33 @@ const MyEvent = () => {
 
     const onUpcomingTabClick = () => {
         setActiveTab('upcoming');
-        setEventList([...upcomingEventList]);
-        // setInterestedEventList([...upcomingInterestedEventList]);
-        setHostingEventList([...upcomingHostingEventList]);
-        setAttendingState(true);
+        setPastState(false);
         setSavedState(true);
+        setAttendingState(true);
         setHostingState(true);
     };
 
     const onPastTabClick = () => {
         setActiveTab('past');
-        setAttendingState(true);
-        setEventList([...pastEventList]);
-        // setInterestedEventList([]);
-        setHostingEventList([]);
-        setSavedState(false);
+        setPastState(true);
+        setAttendingState(false);
         setHostingState(false);
-        // setInterestedEventList([...pastInterestedEvents]);
+        setSavedState(false);
     };
 
     const handleAttendingCBChange = (e) => {
         let isChecked = e.target.checked;
         setAttendingState(isChecked);
-        if (isChecked) {
-            setEventList([...upcomingEventList]);
-        } else {
-            setEventList([]);
-        }
     };
 
-    // handleHostingCBChange
+    const handleSavedCBChange = (e) => {
+        let isChecked = e.target.checked;
+        setSavedState(isChecked);
+    }
+
     const handleHostingCBChange = (e) => {
         let isChecked = e.target.checked;
         setHostingState(isChecked);
-        if (isChecked) {
-            setHostingEventList([...upcomingHostingEventList]);
-        } else {
-            setHostingEventList([]);
-        }
     };
 
     const onCloseModalShare = () => {
@@ -416,7 +432,7 @@ const MyEvent = () => {
                                         Attending
                                     </label>
                                 </div>
-                                {/* <div className={styles.left_menu_row}>
+                                <div className={styles.left_menu_row}>
                                     <input
                                         type="checkbox"
                                         id="saved"
@@ -428,7 +444,7 @@ const MyEvent = () => {
                                     <label htmlFor="saved" className={styles.left_menu_label}>
                                         Saved
                                     </label>
-                                </div> */}
+                                </div>
                                 <div className={styles.left_menu_row}>
                                     <input
                                         type="checkbox"
@@ -444,7 +460,7 @@ const MyEvent = () => {
                                 </div>
                             </>
                         ) : (
-                            <div className={styles.left_menu_content_text}>You're attend {pastEvents.length} events in the past</div>
+                            <div className={styles.left_menu_content_text}>You're attend {pastEventList.length} events in the past</div>
                         )}
                         <div className={styles.left_menu_content_link} onClick={() => router.push('/event/calendar')}>
                             Go to calendar
@@ -459,19 +475,62 @@ const MyEvent = () => {
                     <div className={styles.line} />
                     <div className={styles.content_event} style={{ visibility: !attendingState ? 'hidden' : 'visible' }}>
                         {eventList?.map?.((item, index) => {
-                            retrieveImagesCover(item, index);
-                            return <EventItem item={item} activeTab={activeTab} renderInterestedIcon={renderInterestedIcon} key={item.id} />;
+                            if (item && item.id) {
+                                retrieveImagesCover(item, index, eventItemType.ATTENDING);
+                                return <EventItem
+                                    item={item}
+                                    label="Attending"
+                                    activeTab={activeTab}
+                                    onGetSharedLink={onGetSharedLink}
+                                    onEventItemClick={onEventItemClick}
+                                    renderInterestedIcon={renderInterestedIcon}
+                                    key={item.id} />;
+                            }
+                        })}
+                    </div>
+                    <div className={styles.content_event} style={{ visibility: !pastState ? 'hidden' : 'visible' }}>
+                        {pastEventList?.map?.((item, index) => {
+                            if (item && item.id) {
+                                retrieveImagesCover(item, index, eventItemType.PAST);
+                                return <EventItem
+                                    item={item}
+                                    label="Attented"
+                                    activeTab={activeTab}
+                                    onGetSharedLink={onGetSharedLink}
+                                    onEventItemClick={onEventItemClick}
+                                    renderInterestedIcon={renderInterestedIcon}
+                                    key={item.id} />;
+                            }
                         })}
                     </div>
                     <div className={styles.content_event} style={{ visibility: !savedState ? 'hidden' : 'visible' }}>
-                        {interestedEventList?.map?.((item) => {
-                            return <EventItem item={item} activeTab={activeTab} renderInterestedIcon={renderInterestedIcon} key={item.id} />;
+                        {displayInterestedEventList?.map?.((item, index) => {
+                            if (item && item.id) {
+                                retrieveImagesCover(item, index);
+                                return <EventItem
+                                    item={item}
+                                    label="Saved"
+                                    activeTab={activeTab}
+                                    onGetSharedLink={onGetSharedLink}
+                                    onEventItemClick={onEventItemClick}
+                                    renderInterestedIcon={renderInterestedIcon}
+                                    key={item.id} />;
+                            }
                         })}
                     </div>
                     <div className={styles.content_event} style={{ visibility: !hostingState ? 'hidden' : 'visible' }}>
                         {hostingEventList?.map?.((item, index) => {
-                            retrieveImagesCover(item, index);
-                            return <EventItem item={item} activeTab={activeTab} renderInterestedIcon={renderInterestedIcon} key={item.id} />;
+                            if (item && item.id) {
+                                retrieveImagesCover(item, index, eventItemType.HOSTING);
+                                return <EventItem
+                                    item={item}
+                                    label="Hosting"
+                                    activeTab={activeTab}
+                                    onGetSharedLink={onGetSharedLink}
+                                    onEventItemClick={onEventItemClick}
+                                    renderInterestedIcon={() => { }}
+                                    key={item.id} />;
+                            }
                         })}
                     </div>
                 </div>
@@ -483,26 +542,36 @@ const MyEvent = () => {
 };
 
 const EventItem = (props) => {
-    const { item, activeTab } = props;
+    const { item, activeTab, label } = props;
+    const router = useRouter();
+
     return (
         <div className={styles.content_event_item}>
             <img src={item.img} className={styles.content_event_item_img} alt="img" />
-            <div className={styles.content_event_item_info} onClick={() => onEventItemClick(item.id)}>
+            <div className={styles.content_event_item_info} onClick={() => props.onEventItemClick(item.id)}>
                 <div className={styles.content_event_item_date}>{item.date}</div>
                 <div className={styles.content_event_item_name}>{item.name}</div>
                 <div className={styles.content_event_item_attendees}>{item.attendees} attendees</div>
                 <div className={styles.content_event_item_attending}>
                     <CheckCircleOutlineOutlinedIcon />
-                    {activeTab == 'past' ? 'Attended' : 'Attending'}
+                    {/* {activeTab == 'past' ? 'Attended' : 'Attending'} */}
+                    {label}
                 </div>
             </div>
             <div className={styles.content_event_item_share}>
-                <ShareOutlinedIcon className={styles.content_event_item_icon} onClick={() => onGetSharedLink(item.id)} />
+                <ShareOutlinedIcon className={styles.content_event_item_icon} onClick={() => props.onGetSharedLink(item.id)} />
                 {/* <FavoriteBorderIcon className={styles.content_event_item_icon_favor} onClick={() => onEventFavoriteClick(item.id)} /> */}
                 {props.renderInterestedIcon(item)}
             </div>
         </div>
     );
 };
+
+const eventItemType = {
+    ATTENDING: 0,
+    SAVE: 1,
+    HOSTING: 2,
+    PAST: 3
+}
 
 export default MyEvent;

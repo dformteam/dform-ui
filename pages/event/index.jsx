@@ -183,6 +183,7 @@ const Event = () => {
         }
         let eventInfo = {
             id: event.id,
+            owner: event.owner,
             name: event.name,
             type: event_type,
             date: onExportDateTime(event.start_date),
@@ -224,7 +225,15 @@ const Event = () => {
     };
 
     const onEventFavoriteClick = (item) => {
-        const { contract } = wallet;
+        const { contract, walletConnection } = wallet;
+        const userId = walletConnection.getAccountId();
+        if (userId == item.owner) {
+            onShowResult({
+                type: 'error',
+                msg: 'You are the owner of this event',
+            });
+            return;
+        }
         setOpenLoading(true);
         contract
             ?.interest_event(
