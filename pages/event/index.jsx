@@ -185,6 +185,7 @@ const Event = () => {
             name: event.name,
             type: event_type,
             date: onExportDateTime(event.start_date),
+            date_timestamp: event.start_date,
             attendees: event.participants.length,
             cover_image: event.cover_image,
             img: '/calendar.svg',
@@ -204,6 +205,9 @@ const Event = () => {
                     await newest_events.data.map(async (event) => {
                         let eventInfo = generateEvent(event);
                         newestEvents.push(eventInfo);
+                    });
+                    newestEvents.sort(function (a, b) {
+                        return b.date_timestamp - a.date_timestamp;
                     });
                     if (isMounted) {
                         setNewestEventList([...newestEvents]);
@@ -382,7 +386,9 @@ const Event = () => {
                     </div>
                     <div className={styles.event_item_footer}>
                         <div className={styles.event_item_attendees}>{item.attendees} attendees</div>
-                        <ShareOutlinedIcon className={styles.event_item_icon} onClick={onGetSharedLink} />
+                        <ShareOutlinedIcon className={styles.event_item_icon} onClick={() => {
+                            onGetSharedLink(item.id)
+                        }} />
                         {renderInterestedIcon(item)}
                     </div>
                 </div>

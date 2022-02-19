@@ -5,6 +5,7 @@ import AccessAlarmOutlinedIcon from '@mui/icons-material/AccessAlarmOutlined';
 import AttachFileOutlinedIcon from '@mui/icons-material/AttachFileOutlined';
 import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import PublishIcon from '@mui/icons-material/Publish';
 import UnpublishedOutlinedIcon from '@mui/icons-material/UnpublishedOutlined';
 import { useSelector } from 'react-redux';
@@ -27,6 +28,7 @@ const EventDetail = ({ id }) => {
     const [attendees, setAttendence] = useState([]);
     const [coverImage, setCoverImage] = useState(null);
     const [isRegistered, setIsRegistered] = useState(false);
+    const [isInterested, setIsInterested] = useState(false);
     const [openLoading, setOpenLoading] = useState(false);
     const [openSnack, setOpenSnack] = useState(false);
     const [alertType, setAlertType] = useState('success');
@@ -88,6 +90,52 @@ const EventDetail = ({ id }) => {
             return 'unknow';
         }
     };
+
+
+    const onGetMaxInterestedRows = () => {
+        const { contract, walletConnection } = wallet;
+        const userId = walletConnection.getAccountId();
+        contract
+            ?.get_interested_event_count?.({
+                userId: userId,
+            })
+            .then((total) => {
+                onGetInterestedRows({ total });
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+
+    const onGetInterestedRows = async ({ total }) => {
+        const { contract, walletConnection } = wallet;
+        const num_page = total % 5 === 0 ? total / 5 : parseInt(total / 5) + 1;
+        const page_arr = new Array(num_page).fill(0);
+        const userId = walletConnection.getAccountId();
+        await Promise.all(
+            page_arr.map(async (page, index) => {
+                await contract
+                    .get_interested_events({
+                        userId,
+                        page: index + 1,
+                    })
+                    .then((data) => {
+                        if (data) {
+                            data.data.map((item) => {
+                                if (item.id === id) {
+                                    setIsInterested(true);
+                                }
+                                return;
+                            });
+                        }
+                    });
+            }),
+        );
+    };
+
+    useEffect(() => {
+        onGetMaxInterestedRows();
+    }, []);
 
     useEffect(() => {
         onGetNewestEvents();
@@ -159,6 +207,50 @@ const EventDetail = ({ id }) => {
             });
     };
 
+    const onEventFavoriteClick = () => {
+        const { contract } = wallet;
+        setOpenLoading(true);
+        contract
+            ?.interest_event(
+                {
+                    eventId: event.id,
+                },
+                50000000000000,
+            )
+            .then((res) => {
+                if (res) {
+                    onShowResult({
+                        type: 'success',
+                        msg: res,
+                    });
+                    setIsInterested(res == 'Interested' ? true : false);
+                } else {
+                    onShowResult({
+                        type: 'error',
+                        msg: 'Error when interested',
+                    });
+                }
+            })
+            .catch((err) => {
+                onShowResult({
+                    type: 'error',
+                    msg: String(err),
+                });
+            });
+    };
+
+    const renderInterestedIcon = () => {
+        if (isInterested) {
+            return (
+                <FavoriteIcon className={styles.content_action_icon_favor} onClick={() => onEventFavoriteClick()} />
+            )
+        } else {
+            return (
+                <FavoriteBorderIcon className={styles.content_action_icon_favor} onClick={() => onEventFavoriteClick()} />
+            )
+        }
+    }
+
     const onGetParticipants = ({ total }) => {
         const { contract } = wallet;
         const num_page = total % 5 === 0 ? total / 5 : parseInt(total / 5) + 1;
@@ -202,6 +294,13 @@ const EventDetail = ({ id }) => {
 
     const onAttendClick = () => {
         const { contract } = wallet;
+        if (event.end_date <= Date.now()) {
+            onShowResult({
+                type: 'error',
+                msg: 'This Event has ended!',
+            });
+            return;
+        }
         setOpenLoading(true);
         if (isRegistered) {
             contract
@@ -332,6 +431,11 @@ const EventDetail = ({ id }) => {
             })
             .then((res) => {
                 if (res) {
+                    let state = {
+                        status: 0,
+                        owner: userId
+                    };
+                    setEvent({ ...state });
                     onShowResult({
                         type: 'success',
                         msg: 'Event has been unpublished',
@@ -528,8 +632,9 @@ const EventDetail = ({ id }) => {
                         {event?.status !== 0 && event?.owner !== userId && (
                             <>
                                 <div className={styles.content_action}>
-                                    <ShareOutlinedIcon className={styles.content_action_icon} />
-                                    <FavoriteBorderIcon className={styles.content_action_icon_favor} />
+                                    <ShareOutlinedIcon className={styles.content_action_icon} onClick={onShareClick} />
+                                    {/* <FavoriteBorderIcon className={styles.content_action_icon_favor} /> */}
+                                    {renderInterestedIcon()}
                                 </div>
                                 <button className={styles.content_button_attend} onClick={onAttendClick}>
                                     {isRegistered ? 'Un-Register' : 'Register'}

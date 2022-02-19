@@ -482,7 +482,7 @@ const MyEvent = () => {
                             );
                         })}
                     </div>
-                    {/* <div className={styles.content_event} style={{ visibility: !savedState ? 'hidden' : 'visible' }}>
+                    <div className={styles.content_event} style={{ visibility: !savedState ? 'hidden' : 'visible' }}>
                         {interestedEventList?.map?.((item) => {
                             return (
                                 <div className={styles.content_event_item} key={item.id}>
@@ -503,7 +503,7 @@ const MyEvent = () => {
                                 </div>
                             );
                         })}
-                    </div> */}
+                    </div>
                     <div className={styles.content_event} style={{ visibility: !hostingState ? 'hidden' : 'visible' }}>
                         {hostingEventList?.map?.((item, index) => {
                             retrieveImagesCover(item, index);

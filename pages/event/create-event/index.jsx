@@ -37,11 +37,10 @@ const CreateEvent = () => {
     };
 
     useEffect(() => {
-        console.log("router.query => ", router.query);
-        if(router.query.transactionHashes) {
+        if (router.query.transactionHashes ) {
             router.push(`/event/event-detail?id=created`);
         }
-    }, []);
+    }, [router.query]);
 
     const onShowResult = ({ type, msg }) => {
         setOpenSnack(true);
