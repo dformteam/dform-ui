@@ -156,12 +156,13 @@
 }
 
 .event_item_img {
-    width: 80px;
+    width: 120px;
     height: 80px;
-    flex: 1;
     margin: 10px auto;
     border-radius: 8px;
     background: #cae6f7;
+    box-shadow: var(--color-boxshadow);
+    object-fit: cover;
 }
 
 .event_item_info {
@@ -315,4 +316,10 @@
     width: 100%;
     height: 1px;
     background: linear-gradient(to right, transparent, var(--color-border), transparent);
+}
+
+.attend_event_nothing {
+    margin: 20px 0 30px;
+    color: var(--color-secondary);
+    font-style: italic;
 }

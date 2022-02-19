@@ -9,7 +9,7 @@ const Confirmation = ({ label = {}, onAccept, onCancel }) => {
     };
 
     return (
-        <Dialog open={true} aria-labelledby="draggable-dialog-title" classes={'dialog'}>
+        <Dialog open={true} aria-labelledby="draggable-dialog-title">
             <div className={styles.root}>
                 <div className={styles.root_title}>{label.title}</div>
                 <div className={styles.root_content}>

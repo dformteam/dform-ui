@@ -8,7 +8,7 @@
 
 .publish_content {
     width: 100%;
-    max-width: 850px;
+    max-width: 900px;
     min-width: 400px;
     height: max-content;
     display: flex;
@@ -350,6 +350,7 @@
     border-radius: 8px;
     border: 1px solid var(--color-border);
     padding: 0 10px;
+    min-width: 250px;
 }
 
 .publish_row_input {
