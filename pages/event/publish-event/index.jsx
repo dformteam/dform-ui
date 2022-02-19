@@ -111,7 +111,7 @@ const Publish = ({ id }) => {
                     }
 
                     if (res.status !== 0) {
-                        content = 'Form has been published before!';
+                        content = 'Event has been published before!';
                     }
 
                     if (content !== '') {
@@ -277,7 +277,7 @@ const Publish = ({ id }) => {
                     setSharedLink(`${origin}/event/event-detail?id=${id}`);
                     onShowResult({
                         type: 'success',
-                        msg: 'Form has been published',
+                        msg: 'Event has been published',
                     });
                 } else {
                     onShowResult({

@@ -49,12 +49,11 @@ const Event = () => {
     const newestEvents = [];
 
     useEffect(() => {
-        if ((JSON.stringify(newestEventList) !== '[]') && (!isInterestedLoad)) {
+        if (JSON.stringify(newestEventList) !== '[]' && !isInterestedLoad) {
             onGetMaxInterestedRows();
             setIsInterestedLoad(true);
         }
     }, [newestEventList]);
-
 
     useLayoutEffect(() => {
         onGetMaxRows();
@@ -92,13 +91,15 @@ const Event = () => {
     useEffect(() => {
         if (interestList !== []) {
             interestList.map((item) => {
-                setNewestEventList([...newestEventList].map((event) => {
-                    if (event.id === item) {
-                        event.isInterested = true;
-                    }
-                    return event;
-                }));
-            })
+                setNewestEventList(
+                    [...newestEventList].map((event) => {
+                        if (event.id === item) {
+                            event.isInterested = true;
+                        }
+                        return event;
+                    }),
+                );
+            });
         }
     }, [interestList]);
 
@@ -106,7 +107,7 @@ const Event = () => {
         await Promise.all(
             list_event.map(async (event) => {
                 return new Promise(async (resolve, reject) => {
-                    if (!event.cover_image || (event.cover_image == '')) {
+                    if (!event.cover_image || event.cover_image == '') {
                         resolve(event);
                     }
                     const client = new Web3Storage({ token: process.env.NEXT_PUBLIC_w3key });
@@ -124,10 +125,10 @@ const Event = () => {
                     } else {
                         resolve(event);
                     }
-                })
+                });
             }),
-        )
-    }
+        );
+    };
 
     const onGetMaxInterestedRows = () => {
         const { contract, walletConnection } = wallet;
@@ -189,10 +190,10 @@ const Event = () => {
             attendees: event.participants.length,
             cover_image: event.cover_image,
             img: '/calendar.svg',
-            isInterested: false
+            isInterested: false,
         };
         return eventInfo;
-    }
+    };
 
     const onGetNewestEvents = () => {
         let isMounted = true;
@@ -238,14 +239,16 @@ const Event = () => {
                         type: 'success',
                         msg: res,
                     });
-                    item.isInterested = (res == 'Interested' ? true : false);
-                    setNewestEventList([...newestEventList].map((event) => {
-                        if (event.id === item.id) {
-                            return item;
-                        } else {
-                            return event;
-                        }
-                    }));
+                    item.isInterested = res == 'Interested' ? true : false;
+                    setNewestEventList(
+                        [...newestEventList].map((event) => {
+                            if (event.id === item.id) {
+                                return item;
+                            } else {
+                                return event;
+                            }
+                        }),
+                    );
                 } else {
                     onShowResult({
                         type: 'error',
@@ -342,8 +345,8 @@ const Event = () => {
                                     date: onExportDateTime(event.start_date),
                                     attendees: event.participants.length,
                                     cover_image: event.cover_image,
-                                    img: '/calendar.svg'
-                                }
+                                    img: '/calendar.svg',
+                                };
                             });
                             setNextEvent(current_event);
                             if (eventList.length < 9) {
@@ -361,15 +364,11 @@ const Event = () => {
 
     const renderInterestedIcon = (item) => {
         if (item.isInterested) {
-            return (
-                <FavoriteIcon className={styles.event_item_icon_favor} onClick={() => onEventFavoriteClick(item)} />
-            )
+            return <FavoriteIcon className={styles.event_item_icon_favor} onClick={() => onEventFavoriteClick(item)} />;
         } else {
-            return (
-                <FavoriteBorderIcon className={styles.event_item_icon_favor} onClick={() => onEventFavoriteClick(item)} />
-            )
+            return <FavoriteBorderIcon className={styles.event_item_icon_favor} onClick={() => onEventFavoriteClick(item)} />;
         }
-    }
+    };
 
     const renderEventItem = (item) => {
         return (
@@ -432,14 +431,14 @@ const Event = () => {
                 <button className={styles.button_create} onClick={onCreateEvent}>
                     Create Event
                 </button>
-                <div style={{ visibility: nextEvent.id == null ? 'hidden' : 'visible' }}>
-                    <div className={styles.label}>
-                        <div className={styles.label_title}>Your next event</div>
-                        <div className={styles.label_text} onClick={() => router.push('/event/my-event')}>
-                            More events you're attending <ChevronRightOutlinedIcon className={styles.icon_collapse} />
-                        </div>
+                <div className={styles.label}>
+                    <div className={styles.label_title}>Your next event</div>
+                    <div className={styles.label_text} onClick={() => router.push('/event/my-event')}>
+                        More events you're attending <ChevronRightOutlinedIcon className={styles.icon_collapse} />
                     </div>
-                    <div className={styles.line} />
+                </div>
+                <div className={styles.line} />
+                {nextEvent.id && nextEvent.id !== null ? (
                     <div className={styles.attend_event}>
                         <div className={styles.attend_item_header}>
                             <div className={styles.attend_item_type}>{'Online'}</div>
@@ -459,7 +458,9 @@ const Event = () => {
                             <ShareOutlinedIcon className={styles.attend_item_icon} onClick={() => onGetSharedLink(nextEvent.id)} />
                         </div>
                     </div>
-                </div>
+                ) : (
+                    <div className={styles.attend_event_nothing}>You don't have any events</div>
+                )}
                 <div className={styles.label}>
                     <div className={styles.label_title}>Find your event</div>
                 </div>
