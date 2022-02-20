@@ -1,7 +1,6 @@
-import { useState, useLayoutEffect, useEffect } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useState, useLayoutEffect, useEffect, useRef } from 'react';
 import styles from './Event.module.scss';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
 import SearchIcon from '@mui/icons-material/Search';
 import ChevronRightOutlinedIcon from '@mui/icons-material/ChevronRightOutlined';
 import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
@@ -11,13 +10,12 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useRouter } from 'next/router';
 import ModalShare from '../../components/Share';
 import { useSelector } from 'react-redux';
-import { display } from '@mui/system';
 import Notify from '../../components/Notify';
 import { Web3Storage } from 'web3.storage';
 
 const Event = () => {
     const router = useRouter();
-    const [type, setType] = useState('both');
+    const [eventType, setType] = useState('both');
     const [modalShare, setModalShare] = useState(false);
     const [searchEventValue, setSearchEventValue] = useState('');
     const [eventList, setEventList] = useState([]);
@@ -46,7 +44,7 @@ const Event = () => {
         // { id: 4, name: 'Event 4', type: 'Online', date: 'Sat, Jan 15 @ 5:30 PM', attendees: 16 },
     ];
 
-    const newestEvents = [];
+    const newestEvents = useRef([]);
 
     useEffect(() => {
         if (JSON.stringify(newestEventList) !== '[]' && !isInterestedLoad) {
@@ -99,6 +97,8 @@ const Event = () => {
                         return event;
                     }),
                 );
+
+                return item;
             });
         }
     }, [interestList]);
@@ -107,7 +107,7 @@ const Event = () => {
         await Promise.all(
             list_event.map(async (event) => {
                 return new Promise(async (resolve, reject) => {
-                    if (!event.cover_image || event.cover_image == '') {
+                    if (!event.cover_image || event.cover_image === '') {
                         resolve(event);
                     }
                     const client = new Web3Storage({ token: process.env.NEXT_PUBLIC_w3key });
@@ -150,7 +150,6 @@ const Event = () => {
         const num_page = total % 5 === 0 ? total / 5 : parseInt(total / 5) + 1;
         const page_arr = new Array(num_page).fill(0);
         const userId = walletConnection.getAccountId();
-        const current_timestamp = Date.now();
         await Promise.all(
             page_arr.map(async (page, index) => {
                 await contract
@@ -180,54 +179,55 @@ const Event = () => {
             case 2:
                 event_type = 'Online + In person';
                 break;
+
+            default:
+                break;
         }
-        let eventInfo = {
+        return {
             id: event.id,
             owner: event.owner,
             name: event.name,
             type: event_type,
             date: onExportDateTime(event.start_date),
+            end_timestamp: event.end_date,
             date_timestamp: event.start_date,
             attendees: event.participants.length,
             cover_image: event.cover_image,
             img: '/calendar.svg',
             isInterested: false,
         };
-        return eventInfo;
     };
 
     const onGetNewestEvents = () => {
-        let isMounted = true;
-        const { contract, walletConnection } = wallet;
-        const userId = walletConnection.getAccountId();
+        const { contract } = wallet;
+        newestEvents.current = [];
         contract
             ?.get_newest_events?.({})
             .then(async (newest_events) => {
-                if (newestEvents) {
+                if (newest_events) {
+                    const now = Date.now();
                     await newest_events.data.map(async (event) => {
                         let eventInfo = generateEvent(event);
-                        newestEvents.push(eventInfo);
+                        if (eventInfo.end_timestamp > now) {
+                            newestEvents.current.push(eventInfo);
+                        }
                     });
-                    newestEvents.sort(function (a, b) {
-                        return b.date_timestamp - a.date_timestamp;
+
+                    newestEvents.current.sort(function (a, b) {
+                        return a.date_timestamp - b.date_timestamp;
                     });
-                    if (isMounted) {
-                        setNewestEventList([...newestEvents]);
-                    }
+                    setNewestEventList([...newestEvents.current]);
                 }
             })
             .catch((err) => {
                 console.log(err);
             });
-        return () => {
-            isMounted = false;
-        };
     };
 
     const onEventFavoriteClick = (item) => {
         const { contract, walletConnection } = wallet;
         const userId = walletConnection.getAccountId();
-        if (userId == item.owner) {
+        if (userId === item.owner) {
             onShowResult({
                 type: 'error',
                 msg: 'You are the owner of this event',
@@ -248,7 +248,7 @@ const Event = () => {
                         type: 'success',
                         msg: res,
                     });
-                    item.isInterested = res == 'Interested' ? true : false;
+                    item.isInterested = res === 'Interested' ? true : false;
                     setNewestEventList(
                         [...newestEventList].map((event) => {
                             if (event.id === item.id) {
@@ -318,14 +318,16 @@ const Event = () => {
                             let current_event = {};
                             current_event.img = '/calendar.svg';
                             let dt = -1;
-                            data.data.map((event) => {
+                            data?.data?.map((event) => {
                                 let event_type = 'Online';
-                                switch (event.event_type) {
+                                switch (event?.event_type) {
                                     case 1:
                                         event_type = 'In person';
                                         break;
                                     case 2:
                                         event_type = 'Online + In person';
+                                        break;
+                                    default:
                                         break;
                                 }
                                 let eventInfo = {
@@ -339,13 +341,11 @@ const Event = () => {
                                 };
                                 aEvents.push(eventInfo);
                                 let tmp_dt = current_timestamp - event.start_date;
-                                if (dt == -1) {
-                                    dt = tmp_dt;
-                                    // current_event = event;
-                                } else if (tmp_dt < dt) {
+                                if (dt === -1 || tmp_dt < dt) {
                                     dt = tmp_dt;
                                     // current_event = event;
                                 }
+
                                 current_event = {
                                     id: event.id,
                                     name: event.name,
@@ -356,6 +356,8 @@ const Event = () => {
                                     cover_image: event.cover_image,
                                     img: '/calendar.svg',
                                 };
+
+                                return event;
                             });
                             setNextEvent(current_event);
                             if (eventList.length < 9) {
@@ -394,9 +396,12 @@ const Event = () => {
                     </div>
                     <div className={styles.event_item_footer}>
                         <div className={styles.event_item_attendees}>{item.attendees} attendees</div>
-                        <ShareOutlinedIcon className={styles.event_item_icon} onClick={() => {
-                            onGetSharedLink(item.id)
-                        }} />
+                        <ShareOutlinedIcon
+                            className={styles.event_item_icon}
+                            onClick={() => {
+                                onGetSharedLink(item.id);
+                            }}
+                        />
                         {renderInterestedIcon(item)}
                     </div>
                 </div>
@@ -413,7 +418,7 @@ const Event = () => {
     };
 
     const onSearchEvent = (id) => {
-        if (id != '') {
+        if (id !== '') {
             router.push(`/event/event-detail?id=${id}`);
         }
     };

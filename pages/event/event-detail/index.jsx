@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './EventDetail.module.scss';
@@ -53,10 +54,8 @@ const EventDetail = ({ id }) => {
     };
 
     useEffect(() => {
-        let event_id = id;
         async function fetchEventId() {
-            const { contract, walletConnection } = wallet;
-            const userId = walletConnection.getAccountId();
+            const { contract } = wallet;
             await contract
                 ?.get_recent_event_created?.({})
                 .then((e_id) => {
@@ -70,12 +69,12 @@ const EventDetail = ({ id }) => {
                     });
                 });
         }
-        if (id == 'created') {
+        if (id === 'created') {
             setOpenLoading(true);
             fetchEventId();
         } else {
             setOpenLoading(false);
-            onGetEventDetail(event_id);
+            onGetEventDetail();
         }
     }, []);
 
@@ -91,10 +90,8 @@ const EventDetail = ({ id }) => {
         }
     };
 
-
     const onGetMaxInterestedRows = () => {
-        const { contract, walletConnection } = wallet;
-        const userId = walletConnection.getAccountId();
+        const { contract } = wallet;
         contract
             ?.get_interested_event_count?.({
                 userId: userId,
@@ -108,10 +105,10 @@ const EventDetail = ({ id }) => {
     };
 
     const onGetInterestedRows = async ({ total }) => {
-        const { contract, walletConnection } = wallet;
+        const { contract } = wallet;
         const num_page = total % 5 === 0 ? total / 5 : parseInt(total / 5) + 1;
         const page_arr = new Array(num_page).fill(0);
-        const userId = walletConnection.getAccountId();
+
         await Promise.all(
             page_arr.map(async (page, index) => {
                 await contract
@@ -121,11 +118,11 @@ const EventDetail = ({ id }) => {
                     })
                     .then((data) => {
                         if (data) {
-                            data.data.map((item) => {
+                            data?.data?.map((item) => {
                                 if (item.id === id) {
                                     setIsInterested(true);
                                 }
-                                return;
+                                return item;
                             });
                         }
                     });
@@ -144,21 +141,21 @@ const EventDetail = ({ id }) => {
     const newestEvents = [];
 
     const onGetNewestEvents = () => {
-        let isMounted = true;
-        const { contract, walletConnection } = wallet;
-        const userId = walletConnection.getAccountId();
+        const { contract } = wallet;
         contract
             ?.get_newest_events?.({})
             .then((newest_events) => {
                 if (newestEvents) {
-                    newest_events.data.map((event) => {
+                    newest_events.data.map((eventx) => {
                         let event_type = 'Online';
-                        switch (event.event_type) {
+                        switch (eventx?.event_type) {
                             case 1:
                                 event_type = 'In person';
                                 break;
                             case 2:
                                 event_type = 'Online + In person';
+                                break;
+                            default:
                                 break;
                         }
                         let eventInfo = {
@@ -169,26 +166,22 @@ const EventDetail = ({ id }) => {
                             attendees: event.participants.length,
                         };
                         newestEvents.push(eventInfo);
+                        return event;
                     });
-                    if (isMounted) setNewestEventList([...newestEvents]);
+                    setNewestEventList([...newestEvents]);
                 }
             })
             .catch((err) => {
                 console.log(err);
             });
-        return () => {
-            isMounted = false;
-        };
     };
 
-
-
-    const onGetEventDetail = (eventId) => {
+    const onGetEventDetail = () => {
         const { contract } = wallet;
 
         contract
             ?.get_event({
-                eventId: eventId,
+                eventId: id,
             })
             .then((res) => {
                 if (res) {
@@ -223,7 +216,7 @@ const EventDetail = ({ id }) => {
                         type: 'success',
                         msg: res,
                     });
-                    setIsInterested(res == 'Interested' ? true : false);
+                    setIsInterested(res === 'Interested' ? true : false);
                 } else {
                     onShowResult({
                         type: 'error',
@@ -241,15 +234,11 @@ const EventDetail = ({ id }) => {
 
     const renderInterestedIcon = () => {
         if (isInterested) {
-            return (
-                <FavoriteIcon className={styles.content_action_icon_favor} onClick={() => onEventFavoriteClick()} />
-            )
+            return <FavoriteIcon className={styles.content_action_icon_favor} onClick={() => onEventFavoriteClick()} />;
         } else {
-            return (
-                <FavoriteBorderIcon className={styles.content_action_icon_favor} onClick={() => onEventFavoriteClick()} />
-            )
+            return <FavoriteBorderIcon className={styles.content_action_icon_favor} onClick={() => onEventFavoriteClick()} />;
         }
-    }
+    };
 
     const onGetParticipants = ({ total }) => {
         const { contract } = wallet;
@@ -306,13 +295,13 @@ const EventDetail = ({ id }) => {
             contract
                 ?.leave_event(
                     {
-                        'eventId': eventId,
+                        eventId: eventId,
                     },
                     50000000000000,
                 )
                 .then((res) => {
                     if (res) {
-                        onGetEventDetail(eventId);
+                        onGetEventDetail();
                         onShowResult({
                             type: 'success',
                             msg: 'Leaved',
@@ -345,7 +334,7 @@ const EventDetail = ({ id }) => {
                 )
                 .then((res) => {
                     if (res) {
-                        onGetEventDetail(eventId);
+                        onGetEventDetail();
                         onShowResult({
                             type: 'success',
                             msg: 'Register succesfully',
@@ -420,10 +409,6 @@ const EventDetail = ({ id }) => {
         router.push(`/event/publish-event?id=${eventId}`);
     };
 
-    const onEventClick = (item) => {
-        router.push(`/event/event-detail?id=${item.id}`)
-    };
-
     const onUnpublishEventClick = () => {
         const { contract } = wallet;
 
@@ -435,11 +420,11 @@ const EventDetail = ({ id }) => {
             })
             .then((res) => {
                 if (res) {
-                    let state = {
-                        status: 0,
-                        owner: userId
-                    };
-                    setEvent({ ...state });
+                    // let state = {
+                    //     status: 0,
+                    //     owner: userId,
+                    // };
+                    onGetEventDetail();
                     onShowResult({
                         type: 'success',
                         msg: 'Event has been unpublished',
@@ -561,9 +546,10 @@ const EventDetail = ({ id }) => {
                                     <div className={styles.content_detail_info_column}>
                                         <div className={styles.content_detail_info_date}>
                                             {eventType.map((type) => {
-                                                if (event.type == type.typeId) {
+                                                if (event.type === type.typeId) {
                                                     return type.label;
                                                 }
+                                                return '';
                                             })}
                                         </div>
                                         <div className={styles.content_detail_info_link}>{event.url || 'This event has no link'}</div>
@@ -678,19 +664,6 @@ EventDetail.getInitialProps = async (ctx) => {
 };
 
 export default EventDetail;
-
-const aEvents = [
-    // {
-    //     id: 1,
-    //     name: 'Demo day © 2021 Learn NEAR Club © 2021 Learn NEAR Club © 2021 Learn NEAR Club',
-    //     type: 'Online',
-    //     date: 'Sat, Jan 15 @ 5:30 PM',
-    //     attendees: 16,
-    // },
-    // { id: 2, name: '© 2021 Learn NEAR Club', type: 'Online + In person', date: 'Sat, Jan 15 @ 5:30 PM', attendees: 66 },
-    // { id: 3, name: 'Event 3', type: 'In person', date: 'Sat, Jan 15 @ 5:30 PM', attendees: 16 },
-    // { id: 4, name: 'Event 4', type: 'Online', date: 'Sat, Jan 15 @ 5:30 PM', attendees: 16 },
-];
 
 const eventType = [
     { id: 'online', typeId: 0, label: 'Online' },

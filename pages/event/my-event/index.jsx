@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useLayoutEffect, useEffect, useRef } from 'react';
 import styles from './MyEvent.module.scss';
@@ -15,13 +16,10 @@ const MyEvent = () => {
     const [activeTab, setActiveTab] = useState('upcoming');
     const [eventList, setEventList] = useState([]);
     const [pastEventList, setPastEventList] = useState([]);
-    const [upcomingEventList, setUpcomingEventList] = useState([]);
-
     const [interestedEventList, setInterestedEventList] = useState([]);
     const [displayInterestedEventList, setDisplayInterestedEventList] = useState([]);
 
     const [hostingEventList, setHostingEventList] = useState([]);
-    const [upcomingHostingEventList, setUpcomingHostingEventList] = useState([]);
 
     const [openLoading, setOpenLoading] = useState(false);
     const [openSnack, setOpenSnack] = useState(false);
@@ -29,7 +27,6 @@ const MyEvent = () => {
     const [snackMsg, setSnackMsg] = useState('');
     const [attendingState, setAttendingState] = useState(true);
     const [pastState, setPastState] = useState(false);
-    // eslint-disable-next-line no-unused-vars
     const [savedState, setSavedState] = useState(true);
     const [hostingState, setHostingState] = useState(true);
     const [modalShare, setModalShare] = useState(false);
@@ -48,9 +45,9 @@ const MyEvent = () => {
                 if (item !== {}) {
                     setEventList(
                         [...eventList].map((event) => {
-                            if (event.id == item?.id) {
+                            if (event.id === item?.id) {
                                 event.isInterested = true;
-                                displayInterestedEventList.splice(displayInterestedEventList.indexOf(item), 1)
+                                displayInterestedEventList.splice(displayInterestedEventList.indexOf(item), 1);
                                 setDisplayInterestedEventList(displayInterestedEventList);
                             }
                             return event;
@@ -59,17 +56,16 @@ const MyEvent = () => {
 
                     setPastEventList(
                         [...pastEventList].map((event) => {
-                            if (event.id == item?.id) {
+                            if (event.id === item?.id) {
                                 event.isInterested = true;
-                                displayInterestedEventList.splice(displayInterestedEventList.indexOf(item), 1)
+                                displayInterestedEventList.splice(displayInterestedEventList.indexOf(item), 1);
                                 setDisplayInterestedEventList(displayInterestedEventList);
                             }
                             return event;
                         }),
                     );
-
-                    return item;
                 }
+                return item;
             });
         }
     }, [interestedEventList]);
@@ -87,44 +83,6 @@ const MyEvent = () => {
         setOpenLoading(false);
         setAlertType(type);
         setSnackMsg(msg);
-    };
-
-    const retrieveImagesCover = async (event, index, type) => {
-        if (event && event.cover_image && event.cover_image !== '' && event.img === '/calendar.svg') {
-            const client = new Web3Storage({ token: process.env.NEXT_PUBLIC_w3key });
-            const res = await client.get(event.cover_image);
-            if (res.ok) {
-                const files = await res.files();
-                for (const file of files) {
-                    let reader = new FileReader();
-                    reader.onload = (e) => {
-                        event.img = e.target.result;
-                        switch (type) {
-                            case eventItemType.ATTENDING:
-                                eventList[index] = { ...event };
-                                setEventList([...eventList]);
-                                break;
-                            case eventItemType.HOSTING:
-                                hostingEventList[index] = { ...event };
-                                setHostingEventList([...hostingEventList]);
-                                break;
-                            case eventItemType.PAST:
-                                pastEventList[index] = { ...event };
-                                setPastEventList([...pastEventList]);
-                                break;
-                            case eventItemType.SAVE:
-                                displayInterestedEventList[index] = { ...event };
-                                setDisplayInterestedEventList([...displayInterestedEventList]);
-                                break;
-                            default:
-                                break;
-                        }
-
-                    };
-                    reader.readAsDataURL(file);
-                }
-            }
-        }
     };
 
     const generateEvent = (event) => {
@@ -188,7 +146,7 @@ const MyEvent = () => {
                                 let eventInfo = generateEvent(event);
                                 eventInfo.isInterested = true;
                                 ls_itr_event.push(eventInfo);
-                                // return event;
+                                return event;
                             });
                             ls_itr_event.sort(function (a, b) {
                                 return b.date_timestamp - a.date_timestamp;
@@ -254,13 +212,12 @@ const MyEvent = () => {
                             let eventInfo = generateEvent(event);
                             if (current_timestamp >= parseFloat(event.end_date)) {
                                 tmpPast.push(eventInfo);
-                            } else if (event.owner == userId) {
+                            } else if (event.owner === userId) {
                                 tmpHosting.push(eventInfo);
-                            }
-                            else {
+                            } else {
                                 tmpUpcoming.push(eventInfo);
                             }
-
+                            return event;
                         });
                         tmpUpcoming.sort((a, b) => {
                             return b.date_timestamp - a.date_timestamp;
@@ -274,7 +231,7 @@ const MyEvent = () => {
                         setHostingEventList([...tmpHosting]);
                         setEventList([...tmpUpcoming]);
                         setPastEventList([...tmpPast]);
-                        setInterestedEventList(interestedEventList => [...interestedEventList, {}]);
+                        setInterestedEventList((interestedEventList) => [...interestedEventList, {}]);
                     })
                     .catch((err) => {
                         console.log(err);
@@ -297,7 +254,7 @@ const MyEvent = () => {
     const onEventFavoriteClick = (item) => {
         const { contract, walletConnection } = wallet;
         const userId = walletConnection.getAccountId();
-        if (userId == item.owner) {
+        if (userId === item.owner) {
             onShowResult({
                 type: 'error',
                 msg: 'You are the owner of this event',
@@ -328,13 +285,15 @@ const MyEvent = () => {
                             }
                         }),
                     );
-                    setHostingEventList([...hostingEventList].map((event) => {
-                        if (event.id === item.id) {
-                            return item;
-                        } else {
-                            return event;
-                        }
-                    }));
+                    setHostingEventList(
+                        [...hostingEventList].map((event) => {
+                            if (event.id === item.id) {
+                                return item;
+                            } else {
+                                return event;
+                            }
+                        }),
+                    );
                 } else {
                     onShowResult({
                         type: 'error',
@@ -374,7 +333,7 @@ const MyEvent = () => {
     const handleSavedCBChange = (e) => {
         let isChecked = e.target.checked;
         setSavedState(isChecked);
-    }
+    };
 
     const handleHostingCBChange = (e) => {
         let isChecked = e.target.checked;
@@ -476,61 +435,72 @@ const MyEvent = () => {
                     <div className={styles.content_event} style={{ visibility: !attendingState ? 'hidden' : 'visible' }}>
                         {eventList?.map?.((item, index) => {
                             if (item && item.id) {
-                                retrieveImagesCover(item, index, eventItemType.ATTENDING);
-                                return <EventItem
-                                    item={item}
-                                    label="Attending"
-                                    activeTab={activeTab}
-                                    onGetSharedLink={onGetSharedLink}
-                                    onEventItemClick={onEventItemClick}
-                                    renderInterestedIcon={renderInterestedIcon}
-                                    key={item.id} />;
+                                return (
+                                    <EventItem
+                                        item={item}
+                                        label="Attending"
+                                        activeTab={activeTab}
+                                        onGetSharedLink={onGetSharedLink}
+                                        onEventItemClick={onEventItemClick}
+                                        renderInterestedIcon={renderInterestedIcon}
+                                        key={item.id}
+                                    />
+                                );
                             }
+                            return null;
                         })}
                     </div>
                     <div className={styles.content_event} style={{ visibility: !pastState ? 'hidden' : 'visible' }}>
                         {pastEventList?.map?.((item, index) => {
                             if (item && item.id) {
-                                retrieveImagesCover(item, index, eventItemType.PAST);
-                                return <EventItem
-                                    item={item}
-                                    label="Attented"
-                                    activeTab={activeTab}
-                                    onGetSharedLink={onGetSharedLink}
-                                    onEventItemClick={onEventItemClick}
-                                    renderInterestedIcon={renderInterestedIcon}
-                                    key={item.id} />;
+                                return (
+                                    <EventItem
+                                        item={item}
+                                        label="Attented"
+                                        activeTab={activeTab}
+                                        onGetSharedLink={onGetSharedLink}
+                                        onEventItemClick={onEventItemClick}
+                                        renderInterestedIcon={renderInterestedIcon}
+                                        key={item.id}
+                                    />
+                                );
                             }
+                            return null;
                         })}
                     </div>
                     <div className={styles.content_event} style={{ visibility: !savedState ? 'hidden' : 'visible' }}>
                         {displayInterestedEventList?.map?.((item, index) => {
                             if (item && item.id) {
-                                retrieveImagesCover(item, index);
-                                return <EventItem
-                                    item={item}
-                                    label="Saved"
-                                    activeTab={activeTab}
-                                    onGetSharedLink={onGetSharedLink}
-                                    onEventItemClick={onEventItemClick}
-                                    renderInterestedIcon={renderInterestedIcon}
-                                    key={item.id} />;
+                                return (
+                                    <EventItem
+                                        item={item}
+                                        label="Saved"
+                                        activeTab={activeTab}
+                                        onGetSharedLink={onGetSharedLink}
+                                        onEventItemClick={onEventItemClick}
+                                        renderInterestedIcon={renderInterestedIcon}
+                                        key={item.id}
+                                    />
+                                );
                             }
+                            return null;
                         })}
                     </div>
                     <div className={styles.content_event} style={{ visibility: !hostingState ? 'hidden' : 'visible' }}>
                         {hostingEventList?.map?.((item, index) => {
                             if (item && item.id) {
-                                retrieveImagesCover(item, index, eventItemType.HOSTING);
-                                return <EventItem
-                                    item={item}
-                                    label="Hosting"
-                                    activeTab={activeTab}
-                                    onGetSharedLink={onGetSharedLink}
-                                    onEventItemClick={onEventItemClick}
-                                    renderInterestedIcon={() => { }}
-                                    key={item.id} />;
+                                return (
+                                    <EventItem
+                                        item={item}
+                                        label="Hosting"
+                                        activeTab={activeTab}
+                                        onGetSharedLink={onGetSharedLink}
+                                        onEventItemClick={onEventItemClick}
+                                        key={item.id}
+                                    />
+                                );
                             }
+                            return null;
                         })}
                     </div>
                 </div>
@@ -542,12 +512,33 @@ const MyEvent = () => {
 };
 
 const EventItem = (props) => {
-    const { item, activeTab, label } = props;
-    const router = useRouter();
+    const { item, label, activeTab } = props;
+    const [img, setImg] = useState('');
+
+    useEffect(() => {
+        retrieveImagesCover();
+    }, []);
+
+    const retrieveImagesCover = async () => {
+        if (item && item.cover_image && item.cover_image !== '' && item.img === '/calendar.svg') {
+            const client = new Web3Storage({ token: process.env.NEXT_PUBLIC_w3key });
+            const res = await client.get(item.cover_image);
+            if (res.ok) {
+                const files = await res.files();
+                for (const file of files) {
+                    let reader = new FileReader();
+                    reader.onload = (e) => {
+                        setImg(e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        }
+    };
 
     return (
         <div className={styles.content_event_item}>
-            <img src={item.img} className={styles.content_event_item_img} alt="img" />
+            <img src={img} className={styles.content_event_item_img} alt="img" />
             <div className={styles.content_event_item_info} onClick={() => props.onEventItemClick(item.id)}>
                 <div className={styles.content_event_item_date}>{item.date}</div>
                 <div className={styles.content_event_item_name}>{item.name}</div>
@@ -561,7 +552,7 @@ const EventItem = (props) => {
             <div className={styles.content_event_item_share}>
                 <ShareOutlinedIcon className={styles.content_event_item_icon} onClick={() => props.onGetSharedLink(item.id)} />
                 {/* <FavoriteBorderIcon className={styles.content_event_item_icon_favor} onClick={() => onEventFavoriteClick(item.id)} /> */}
-                {props.renderInterestedIcon(item)}
+                {props?.renderInterestedIcon?.(item)}
             </div>
         </div>
     );
@@ -571,7 +562,7 @@ const eventItemType = {
     ATTENDING: 0,
     SAVE: 1,
     HOSTING: 2,
-    PAST: 3
-}
+    PAST: 3,
+};
 
 export default MyEvent;
