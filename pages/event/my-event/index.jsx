@@ -434,7 +434,7 @@ const MyEvent = () => {
                         ) : (
                             <div className={styles.left_menu_content_text}>You're attend {pastEventList.length} events in the past</div>
                         )}
-                        <div className={styles.left_menu_content_link} onClick={() => router.push('/event/calendar')}>
+                        <div className={styles.left_menu_content_link} onClick={() => router.push('/calendar')}>
                             Go to calendar
                         </div>
                     </div>

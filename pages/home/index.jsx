@@ -5,7 +5,7 @@ const Home = () => {
     const aContent = [
         { id: 'form', title: 'Form', label: 'Change for the better. Click, Create, Use.', router: '/form', icon: 'basic_form.svg' },
         { id: 'event', title: 'Event', label: 'Connect to the world. Create your event, now!', router: '/event', icon: '/card_form.svg' },
-        { id: 'calendar', title: 'Calendar', label: 'Simple solutions to complex problems.', router: '/event/calendar', icon: 'calendar.svg' },
+        { id: 'calendar', title: 'Calendar', label: 'Simple solutions to complex problems.', router: '/calendar', icon: 'calendar.svg' },
     ];
 
     const router = useRouter();
