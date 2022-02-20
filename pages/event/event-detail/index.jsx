@@ -9,6 +9,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import PublishIcon from '@mui/icons-material/Publish';
 import UnpublishedOutlinedIcon from '@mui/icons-material/UnpublishedOutlined';
+import EditIcon from '@mui/icons-material/Edit';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import { utils } from 'near-api-js';
@@ -498,6 +499,9 @@ const EventDetail = ({ id }) => {
                 <div className={styles.content}>
                     {event?.status === 0 && event?.owner === userId && (
                         <div className={styles.content_button_area}>
+                            <button className={styles.content_button_area_button} style={{ marginRight: 10 }}>
+                                <EditIcon className={styles.content_button_area_button_icon} /> Edit event
+                            </button>
                             <button className={styles.content_button_area_button} onClick={onPublishEventClick}>
                                 <PublishIcon className={styles.content_button_area_button_icon} /> Publish
                             </button>

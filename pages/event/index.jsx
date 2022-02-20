@@ -31,18 +31,7 @@ const Event = () => {
 
     const wallet = useSelector((state) => state.wallet);
 
-    const aEvents = [
-        // {
-        //     id: 1,
-        //     name: 'Demo day © 2021 Learn NEAR Club © 2021 Learn NEAR Club © 2021 Learn NEAR Club',
-        //     type: 'Online',
-        //     date: 'Sat, Jan 15 @ 5:30 PM',
-        //     attendees: 16,
-        // },
-        // { id: 2, name: '© 2021 Learn NEAR Club', type: 'Online + In person', date: 'Sat, Jan 15 @ 5:30 PM', attendees: 66 },
-        // { id: 3, name: 'Event 3', type: 'In person', date: 'Sat, Jan 15 @ 5:30 PM', attendees: 16 },
-        // { id: 4, name: 'Event 4', type: 'Online', date: 'Sat, Jan 15 @ 5:30 PM', attendees: 16 },
-    ];
+    const aEvents = [];
 
     const newestEvents = useRef([]);
 
@@ -381,34 +370,6 @@ const Event = () => {
         }
     };
 
-    const renderEventItem = (item) => {
-        return (
-            <div className={styles.event_item} key={item.id}>
-                <div className={styles.event_item_header}>
-                    <div className={styles.event_item_type}>{item.type}</div>
-                    {/* <img src={'/calendar.svg'} className={styles.event_item_img} alt="img" onClick={() => router.push(`/event/event-detail?id=${item.id}`)} /> */}
-                    <img src={item.img} className={styles.event_item_img} alt="img" onClick={() => router.push(`/event/event-detail?id=${item.id}`)} />
-                </div>
-                <div className={styles.event_item_info}>
-                    <div className={styles.event_item_date}>{item.date}</div>
-                    <div className={styles.event_item_name} onClick={() => router.push(`/event/event-detail?id=${item.id}`)}>
-                        {item.name}
-                    </div>
-                    <div className={styles.event_item_footer}>
-                        <div className={styles.event_item_attendees}>{item.attendees} attendees</div>
-                        <ShareOutlinedIcon
-                            className={styles.event_item_icon}
-                            onClick={() => {
-                                onGetSharedLink(item.id);
-                            }}
-                        />
-                        {renderInterestedIcon(item)}
-                    </div>
-                </div>
-            </div>
-        );
-    };
-
     const onCreateEvent = () => {
         router.push('/event/create-event');
     };
@@ -508,11 +469,44 @@ const Event = () => {
                     </div>
                 </div>
                 <div className={styles.line} />
-                <div className={styles.list_event}>{newestEventList.map((item) => renderEventItem(item))}</div>
+                <div className={styles.list_event}>
+                    {newestEventList.map((item) => (
+                        <EventItem item={item} onGetSharedLink={onGetSharedLink} renderInterestedIcon={renderInterestedIcon} key={item.id} />
+                    ))}
+                </div>
 
                 {modalShare && <ModalShare link={link} onCloseModal={onCloseModalShare} onSuccess={onSuccess} />}
             </div>
         </>
+    );
+};
+
+const EventItem = (props) => {
+    const { item, onGetSharedLink, renderInterestedIcon } = props;
+
+    return (
+        <div className={styles.event_item} key={item.id}>
+            <div className={styles.event_item_header}>
+                <div className={styles.event_item_type}>{item.type}</div>
+                <img src={item.img} className={styles.event_item_img} alt="img" onClick={() => router.push(`/event/event-detail?id=${item.id}`)} />
+            </div>
+            <div className={styles.event_item_info}>
+                <div className={styles.event_item_date}>{item.date}</div>
+                <div className={styles.event_item_name} onClick={() => router.push(`/event/event-detail?id=${item.id}`)}>
+                    {item.name}
+                </div>
+                <div className={styles.event_item_footer}>
+                    <div className={styles.event_item_attendees}>{item.attendees} attendees</div>
+                    <ShareOutlinedIcon
+                        className={styles.event_item_icon}
+                        onClick={() => {
+                            onGetSharedLink(item.id);
+                        }}
+                    />
+                    {renderInterestedIcon(item)}
+                </div>
+            </div>
+        </div>
     );
 };
 
