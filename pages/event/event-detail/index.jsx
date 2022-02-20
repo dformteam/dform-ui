@@ -406,11 +406,11 @@ const EventDetail = ({ id }) => {
     };
 
     const onPublishEventClick = () => {
-        router.push(`/event/publish-event?id=${eventId}`);
+        router.push(`/event/publish-event?id=${id}`);
     };
 
     const onEditEventClick = () => {
-        router.push(`/event/edit-event?id=${eventId}`);
+        router.push(`/event/edit-event?id=${id}`);
     };
 
     const onUnpublishEventClick = () => {
