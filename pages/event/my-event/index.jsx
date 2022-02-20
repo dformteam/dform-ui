@@ -50,7 +50,7 @@ const MyEvent = () => {
                         [...eventList].map((event) => {
                             if (event.id == item?.id) {
                                 event.isInterested = true;
-                                displayInterestedEventList.splice(displayInterestedEventList.indexOf(item), 1)
+                                displayInterestedEventList.splice(displayInterestedEventList.indexOf(item), 1);
                                 setDisplayInterestedEventList(displayInterestedEventList);
                             }
                             return event;
@@ -61,7 +61,7 @@ const MyEvent = () => {
                         [...pastEventList].map((event) => {
                             if (event.id == item?.id) {
                                 event.isInterested = true;
-                                displayInterestedEventList.splice(displayInterestedEventList.indexOf(item), 1)
+                                displayInterestedEventList.splice(displayInterestedEventList.indexOf(item), 1);
                                 setDisplayInterestedEventList(displayInterestedEventList);
                             }
                             return event;
@@ -119,7 +119,6 @@ const MyEvent = () => {
                             default:
                                 break;
                         }
-
                     };
                     reader.readAsDataURL(file);
                 }
@@ -256,11 +255,9 @@ const MyEvent = () => {
                                 tmpPast.push(eventInfo);
                             } else if (event.owner == userId) {
                                 tmpHosting.push(eventInfo);
-                            }
-                            else {
+                            } else {
                                 tmpUpcoming.push(eventInfo);
                             }
-
                         });
                         tmpUpcoming.sort((a, b) => {
                             return b.date_timestamp - a.date_timestamp;
@@ -274,7 +271,7 @@ const MyEvent = () => {
                         setHostingEventList([...tmpHosting]);
                         setEventList([...tmpUpcoming]);
                         setPastEventList([...tmpPast]);
-                        setInterestedEventList(interestedEventList => [...interestedEventList, {}]);
+                        setInterestedEventList((interestedEventList) => [...interestedEventList, {}]);
                     })
                     .catch((err) => {
                         console.log(err);
@@ -328,13 +325,15 @@ const MyEvent = () => {
                             }
                         }),
                     );
-                    setHostingEventList([...hostingEventList].map((event) => {
-                        if (event.id === item.id) {
-                            return item;
-                        } else {
-                            return event;
-                        }
-                    }));
+                    setHostingEventList(
+                        [...hostingEventList].map((event) => {
+                            if (event.id === item.id) {
+                                return item;
+                            } else {
+                                return event;
+                            }
+                        }),
+                    );
                 } else {
                     onShowResult({
                         type: 'error',
@@ -374,7 +373,7 @@ const MyEvent = () => {
     const handleSavedCBChange = (e) => {
         let isChecked = e.target.checked;
         setSavedState(isChecked);
-    }
+    };
 
     const handleHostingCBChange = (e) => {
         let isChecked = e.target.checked;
@@ -473,66 +472,86 @@ const MyEvent = () => {
                         Today, {new Date().toLocaleString('en-US', { month: 'long' })} {new Date().getDate()}, {new Date().getFullYear()}
                     </div>
                     <div className={styles.line} />
-                    <div className={styles.content_event} style={{ visibility: !attendingState ? 'hidden' : 'visible' }}>
-                        {eventList?.map?.((item, index) => {
-                            if (item && item.id) {
-                                retrieveImagesCover(item, index, eventItemType.ATTENDING);
-                                return <EventItem
-                                    item={item}
-                                    label="Attending"
-                                    activeTab={activeTab}
-                                    onGetSharedLink={onGetSharedLink}
-                                    onEventItemClick={onEventItemClick}
-                                    renderInterestedIcon={renderInterestedIcon}
-                                    key={item.id} />;
-                            }
-                        })}
-                    </div>
-                    <div className={styles.content_event} style={{ visibility: !pastState ? 'hidden' : 'visible' }}>
-                        {pastEventList?.map?.((item, index) => {
-                            if (item && item.id) {
-                                retrieveImagesCover(item, index, eventItemType.PAST);
-                                return <EventItem
-                                    item={item}
-                                    label="Attented"
-                                    activeTab={activeTab}
-                                    onGetSharedLink={onGetSharedLink}
-                                    onEventItemClick={onEventItemClick}
-                                    renderInterestedIcon={renderInterestedIcon}
-                                    key={item.id} />;
-                            }
-                        })}
-                    </div>
-                    <div className={styles.content_event} style={{ visibility: !savedState ? 'hidden' : 'visible' }}>
-                        {displayInterestedEventList?.map?.((item, index) => {
-                            if (item && item.id) {
-                                retrieveImagesCover(item, index);
-                                return <EventItem
-                                    item={item}
-                                    label="Saved"
-                                    activeTab={activeTab}
-                                    onGetSharedLink={onGetSharedLink}
-                                    onEventItemClick={onEventItemClick}
-                                    renderInterestedIcon={renderInterestedIcon}
-                                    key={item.id} />;
-                            }
-                        })}
-                    </div>
-                    <div className={styles.content_event} style={{ visibility: !hostingState ? 'hidden' : 'visible' }}>
-                        {hostingEventList?.map?.((item, index) => {
-                            if (item && item.id) {
-                                retrieveImagesCover(item, index, eventItemType.HOSTING);
-                                return <EventItem
-                                    item={item}
-                                    label="Hosting"
-                                    activeTab={activeTab}
-                                    onGetSharedLink={onGetSharedLink}
-                                    onEventItemClick={onEventItemClick}
-                                    renderInterestedIcon={() => { }}
-                                    key={item.id} />;
-                            }
-                        })}
-                    </div>
+                    {attendingState && (
+                        <div className={styles.content_event}>
+                            {eventList?.map?.((item, index) => {
+                                if (item && item.id) {
+                                    retrieveImagesCover(item, index, eventItemType.ATTENDING);
+                                    return (
+                                        <EventItem
+                                            item={item}
+                                            label="Attending"
+                                            activeTab={activeTab}
+                                            onGetSharedLink={onGetSharedLink}
+                                            onEventItemClick={onEventItemClick}
+                                            renderInterestedIcon={renderInterestedIcon}
+                                            key={item.id}
+                                        />
+                                    );
+                                }
+                            })}
+                        </div>
+                    )}
+                    {pastState && (
+                        <div className={styles.content_event}>
+                            {pastEventList?.map?.((item, index) => {
+                                if (item && item.id) {
+                                    retrieveImagesCover(item, index, eventItemType.PAST);
+                                    return (
+                                        <EventItem
+                                            item={item}
+                                            label="Attented"
+                                            activeTab={activeTab}
+                                            onGetSharedLink={onGetSharedLink}
+                                            onEventItemClick={onEventItemClick}
+                                            renderInterestedIcon={renderInterestedIcon}
+                                            key={item.id}
+                                        />
+                                    );
+                                }
+                            })}
+                        </div>
+                    )}
+                    {savedState && (
+                        <div className={styles.content_event}>
+                            {displayInterestedEventList?.map?.((item, index) => {
+                                if (item && item.id) {
+                                    retrieveImagesCover(item, index);
+                                    return (
+                                        <EventItem
+                                            item={item}
+                                            label="Saved"
+                                            activeTab={activeTab}
+                                            onGetSharedLink={onGetSharedLink}
+                                            onEventItemClick={onEventItemClick}
+                                            renderInterestedIcon={renderInterestedIcon}
+                                            key={item.id}
+                                        />
+                                    );
+                                }
+                            })}
+                        </div>
+                    )}
+                    {hostingState && (
+                        <div className={styles.content_event}>
+                            {hostingEventList?.map?.((item, index) => {
+                                if (item && item.id) {
+                                    retrieveImagesCover(item, index, eventItemType.HOSTING);
+                                    return (
+                                        <EventItem
+                                            item={item}
+                                            label="Hosting"
+                                            activeTab={activeTab}
+                                            onGetSharedLink={onGetSharedLink}
+                                            onEventItemClick={onEventItemClick}
+                                            renderInterestedIcon={() => {}}
+                                            key={item.id}
+                                        />
+                                    );
+                                }
+                            })}
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -571,7 +590,7 @@ const eventItemType = {
     ATTENDING: 0,
     SAVE: 1,
     HOSTING: 2,
-    PAST: 3
-}
+    PAST: 3,
+};
 
 export default MyEvent;
