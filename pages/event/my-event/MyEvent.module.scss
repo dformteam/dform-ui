@@ -90,13 +90,13 @@
             width: 100%;
             display: flex;
             align-items: center;
-            padding: 10px 0;
+            padding: 20px 0;
             border-bottom: 1px solid var(--color-border);
             cursor: pointer;
 
             &_img {
-                width: 80px;
-                height: 80px;
+                width: 150px;
+                height: 120px;
                 border-radius: 8px;
                 padding: 10px;
                 background: #cae6f7;
@@ -151,6 +151,12 @@
                     margin-right: 10px;
                 }
             }
+        }
+
+        &_nothing {
+            font-size: 20px;
+            color: var(--color-secondary);
+            margin: auto;
         }
     }
 }

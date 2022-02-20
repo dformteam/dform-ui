@@ -45,6 +45,8 @@ const Publish = ({ id }) => {
     const [white_account, setWhiteAccount] = useState('');
     const [start_date, setStartDate] = useState('');
     const [end_date, setEndDate] = useState('');
+    // const [ini_start_date, setIniStartDate] = useState('');
+    // const [ini_end_date, setIniEndDate] = useState('');
     const [participant, setParticipant] = useState(0);
     const [openLoading, setOpenLoading] = useState(false);
     const [openSnack, setOpenSnack] = useState(false);
@@ -56,11 +58,27 @@ const Publish = ({ id }) => {
         setOpenSnack(false);
     };
 
+    // useEffect(() => {
+    //     let initial_date = JSON.parse(localStorage.getItem('date_info'));
+    //     console.log(localStorage.getItem('date_info'));
+    //     setStartDate(new Date(parseFloat(initial_date.start_date)).toISOString());
+    //     setEndDate(new Date(parseFloat(initial_date.end_date)).toISOString());
+    //     localStorage.removeItem('date_info');
+    // }, []);
+
     const onShowResult = ({ type, msg }) => {
         setOpenSnack(true);
         setOpenLoading(false);
         setAlertType(type);
         setSnackMsg(msg);
+    };
+
+    const onGetSharedLink = () => {
+        navigator.clipboard.writeText(sharedLink);
+        onShowResult({
+            type: 'success',
+            msg: 'copied',
+        });
     };
 
     useEffect(() => {
@@ -93,7 +111,7 @@ const Publish = ({ id }) => {
                     }
 
                     if (res.status !== 0) {
-                        content = 'Form has been published before!';
+                        content = 'Event has been published before!';
                     }
 
                     if (content !== '') {
@@ -259,7 +277,7 @@ const Publish = ({ id }) => {
                     setSharedLink(`${origin}/event/event-detail?id=${id}`);
                     onShowResult({
                         type: 'success',
-                        msg: 'Form has been published',
+                        msg: 'Event has been published',
                     });
                 } else {
                     onShowResult({
@@ -283,7 +301,6 @@ const Publish = ({ id }) => {
                 msg: 'enroll fee could be negative',
             });
             return false;
-            
         }
 
         if (participant < 0) {
@@ -392,7 +409,9 @@ const Publish = ({ id }) => {
                             <div className={styles.publish_row}>
                                 <LinkOutlinedIcon className={styles.publish_icon_link} />
                                 <div className={styles.publish_link_input}>{sharedLink}</div>
-                                <div className={styles.publish_link_copy}>Copy link</div>
+                                <div className={styles.publish_link_copy} onClick={onGetSharedLink}>
+                                    Copy link
+                                </div>
                             </div>
                         </>
                     )}

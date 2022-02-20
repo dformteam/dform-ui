@@ -40,7 +40,12 @@ export async function initContract() {
             'get_joined_forms_count',
             'get_event',
             'get_user',
-            'get_event_participants'
+            'get_event_participants',
+            'get_event_count',
+            'get_events',
+            'get_newest_events',
+            'get_interested_events',
+            'get_interested_event_count',
         ],
         changeMethods: [
             'init_new_form',
@@ -50,6 +55,7 @@ export async function initContract() {
             'new_element',
             'submit_answer',
             'update_element',
+            'update_event_info',
             'update_form',
             'delete_form',
             'delete_element',
@@ -58,6 +64,11 @@ export async function initContract() {
             'publish_event',
             'join_event',
             'unpublish_event',
+            'leave_event',
+            'interest_event',
+            'not_interest_event',
+            // TODO Check function loi khi dat vao view
+            'get_recent_event_created',
         ],
         sender: walletConnection.getAccountId(),
     });
