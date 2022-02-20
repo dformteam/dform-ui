@@ -15,6 +15,7 @@ import { Web3Storage } from 'web3.storage';
 
 const Event = () => {
     const router = useRouter();
+
     const [eventType, setType] = useState('both');
     const [modalShare, setModalShare] = useState(false);
     const [searchEventValue, setSearchEventValue] = useState('');
@@ -61,19 +62,11 @@ const Event = () => {
         setSnackMsg(msg);
     };
 
-    useEffect(() => {
-        let ls = [];
-        if (nextEvent !== {}) {
-            ls.push(nextEvent);
-            retrieveImagesCover(ls);
-        }
-    }, [nextEvent]);
-
-    useEffect(() => {
-        if (newestEventList !== []) {
-            retrieveImagesCover(newestEventList);
-        }
-    }, [newestEventList]);
+    // useEffect(() => {
+    //     if (nextEvent !== {}) {
+    //         retrieveImagesCover(nextEvent);
+    //     }
+    // }, [nextEvent]);
 
     useEffect(() => {
         if (interestList !== []) {
@@ -92,31 +85,23 @@ const Event = () => {
         }
     }, [interestList]);
 
-    const retrieveImagesCover = async (list_event) => {
-        await Promise.all(
-            list_event.map(async (event) => {
-                return new Promise(async (resolve, reject) => {
-                    if (!event.cover_image || event.cover_image === '') {
-                        resolve(event);
-                    }
-                    const client = new Web3Storage({ token: process.env.NEXT_PUBLIC_w3key });
-                    const res = await client.get(event.cover_image);
-                    if (res.ok) {
-                        const files = await res.files();
-                        for (const file of files) {
-                            let reader = new FileReader();
-                            reader.readAsDataURL(file);
-                            reader.onload = (e) => {
-                                event.img = e.target.result;
-                                resolve(event);
-                            };
-                        }
-                    } else {
-                        resolve(event);
-                    }
-                });
-            }),
-        );
+    const retrieveImagesCover = async (event) => {
+        setNextEvent({ ...event });
+        if (typeof event.cover_image !== 'undefined' && event.cover_image !== '') {
+            const client = new Web3Storage({ token: process.env.NEXT_PUBLIC_w3key });
+            const res = await client.get(event?.cover_image || '');
+            if (res.ok) {
+                const files = await res.files();
+                for (const file of files) {
+                    let reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = (e) => {
+                        event.img = e.target.result;
+                        setNextEvent({ ...event });
+                    };
+                }
+            }
+        }
     };
 
     const onGetMaxInterestedRows = () => {
@@ -348,7 +333,8 @@ const Event = () => {
 
                                 return event;
                             });
-                            setNextEvent(current_event);
+                            retrieveImagesCover(current_event);
+                            // setNextEvent(current_event);
                             if (eventList.length < 9) {
                                 setEventList([...aEvents]);
                             }
@@ -483,12 +469,35 @@ const Event = () => {
 
 const EventItem = (props) => {
     const { item, onGetSharedLink, renderInterestedIcon } = props;
+    const router = useRouter();
+    const [img, setImg] = useState('');
+
+    useEffect(() => {
+        retrieveImagesCover();
+    }, []);
+
+    const retrieveImagesCover = async () => {
+        if (item && item.cover_image && item.cover_image !== '' && item.img === '/calendar.svg') {
+            const client = new Web3Storage({ token: process.env.NEXT_PUBLIC_w3key });
+            const res = await client.get(item.cover_image);
+            if (res.ok) {
+                const files = await res.files();
+                for (const file of files) {
+                    let reader = new FileReader();
+                    reader.onload = (e) => {
+                        setImg(e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        }
+    };
 
     return (
         <div className={styles.event_item} key={item.id}>
             <div className={styles.event_item_header}>
                 <div className={styles.event_item_type}>{item.type}</div>
-                <img src={item.img} className={styles.event_item_img} alt="img" onClick={() => router.push(`/event/event-detail?id=${item.id}`)} />
+                <img src={img} className={styles.event_item_img} alt="img" onClick={() => router.push(`/event/event-detail?id=${item.id}`)} />
             </div>
             <div className={styles.event_item_info}>
                 <div className={styles.event_item_date}>{item.date}</div>

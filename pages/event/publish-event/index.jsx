@@ -12,7 +12,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
 import { styled } from '@mui/material/styles';
-import { useRouter, withRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import { useSelector } from 'react-redux';
 import Notify from '../../../components/Notify';
 import { utils } from 'near-api-js';
@@ -301,7 +301,6 @@ const Publish = ({ id }) => {
                 msg: 'enroll fee could be negative',
             });
             return false;
-
         }
 
         if (participant < 0) {
@@ -410,7 +409,9 @@ const Publish = ({ id }) => {
                             <div className={styles.publish_row}>
                                 <LinkOutlinedIcon className={styles.publish_icon_link} />
                                 <div className={styles.publish_link_input}>{sharedLink}</div>
-                                <div className={styles.publish_link_copy} onClick={onGetSharedLink}>Copy link</div>
+                                <div className={styles.publish_link_copy} onClick={onGetSharedLink}>
+                                    Copy link
+                                </div>
                             </div>
                         </>
                     )}

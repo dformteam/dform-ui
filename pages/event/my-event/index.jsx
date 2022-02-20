@@ -26,9 +26,9 @@ const MyEvent = () => {
     const [alertType, setAlertType] = useState('success');
     const [snackMsg, setSnackMsg] = useState('');
     const [attendingState, setAttendingState] = useState(true);
-    const [pastState, setPastState] = useState(false);
     const [savedState, setSavedState] = useState(true);
     const [hostingState, setHostingState] = useState(true);
+    const [pastState, setPastState] = useState(false);
     const [modalShare, setModalShare] = useState(false);
     const [link, setLink] = useState('');
 
@@ -37,42 +37,44 @@ const MyEvent = () => {
 
     useLayoutEffect(() => {
         onGetMaxRows();
+        onGetMaxInterestedRows();
     }, []);
 
     useEffect(() => {
         if (JSON.stringify(interestedEventList) !== '[]') {
-            interestedEventList.map((item) => {
-                if (item !== {}) {
-                    setEventList(
-                        [...eventList].map((event) => {
-                            if (event.id === item?.id) {
-                                event.isInterested = true;
-                                displayInterestedEventList.splice(displayInterestedEventList.indexOf(item), 1);
-                                setDisplayInterestedEventList(displayInterestedEventList);
-                            }
-                            return event;
-                        }),
-                    );
+            let tmp_display = [];
+            let removing_display = new Set();
+            interestedEventList.map((item, index) => {
+                const interested_event = [...eventList].map((event) => {
+                    if (event.id === item.id) {
+                        event.isInterested = true;
+                        removing_display.add(index);
+                    }
+                    return event;
+                });
 
-                    setPastEventList(
-                        [...pastEventList].map((event) => {
-                            if (event.id === item?.id) {
-                                event.isInterested = true;
-                                displayInterestedEventList.splice(displayInterestedEventList.indexOf(item), 1);
-                                setDisplayInterestedEventList(displayInterestedEventList);
-                            }
-                            return event;
-                        }),
-                    );
-                }
+                setEventList([...interested_event]);
+                const passed_event = [...pastEventList].map((event) => {
+                    if (event.id === item?.id) {
+                        event.isInterested = true;
+                        removing_display.add(index);
+                    }
+                    return event;
+                });
+
+                setPastEventList([...passed_event]);
                 return item;
             });
+            interestedEventList?.map((event, index) => {
+                if (!removing_display.has(index)) {
+                    tmp_display.push(event);
+                }
+                return event;
+            });
+
+            setDisplayInterestedEventList([...tmp_display]);
         }
     }, [interestedEventList]);
-
-    useLayoutEffect(() => {
-        onGetMaxInterestedRows();
-    }, []);
 
     const onCloseSnack = () => {
         setOpenSnack(false);
@@ -105,7 +107,7 @@ const MyEvent = () => {
             cover_image: event.cover_image,
             img: '/calendar.svg',
             date: onExportDateTime(event.start_date),
-            attendees: event.participants.length,
+            attendees: event?.participants?.length,
             date_timestamp: event.start_date,
             isInterested: false,
         };
@@ -131,6 +133,7 @@ const MyEvent = () => {
         const num_page = total % 5 === 0 ? total / 5 : parseInt(total / 5) + 1;
         const page_arr = new Array(num_page).fill(0);
         const userId = walletConnection.getAccountId();
+        let ls_itr_event = [];
         await Promise.all(
             page_arr.map(async (page, index) => {
                 await contract
@@ -140,23 +143,27 @@ const MyEvent = () => {
                     })
                     .then((data) => {
                         if (data) {
-                            let ls_itr_event = [];
-                            ls_itr_event.push({});
                             data.data.map((event) => {
                                 let eventInfo = generateEvent(event);
                                 eventInfo.isInterested = true;
                                 ls_itr_event.push(eventInfo);
                                 return event;
                             });
-                            ls_itr_event.sort(function (a, b) {
-                                return b.date_timestamp - a.date_timestamp;
-                            });
-                            setInterestedEventList([...ls_itr_event]);
-                            setDisplayInterestedEventList([...ls_itr_event]);
                         }
                     });
             }),
-        );
+        )
+            .then(() => {
+                console.log(123123123);
+                ls_itr_event.sort((a, b) => {
+                    return b.date_timestamp - a.date_timestamp;
+                });
+                setInterestedEventList([...ls_itr_event]);
+                setDisplayInterestedEventList([...ls_itr_event]);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
     };
 
     const onGetMaxRows = () => {
@@ -192,6 +199,9 @@ const MyEvent = () => {
         const page_arr = new Array(num_page).fill(0);
         const userId = walletConnection.getAccountId();
         const current_timestamp = Date.now();
+        let tmpHosting = [];
+        let tmpUpcoming = [];
+        let tmpPast = [];
         await Promise.all(
             page_arr.map(async (page, index) => {
                 await contract
@@ -205,10 +215,7 @@ const MyEvent = () => {
                         }
                     })
                     .then((value) => {
-                        let tmpHosting = [];
-                        let tmpUpcoming = [];
-                        let tmpPast = [];
-                        value.map((event) => {
+                        value?.map?.((event) => {
                             let eventInfo = generateEvent(event);
                             if (current_timestamp >= parseFloat(event.end_date)) {
                                 tmpPast.push(eventInfo);
@@ -219,25 +226,31 @@ const MyEvent = () => {
                             }
                             return event;
                         });
-                        tmpUpcoming.sort((a, b) => {
-                            return b.date_timestamp - a.date_timestamp;
-                        });
-                        tmpPast.sort((a, b) => {
-                            return b.date_timestamp - a.date_timestamp;
-                        });
-                        tmpHosting.sort((a, b) => {
-                            return b.date_timestamp - a.date_timestamp;
-                        });
-                        setHostingEventList([...tmpHosting]);
-                        setEventList([...tmpUpcoming]);
-                        setPastEventList([...tmpPast]);
-                        setInterestedEventList((interestedEventList) => [...interestedEventList, {}]);
+
+                        // setInterestedEventList((interestedEventList) => [...interestedEventList, {}]);
                     })
                     .catch((err) => {
                         console.log(err);
                     });
             }),
-        );
+        )
+            .then(() => {
+                tmpUpcoming.sort((a, b) => {
+                    return b.date_timestamp - a.date_timestamp;
+                });
+                tmpPast.sort((a, b) => {
+                    return b.date_timestamp - a.date_timestamp;
+                });
+                tmpHosting.sort((a, b) => {
+                    return b.date_timestamp - a.date_timestamp;
+                });
+                setHostingEventList([...tmpHosting]);
+                setEventList([...tmpUpcoming]);
+                setPastEventList([...tmpPast]);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
     };
 
     const onEventItemClick = (id) => {
@@ -448,6 +461,7 @@ const MyEvent = () => {
                                         />
                                     );
                                 }
+                                return null;
                             })}
                         </div>
                     )}
@@ -467,6 +481,7 @@ const MyEvent = () => {
                                         />
                                     );
                                 }
+                                return null;
                             })}
                         </div>
                     )}
@@ -486,6 +501,7 @@ const MyEvent = () => {
                                         />
                                     );
                                 }
+                                return null;
                             })}
                         </div>
                     )}
@@ -500,11 +516,11 @@ const MyEvent = () => {
                                             activeTab={activeTab}
                                             onGetSharedLink={onGetSharedLink}
                                             onEventItemClick={onEventItemClick}
-                                            renderInterestedIcon={() => {}}
                                             key={item.id}
                                         />
                                     );
                                 }
+                                return null;
                             })}
                         </div>
                     )}
@@ -527,7 +543,7 @@ const EventItem = (props) => {
     const retrieveImagesCover = async () => {
         if (item && item.cover_image && item.cover_image !== '' && item.img === '/calendar.svg') {
             const client = new Web3Storage({ token: process.env.NEXT_PUBLIC_w3key });
-            const res = await client.get(item.cover_image);
+            const res = await client?.get?.(item.cover_image);
             if (res.ok) {
                 const files = await res.files();
                 for (const file of files) {

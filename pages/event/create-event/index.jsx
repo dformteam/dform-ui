@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useRef, Fragment, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
@@ -37,7 +38,7 @@ const CreateEvent = () => {
     };
 
     useEffect(() => {
-        if (router.query.transactionHashes ) {
+        if (router.query.transactionHashes) {
             router.push(`/event/event-detail?id=created`);
         }
     }, [router.query]);
@@ -59,20 +60,22 @@ const CreateEvent = () => {
         setImgSelected(files?.[0]?.name);
         let reader = new FileReader();
         reader.readAsDataURL(files[0]);
-        reader.onload = (e) => {
-            let img = e.target.result;
+        reader.onload = (file) => {
+            let img = file.target.result;
             localStorage.setItem('temp_image', img);
-        }
+        };
     };
 
     const getEventInfo = () => {
         let type_name = '';
         eventType.map((type) => {
-            if (event_type == type.typeId) {
+            if (event_type === type.typeId) {
                 type_name = type.label;
             }
+
+            return type;
         });
-        const { contract, walletConnection } = wallet;
+        const { walletConnection } = wallet;
         const userId = walletConnection.getAccountId();
         let event_info = {
             name: event_name,
@@ -85,7 +88,7 @@ const CreateEvent = () => {
         };
         localStorage.setItem('temp_event', JSON.stringify(event_info));
         return event_info;
-    }
+    };
 
     const onAttendEventClick = async () => {
         if (!onValidateNewEvent()) {
@@ -112,7 +115,7 @@ const CreateEvent = () => {
                     type: parseInt(event_type),
                     start_date,
                     end_date,
-                    url: event_link
+                    url: event_link,
                 },
                 100000000000000,
                 depositAmount,
@@ -327,8 +330,7 @@ const CreateEvent = () => {
                                 <CloseIcon />
                             </div>
                             <div className={styles.preview_content}>
-                                <PreviewEvent
-                                    event_info={getEventInfo()} />
+                                <PreviewEvent event_info={getEventInfo()} />
                             </div>
                         </div>
                     </Box>

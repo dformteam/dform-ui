@@ -164,7 +164,7 @@ const EventDetail = ({ id }) => {
                             name: event.name,
                             type: event_type,
                             date: onExportDateTime(event.start_date),
-                            attendees: event.participants.length,
+                            attendees: event?.participants?.length,
                         };
                         newestEvents.push(eventInfo);
                         return event;
@@ -321,7 +321,6 @@ const EventDetail = ({ id }) => {
                         msg: String(err),
                     });
                 });
-            setIsRegistered(false);
             return;
         }
         if (event?.enroll_fee !== '0') {
@@ -408,6 +407,10 @@ const EventDetail = ({ id }) => {
 
     const onPublishEventClick = () => {
         router.push(`/event/publish-event?id=${eventId}`);
+    };
+
+    const onEditEventClick = () => {
+        router.push(`/event/edit-event?id=${eventId}`);
     };
 
     const onUnpublishEventClick = () => {
@@ -499,7 +502,7 @@ const EventDetail = ({ id }) => {
                 <div className={styles.content}>
                     {event?.status === 0 && event?.owner === userId && (
                         <div className={styles.content_button_area}>
-                            <button className={styles.content_button_area_button} style={{ marginRight: 10 }}>
+                            <button className={styles.content_button_area_button} style={{ marginRight: 10 }} onClick={onEditEventClick}>
                                 <EditIcon className={styles.content_button_area_button_icon} /> Edit event
                             </button>
                             <button className={styles.content_button_area_button} onClick={onPublishEventClick}>
