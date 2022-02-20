@@ -8,6 +8,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import PublishIcon from '@mui/icons-material/Publish';
 import UnpublishedOutlinedIcon from '@mui/icons-material/UnpublishedOutlined';
+import EditIcon from '@mui/icons-material/Edit';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import { utils } from 'near-api-js';
@@ -90,7 +91,6 @@ const EventDetail = ({ id }) => {
             return 'unknow';
         }
     };
-
 
     const onGetMaxInterestedRows = () => {
         const { contract, walletConnection } = wallet;
@@ -181,8 +181,6 @@ const EventDetail = ({ id }) => {
         };
     };
 
-
-
     const onGetEventDetail = (eventId) => {
         const { contract } = wallet;
 
@@ -241,15 +239,11 @@ const EventDetail = ({ id }) => {
 
     const renderInterestedIcon = () => {
         if (isInterested) {
-            return (
-                <FavoriteIcon className={styles.content_action_icon_favor} onClick={() => onEventFavoriteClick()} />
-            )
+            return <FavoriteIcon className={styles.content_action_icon_favor} onClick={() => onEventFavoriteClick()} />;
         } else {
-            return (
-                <FavoriteBorderIcon className={styles.content_action_icon_favor} onClick={() => onEventFavoriteClick()} />
-            )
+            return <FavoriteBorderIcon className={styles.content_action_icon_favor} onClick={() => onEventFavoriteClick()} />;
         }
-    }
+    };
 
     const onGetParticipants = ({ total }) => {
         const { contract } = wallet;
@@ -306,7 +300,7 @@ const EventDetail = ({ id }) => {
             contract
                 ?.leave_event(
                     {
-                        'eventId': eventId,
+                        eventId: eventId,
                     },
                     50000000000000,
                 )
@@ -421,7 +415,7 @@ const EventDetail = ({ id }) => {
     };
 
     const onEventClick = (item) => {
-        router.push(`/event/event-detail?id=${item.id}`)
+        router.push(`/event/event-detail?id=${item.id}`);
     };
 
     const onUnpublishEventClick = () => {
@@ -437,7 +431,7 @@ const EventDetail = ({ id }) => {
                 if (res) {
                     let state = {
                         status: 0,
-                        owner: userId
+                        owner: userId,
                     };
                     setEvent({ ...state });
                     onShowResult({
@@ -513,6 +507,9 @@ const EventDetail = ({ id }) => {
                 <div className={styles.content}>
                     {event?.status === 0 && event?.owner === userId && (
                         <div className={styles.content_button_area}>
+                            <button className={styles.content_button_area_button} style={{ marginRight: 10 }}>
+                                <EditIcon className={styles.content_button_area_button_icon} /> Edit event
+                            </button>
                             <button className={styles.content_button_area_button} onClick={onPublishEventClick}>
                                 <PublishIcon className={styles.content_button_area_button_icon} /> Publish
                             </button>
