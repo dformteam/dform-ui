@@ -294,7 +294,7 @@ export default Form;
 
 const aTemplate = [
     { id: 'blank', title: 'Blank', name: 'Create a blank form', route: '/form/create-form' },
-    { id: 'demo_day', title: 'Demo day', name: `© ${new Date().getFullYear()} Learn NEAR Club`, route: '/create-form' },
+    // { id: 'demo_day', title: 'Demo day', name: `© ${new Date().getFullYear()} Learn NEAR Club`, route: '/create-form' },
 ];
 
 // const aRecent = [

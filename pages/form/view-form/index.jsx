@@ -245,9 +245,12 @@ const CreateForm = () => {
         setOpenLoading(true);
 
         return contract
-            .unpublish_form({
-                formId: query.id,
-            })
+            .unpublish_form(
+                {
+                    formId: query.id,
+                },
+                100000000000000,
+            )
             .then((res) => {
                 if (res) {
                     onShowResult({
