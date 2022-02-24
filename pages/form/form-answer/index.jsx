@@ -23,6 +23,9 @@ import { useRouter } from 'next/router';
 import Semaphore from '../../../backed/semaphore';
 import Notify from '../../../components/Notify';
 import { Box, Modal, Typography } from '@mui/material';
+import { Web3Storage } from 'web3.storage';
+
+const API_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweEUyOGVBOTU5MEEzQWM3ZWQwZWIwQThkMkIzYjhCNzQwNjZkNzllQTIiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2NDM3Mjc3MjM2MTcsIm5hbWUiOiJuZXV0cmlubyJ9.q7sgeq1V-_01aAuwYkUvL5L08d4q4CuMvJv9_y_WY2Y";
 
 const FormAnswer = () => {
     const wallet = useSelector((state) => state.wallet);
@@ -83,6 +86,32 @@ const FormAnswer = () => {
             ]);
         }
     }, [elements]);
+
+    const saveObjToWeb3Storage = async (obj) => {
+        const { walletConnection } = wallet;
+        const { id } = query;
+        const userId = walletConnection.getAccountId();
+        const blob = new Blob([JSON.stringify(obj)], { type: 'application/json' })
+        const file = [new File([blob], `${id}_${userId}.json`)]
+        const client = new Web3Storage({ token: API_TOKEN })
+        const rootCid = await client.put(file) // Promise<CIDString>
+        return rootCid;
+    }
+
+    const getObjFromWeb3Storage = async (rootCid) => {
+        const res = await client.get(rootCid) // Promise<Web3Response | null>
+        const files = await res.files() // Promise<Web3File[]>
+        for (const file of files) {
+            console.log(`${file.cid} ${file.name} ${file.size}`);
+            // this.state.file = await file.text();
+            let reader = new FileReader();
+            reader.readAsText(file, 'utf-8');
+            reader.onload = (e) => {
+                console.log('This is Object => ', JSON.parse(e.target.result));
+                return JSON.parse(e.target.result);
+            }
+        }
+    }
 
     const onGetFormDetail = () => {
         const { contract } = wallet;
@@ -412,6 +441,9 @@ const FormAnswer = () => {
 
         setSuccess(false);
         setModalSave(true);
+        console.log('elements => ', elements);
+        let cid = await saveObjToWeb3Storage(elements);
+        console.log(cid);
 
         await Promise.all(
             elements?.map(async (element) => {
