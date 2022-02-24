@@ -19,6 +19,7 @@ import MultiChoice from '../../../components/Elements/MultiChoice';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import Notify from '../../../components/Notify';
+import { Web3Storage } from 'web3.storage';
 
 const style = {
     position: 'absolute',
@@ -41,6 +42,7 @@ const FormAnalysis = () => {
     const wallet = useSelector((state) => state.wallet);
     const router = useRouter();
     const { query } = router;
+    const w3Client = new Web3Storage({ token: process.env.NEXT_PUBLIC_w3key });
 
     const [form, setForm] = useState({});
     const [participant, setParticipant] = useState([]);
@@ -106,6 +108,9 @@ const FormAnalysis = () => {
                         };
                     });
                     setParticipant([...prt]);
+                    if (typeof res.rootId !== 'undefined' && res.rootId !== null && res.rootId !== '') {
+                        onRetrieveAnswer(res.rootId);
+                    }
                 }
             })
             .catch((err) => {
@@ -242,6 +247,18 @@ const FormAnalysis = () => {
                 console.log(err);
                 setOpenLoading(false);
             });
+    };
+
+    const onRetrieveAnswer = async (cId) => {
+        const res = await w3Client.get(cId);
+        if (res.ok) {
+            const files = await res.files();
+            let reader = new FileReader();
+            reader.onload = (e) => {
+                console.log(JSON.parse(e.target.result));
+            };
+            reader.readAsText(files[0], 'utf-8');
+        }
     };
 
     const onRandomColorBg = () => {

@@ -23,9 +23,13 @@ import { useRouter } from 'next/router';
 import Semaphore from '../../../backed/semaphore';
 import Notify from '../../../components/Notify';
 import { Box, Modal, Typography } from '@mui/material';
+import { Web3Storage } from 'web3.storage';
 
 const FormAnswer = () => {
     const wallet = useSelector((state) => state.wallet);
+    const { walletConnection } = wallet;
+    const userId = walletConnection.getAccountId();
+    const w3Client = new Web3Storage({ token: process.env.NEXT_PUBLIC_w3key });
     const router = useRouter();
     const { query } = router;
     let raws = [];
@@ -122,9 +126,8 @@ const FormAnswer = () => {
     };
 
     const getParticipantFormDetail = () => {
-        const { contract, walletConnection } = wallet;
+        const { contract } = wallet;
         const { id } = query;
-        const userId = walletConnection.getAccountId();
 
         if (id === null || id === '' || typeof id === 'undefined') {
             return redirectError('Could not found any object have that id!');
@@ -171,12 +174,11 @@ const FormAnswer = () => {
     };
 
     const onGetElements = ({ total }) => {
-        const { contract, walletConnection } = wallet;
+        const { contract } = wallet;
         const num_page = total % 5 === 0 ? total / 5 : parseInt(total / 5) + 1;
         const page_arr = new Array(num_page).fill(0);
         setElements([]);
 
-        const userId = walletConnection.getAccountId();
         const { id } = query;
         page_arr.map((page, index) => {
             return contract
@@ -412,37 +414,123 @@ const FormAnswer = () => {
 
         setSuccess(false);
         setModalSave(true);
+        let { rootId } = form;
 
-        await Promise.all(
-            elements?.map(async (element) => {
-                const { submited, id } = element;
-                if (id !== 'welcome' && id !== 'header' && (typeof submited === 'undefined' || submited === null || submited === '' || submited === false)) {
-                    await seph.acquire();
-                    const result = await submitAnswer(element);
-                    element.submited = result;
-                }
-            }),
-        )
-            .then(() => {
-                const error_element = elements.filter(
-                    (x) =>
-                        x.id !== 'welcome' &&
-                        x.id !== 'header' &&
-                        (typeof x.submited === 'undefined' || x.submited === null || x.submited === '' || x.submited === false),
-                );
+        if (typeof rootId === 'undefined' || rootId === null || rootId === '') {
+            const cId = await onUploadAnswerToW3Storage([]);
+            if (cId !== '') {
+                submitAnswer(cId)
+                    .then((res) => {
+                        if (res) {
+                            setSuccess(true);
+                        } else {
+                            setSuccess(false);
+                        }
+                        setModalSave(false);
+                        setModalSuccess(true);
+                    })
+                    .catch((e) => {
+                        onShowResult({
+                            type: 'error',
+                            msg: String(e),
+                        });
+                        setSuccess(false);
+                        setModalSave(false);
+                        setModalSuccess(true);
+                    });
+            }
+        } else {
+            const res = await w3Client.get(rootId);
+            if (res.ok) {
+                new Promise(async (resolve) => {
+                    const files = await res.files();
+                    let reader = new FileReader();
+                    reader.onload = (e) => {
+                        resolve(JSON.parse(e.target.result));
+                    };
+                    reader.readAsText(files[0], 'utf-8');
+                })
+                    .then(async (storedAnswer) => {
+                        const cId = await onUploadAnswerToW3Storage([...storedAnswer]);
+                        if (cId !== '') {
+                            return cId;
+                        }
+                        return Promise.reject();
+                    })
+                    .then((cId) => {
+                        return submitAnswer(cId);
+                    })
+                    .then((result) => {
+                        if (result) {
+                            setSuccess(true);
+                        } else {
+                            setSuccess(false);
+                        }
+                        setModalSave(false);
+                        setModalSuccess(true);
+                    })
+                    .catch((e) => {
+                        onShowResult({
+                            type: 'error',
+                            msg: String(e),
+                        });
+                        setSuccess(false);
+                        setModalSave(false);
+                        setModalSuccess(true);
+                    });
+            }
+        }
+        //get answer file cid
 
-                if (error_element.length > 0) {
-                    setSuccess(false);
-                } else {
-                    setSuccess(true);
-                }
-                setTotalElement([...elements]);
-                setModalSave(false);
-                setModalSuccess(true);
-            })
-            .catch((err) => {
-                console.log(err);
-            });
+        // await Promise.all(
+        //     elements?.map(async (element) => {
+        //         const { submited, id } = element;
+        //         if (id !== 'welcome' && id !== 'header' && (typeof submited === 'undefined' || submited === null || submited === '' || submited === false)) {
+        //             await seph.acquire();
+        //             const result = await submitAnswer(element);
+        //             element.submited = result;
+        //         }
+        //     }),
+        // )
+        //     .then(() => {
+        //         const error_element = elements.filter(
+        //             (x) =>
+        //                 x.id !== 'welcome' &&
+        //                 x.id !== 'header' &&
+        //                 (typeof x.submited === 'undefined' || x.submited === null || x.submited === '' || x.submited === false),
+        //         );
+
+        //         if (error_element.length > 0) {
+        //             setSuccess(false);
+        //         } else {
+        //             setSuccess(true);
+        //         }
+        //         setTotalElement([...elements]);
+        //         setModalSave(false);
+        //         setModalSuccess(true);
+        //     })
+        //     .catch((err) => {
+        //         console.log(err);
+        //     });
+    };
+
+    const onUploadAnswerToW3Storage = async (storedAnswer) => {
+        const summiter = {
+            id: userId,
+            submited_timestamp: Date.now(),
+        };
+
+        storedAnswer = [
+            ...(storedAnswer || []),
+            {
+                participant: { ...summiter },
+                element: [...elements].filter((x) => x.id !== 'welcome'),
+            },
+        ];
+
+        const blob = new Blob([JSON.stringify(storedAnswer)], { type: 'application/json' });
+        const files = [new File([blob], `${form.id}.json`)];
+        return w3Client.put(files);
     };
 
     const onValidateAnswer = () => {
@@ -478,20 +566,19 @@ const FormAnswer = () => {
         return true;
     };
 
-    const submitAnswer = (answer) => {
+    const submitAnswer = (cId) => {
         const { contract } = wallet;
         const { id } = query;
-        const { defaultValue } = answer;
-        let meta = defaultValue.meta;
-        if (answer.id === 'singleChoice' || answer.id === 'multiChoice') {
-            meta = defaultValue?.meta?.filter?.((x) => x.check)?.map((x) => x.content);
-        }
+        // const { defaultValue } = answer;
+        // let meta = defaultValue.meta;
+        // if (answer.id === 'singleChoice' || answer.id === 'multiChoice') {
+        //     meta = defaultValue?.meta?.filter?.((x) => x.check)?.map((x) => x.content);
+        // }
 
         return contract
             .submit_answer({
                 formId: id,
-                elementId: answer.bId,
-                answer: meta,
+                rootId: cId,
             })
             .then((res) => {
                 seph.release();

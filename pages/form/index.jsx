@@ -121,6 +121,7 @@ const Form = () => {
                 100000000000000,
             )
             .then((res) => {
+                console.log(res);
                 if (res) {
                     router.push(`/form/edit-form?id=${res}`);
                 } else {
