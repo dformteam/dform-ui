@@ -261,15 +261,18 @@ const Publish = ({ id }) => {
         // console.log(yocto_enroll_fee);
 
         contract
-            ?.publish_event?.({
-                eventId: id,
-                limit_participants: parseInt(participant || 0),
-                enroll_fee: yocto_enroll_fee,
-                start_date,
-                end_date,
-                black_list: [...black_list_set],
-                white_list: [...white_list_set],
-            })
+            ?.publish_event?.(
+                {
+                    eventId: id,
+                    limit_participants: parseInt(participant || 0),
+                    enroll_fee: yocto_enroll_fee,
+                    start_date,
+                    end_date,
+                    black_list: [...black_list_set],
+                    white_list: [...white_list_set],
+                },
+                50000000000000,
+            )
             .then((res) => {
                 if (res) {
                     const uri = new URL(window.location.href);
