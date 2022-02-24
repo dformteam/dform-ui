@@ -279,6 +279,11 @@ const FormAnalysis = () => {
         }
     };
 
+    const onMakeResult = () => {
+        const answer = [];
+        
+    }
+
     const onRandomColorBg = () => {
         return color[Math.floor(Math.random() * 5)];
     };
