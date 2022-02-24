@@ -1,6 +1,6 @@
 .root {
     width: 100%;
-    flex: 1;
+    height: max-content;
     display: flex;
     padding: 5%;
     justify-content: center;
@@ -8,15 +8,15 @@
 
 .publish_content {
     width: 100%;
-    max-width: 850px;
+    max-width: 900px;
     min-width: 400px;
+    height: max-content;
     display: flex;
     flex-direction: column;
     border-radius: 24px;
     background: var(--color-background);
     box-shadow: var(--color-boxshadow);
     padding: 32px;
-    // margin: 0 auto;
 }
 
 .publish_title {
@@ -350,6 +350,7 @@
     border-radius: 8px;
     border: 1px solid var(--color-border);
     padding: 0 10px;
+    min-width: 250px;
 }
 
 .publish_row_input {
@@ -412,7 +413,7 @@
 
     &_nothing {
         width: 100%;
-        min-height: 200px;
+        min-height: 150px;
         display: flex;
         justify-content: center;
         align-items: center;

@@ -27,7 +27,6 @@ body {
     line-height: 1.3;
     color: var(--color-primary);
     background: #ffffff;
-    overflow: overlay;
 }
 
 .form_bg {

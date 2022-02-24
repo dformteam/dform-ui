@@ -575,7 +575,7 @@ const FormAnswer = () => {
                             style={index === 1 ? { borderBottomLeftRadius: 24, justifyContent: 'center' } : null}
                             onClick={onNextClick}
                         >
-                            {index < total_element.length - 1 ? 'Next' : 'Review you answer'} <ArrowForwardOutlinedIcon className={styles.icon_next} />
+                            {index < total_element.length - 1 ? 'Next' : 'Review your answer'} <ArrowForwardOutlinedIcon className={styles.icon_next} />
                         </div>
                     </div>
                 )}

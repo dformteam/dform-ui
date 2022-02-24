@@ -4,9 +4,9 @@ import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import styles from './EditEvent.module.scss';
 import Notify from '../../../components/Notify';
-import { utils } from 'near-api-js';
 import { Web3Storage } from 'web3.storage';
 import moment from 'moment';
+import { fireEvent } from '@testing-library/react';
 
 const EditEvent = ({ id }) => {
     const wallet = useSelector((state) => state.wallet);
@@ -28,6 +28,7 @@ const EditEvent = ({ id }) => {
     const [snackMsg, setSnackMsg] = useState('');
     const [start_date, setStartingDate] = useState(Date.now());
     const [end_date, setEndingDate] = useState(Date.now());
+    const [event_link, setEventLink] = useState('');
 
     const onCloseSnack = () => {
         setOpenSnack(false);
@@ -68,7 +69,7 @@ const EditEvent = ({ id }) => {
                                 };
                             }),
                         );
-
+                        setEventLink(res?.url);
                         setEventType(res?.type);
                     }
                 }
@@ -94,33 +95,34 @@ const EditEvent = ({ id }) => {
         }
 
         const { contract } = wallet;
-        setOpenLoading(true);
-        const depositAmount = utils.format.parseNearAmount('1');
-
-        const client = new Web3Storage({ token: process.env.NEXT_PUBLIC_w3key });
-
-        const rootCid = await client.put(fileInput.current);
+        let rootCid = '';
+        if (typeof fireEvent.current !== 'undefined') {
+            const client = new Web3Storage({ token: process.env.NEXT_PUBLIC_w3key });
+            rootCid = await client.put(fileInput.current);
+        }
 
         const des = event_descriptions.filter((x) => x.value !== null && typeof x.value !== 'undefined' && x.value !== '').map((x) => x.value);
+        setOpenLoading(true);
 
         contract
-            ?.update_event?.(
+            ?.update_event_info?.(
                 {
+                    eventId: id,
                     title: event_name,
                     description: des,
                     location: 'Hanoi',
                     privacy: [],
-                    cover_image: rootCid,
+                    cover_img: rootCid,
                     type: parseInt(event_type),
                     start_date,
                     end_date,
+                    url: event_link,
                 },
                 100000000000000,
-                depositAmount,
             )
             .then((res) => {
                 if (res) {
-                    router.push(`/event/event-detail?id=${res}`);
+                    router.push(`/event/event-detail?id=${id}`);
                 } else {
                     onShowResult({
                         type: 'error',
@@ -238,6 +240,10 @@ const EditEvent = ({ id }) => {
         router.push(`/error?content=${encoded_content}`);
     };
 
+    const onChangeEventLink = (e) => {
+        setEventLink(e?.target?.value);
+    };
+
     return (
         <>
             <Notify openLoading={openLoading} openSnack={openSnack} alertType={alertType} snackMsg={snackMsg} onClose={onCloseSnack} />
@@ -300,6 +306,8 @@ const EditEvent = ({ id }) => {
                             );
                         })}
                     </div>
+                    <div className={styles.content_label}>Online event link</div>
+                    <input className={styles.content_input} placeholder="Enter event link" value={event_link} onChange={onChangeEventLink} />
                     <button className={styles.content_attend_button} onClick={onSaveEventClick}>
                         Save
                     </button>
