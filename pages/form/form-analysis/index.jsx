@@ -311,7 +311,15 @@ const FormAnalysis = () => {
             tmp_ret['anws'] = [];
             if (userId === ret?.participant?.id || form.owner === userId) {
                 element?.map?.((el, index) => {
-                    tmp_ret?.anws?.push(el?.defaultValue?.meta?.join(','));
+                    if (el.id === 'multiChoice' || el.id === 'singleChoice') {
+                        const meta = el?.defaultValue?.meta
+                            ?.filter((x) => x.check)
+                            ?.map((x) => x.content)
+                            ?.join(',');
+                        tmp_ret?.anws?.push(meta);
+                    } else {
+                        tmp_ret?.anws?.push(el?.defaultValue?.meta?.join(','));
+                    }
                     return el;
                 });
             }
@@ -390,7 +398,11 @@ const FormAnalysis = () => {
         const { name } = item;
         const shortName = `${name?.[0]}${name?.[1]}`;
         return (
-            <div className={styles.participant_area} key={index} onClick={() => onParticipantDetailClicked(name, index)}>
+            <div
+                className={styles.participant_area}
+                key={index}
+                // onClick={() => onParticipantDetailClicked(name, index)}
+            >
                 <div className={styles.participant_area_avata} style={{ background: onRandomColorBg() }}>
                     {shortName}
                 </div>
@@ -506,7 +518,13 @@ const Analysis = ({ headers, content }) => {
                         </TableHead>
                         <TableBody>
                             {rows?.map?.((item, index) => (
-                                <TableRow key={index}>
+                                <TableRow
+                                    key={index}
+                                    style={{
+                                        whiteSpace: 'normal',
+                                        wordWrap: 'break-word',
+                                    }}
+                                >
                                     <TableCell className={styles.cell_title}>{item.participant}</TableCell>
                                     <TableCell className={styles.cell}>{onExportDate(item.submit)}</TableCell>
                                     {item?.anws?.map?.((anw, indexx) => {
