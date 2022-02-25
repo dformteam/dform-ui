@@ -14,6 +14,11 @@
     padding: 50px 0 20px;
 }
 
+.modal_content {
+    flex: 1;
+    overflow: auto;
+}
+
 .content_left {
     width: 450px;
     height: max-content;
@@ -130,7 +135,7 @@
     text-overflow: ellipsis;
 }
 
-.participant_area:hover > .participant_area_name {
+.participant_area:hover>.participant_area_name {
     text-decoration: underline;
 }
 

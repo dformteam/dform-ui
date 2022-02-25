@@ -20,6 +20,11 @@ import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import Notify from '../../../components/Notify';
 import { Web3Storage } from 'web3.storage';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
 
 const style = {
     position: 'absolute',
@@ -40,6 +45,8 @@ const FormAnalysis = () => {
     let raw_answers = [];
 
     const wallet = useSelector((state) => state.wallet);
+    const { walletConnection } = wallet;
+    const userId = walletConnection.getAccountId();
     const router = useRouter();
     const { query } = router;
     const w3Client = new Web3Storage({ token: process.env.NEXT_PUBLIC_w3key });
@@ -58,6 +65,8 @@ const FormAnalysis = () => {
     const [alertType, setAlertType] = useState('success');
     const [snackMsg, setSnackMsg] = useState('');
     const [raws, setRaws] = useState({});
+    const [headerTables, setHeaderTables] = useState([]);
+    const [answerTables, setAnswerTables] = useState([]);
 
     const onCloseSnack = () => {
         setOpenSnack(false);
@@ -90,6 +99,12 @@ const FormAnalysis = () => {
             }
         };
     }, [intervalId]);
+
+    useEffect(() => {
+        if (typeof form.rootId !== 'undefined' && form.rootId !== null && form.rootId !== '') {
+            onRetrieveAnswer(form.rootId);
+        }
+    }, [form]);
 
     const onGetFormDetail = () => {
         const { contract } = wallet;
@@ -127,9 +142,6 @@ const FormAnalysis = () => {
                         };
                     });
                     setParticipant([...prt]);
-                    if (typeof res.rootId !== 'undefined' && res.rootId !== null && res.rootId !== '') {
-                        onRetrieveAnswer(res.rootId);
-                    }
                 }
             })
             .catch((err) => {
@@ -140,8 +152,6 @@ const FormAnalysis = () => {
     const onParticipantDetailClicked = (item, index) => {
         setAnswers([]);
         participant[index].checked = true;
-        const { walletConnection } = wallet;
-        const userId = walletConnection.getAccountId();
         if (userId !== form.owner && userId !== item) {
             setCurrentParticipant('');
             return setNotify('You only see your answers!');
@@ -273,16 +283,46 @@ const FormAnalysis = () => {
             const files = await res.files();
             let reader = new FileReader();
             reader.onload = (e) => {
+                onMakeResult(JSON.parse(e.target.result));
                 console.log(JSON.parse(e.target.result));
             };
             reader.readAsText(files[0], 'utf-8');
         }
     };
 
-    const onMakeResult = () => {
-        const answer = [];
-        
-    }
+    const onMakeResult = (results) => {
+        const tmp_header = ['participant', 'Submissions date'];
+        if (results?.length > 0) {
+            const ret = results?.[0];
+            const { element } = ret;
+            element?.map?.((el) => {
+                tmp_header.push(el?.defaultValue?.title?.[0]);
+                return el;
+            });
+        }
+
+        const tmp_answer = [];
+
+        results?.map?.((ret) => {
+            let tmp_ret = {};
+            const { element } = ret;
+            tmp_ret['participant'] = ret?.participant?.id;
+            tmp_ret['submit'] = ret?.participant?.submited_timestamp;
+            tmp_ret['anws'] = [];
+            if (userId === ret?.participant?.id || form.owner === userId) {
+                element?.map?.((el, index) => {
+                    tmp_ret?.anws?.push(el?.defaultValue?.meta?.join(','));
+                    return el;
+                });
+            }
+
+            tmp_answer.push(tmp_ret);
+            return ret;
+        });
+
+        setHeaderTables([...tmp_header]);
+        setAnswerTables([...tmp_answer]);
+    };
 
     const onRandomColorBg = () => {
         return color[Math.floor(Math.random() * 5)];
@@ -389,7 +429,7 @@ const FormAnalysis = () => {
                             </div>
                         )}
                     </div>
-                    {cParticipant !== '' && (
+                    {/* {cParticipant !== '' && (
                         <div className={styles.participant_preview}>
                             <Typography id="modal-modal-title" variant="h5" component="h2">
                                 Result of: <span style={{ color: 'var(--color-link)' }}>{cParticipant}</span>
@@ -397,9 +437,15 @@ const FormAnalysis = () => {
 
                             <div className={styles.line}></div>
                             <div className={styles.modal_content}>{renderAnswer()}</div>
+                            <div class={styles.modal_content}>
+                                <Analysis headers={headerTables} content={answerTables} />
+                            </div>
                         </div>
-                    )}
-                    {cParticipant === '' && <div className={styles.participant_notify}>{notify}</div>}
+                    )} */}
+                    <div class={styles.modal_content}>
+                        <Analysis headers={headerTables} content={answerTables} />
+                    </div>
+                    {/* {cParticipant === '' && <div className={styles.participant_notify}>{notify}</div>} */}
                 </div>
 
                 <Modal open={openModal} onClose={onCloseModal} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
@@ -411,6 +457,75 @@ const FormAnalysis = () => {
 };
 
 export default FormAnalysis;
+
+const Analysis = ({ headers, content }) => {
+    // const headers = ['Participant', 'Submissions date', 'Type', 'Created at', 'status'];
+    const [header, setHeader] = useState(headers);
+    const [rows, setRows] = useState(content);
+
+    useEffect(() => {
+        setHeader(headers);
+        setRows(
+            content.sort((a, b) => {
+                return (a?.submit || 0) - (b?.submit || 0);
+            }),
+        );
+    }, [headers, content]);
+
+    const onExportDate = (value) => {
+        const date = new Date(value);
+        let day = date.getDate();
+        day = day < 10 ? `0${day}` : day;
+        let month = date.getMonth() + 1;
+        month = month < 10 ? `0${month}` : month;
+        let year = date.getFullYear();
+        let hours = date.getHours();
+        hours = hours < 10 ? `0${hours}` : hours;
+        let min = date.getMinutes();
+        min = min < 10 ? `0${min}` : min;
+        let sec = date.getSeconds();
+        sec = sec < 10 ? `0${sec}` : sec;
+
+        return `${month}/${day}/${year} - ${hours}:${min}:${sec}`;
+    };
+
+    return (
+        <div className={styles.root}>
+            <button className={styles.export}>Export</button>
+            <div className={styles.content}>
+                <div className={styles.table}>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                {header?.map?.((header, index) => (
+                                    <TableCell align="left" key={index} className={styles.table_title}>
+                                        {header.toUpperCase()}
+                                    </TableCell>
+                                ))}
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {rows?.map?.((item, index) => (
+                                <TableRow key={index}>
+                                    <TableCell className={styles.cell_title}>{item.participant}</TableCell>
+                                    <TableCell className={styles.cell}>{onExportDate(item.submit)}</TableCell>
+                                    {item?.anws?.map?.((anw, indexx) => {
+                                        return (
+                                            <TableCell className={styles.cell} key={indexx}>
+                                                {anw}
+                                            </TableCell>
+                                        );
+                                    })}
+                                    {/* <TableCell className={styles.cell}>{item?.[`anw_${index - 2}`]}</TableCell> */}
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 const color = [
     'linear-gradient(135deg, #007AFF, #23D2FF)',
