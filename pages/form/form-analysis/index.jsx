@@ -490,16 +490,16 @@ const Analysis = ({ headers, content }) => {
     };
 
     return (
-        <div className={styles.root}>
+        <div className={styles.table_root}>
             <button className={styles.export}>Export</button>
-            <div className={styles.content}>
+            <div className={styles.table_content}>
                 <div className={styles.table}>
                     <Table>
                         <TableHead>
                             <TableRow>
-                                {header?.map?.((header, index) => (
+                                {header?.map?.((hd, index) => (
                                     <TableCell align="left" key={index} className={styles.table_title}>
-                                        {header.toUpperCase()}
+                                        {hd.toUpperCase()}
                                     </TableCell>
                                 ))}
                             </TableRow>
