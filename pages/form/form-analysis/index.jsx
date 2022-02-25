@@ -86,14 +86,11 @@ const FormAnalysis = () => {
             onGetFormDetail();
         }, 30000);
 
-        console.log(id);
-
         setIntervalId(id);
     }, []);
 
     useEffect(() => {
         return () => {
-            console.log(intervalId);
             if (intervalId !== -1) {
                 clearInterval(intervalId);
             }
@@ -284,7 +281,6 @@ const FormAnalysis = () => {
             let reader = new FileReader();
             reader.onload = (e) => {
                 onMakeResult(JSON.parse(e.target.result));
-                console.log(JSON.parse(e.target.result));
             };
             reader.readAsText(files[0], 'utf-8');
         }
