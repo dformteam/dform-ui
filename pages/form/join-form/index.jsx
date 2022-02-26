@@ -99,6 +99,7 @@ const JoinForm = () => {
                 formId: id,
             })
             .then((res) => {
+                console.log(res);
                 if (res && res.joined) {
                     router.push(`/form/form-answer?id=${id}`);
                 }

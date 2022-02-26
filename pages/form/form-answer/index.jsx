@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useLayoutEffect, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import styles from './FormAnswer.module.scss';
 import Header from '../../../components/Elements/Header';
 import FullName from '../../../components/Elements/FullName';
@@ -32,6 +32,7 @@ const FormAnswer = () => {
     const w3Client = new Web3Storage({ token: process.env.NEXT_PUBLIC_w3key });
     const router = useRouter();
     const { query } = router;
+    const form = useRef({});
     let raws = [];
 
     const seph = new Semaphore({
@@ -40,7 +41,7 @@ const FormAnswer = () => {
 
     const [activeIndex, setActiveIndex] = useState(0);
     const [form_type, setType] = useState('basi');
-    const [form, setForm] = useState({});
+    // const [form, setForm] = useState({});
     const [elements, setElements] = useState([]);
     const [total_element, setTotalElement] = useState([]);
     const [openLoading, setOpenLoading] = useState(false);
@@ -67,11 +68,7 @@ const FormAnswer = () => {
     }, []);
 
     useLayoutEffect(() => {
-        getParticipantFormDetail();
-    }, [form]);
-
-    useLayoutEffect(() => {
-        if (form?.elements?.length === elements?.length) {
+        if (form.current?.elements?.length === elements?.length) {
             setTotalElement([
                 {
                     id: 'welcome',
@@ -116,7 +113,8 @@ const FormAnswer = () => {
                     if (content !== '') {
                         return redirectError(content);
                     }
-                    setForm(res);
+                    form.current = { ...res };
+                    getParticipantFormDetail();
                     setType(res.type === 0 ? 'basic' : 'card');
                 }
             })
@@ -414,17 +412,20 @@ const FormAnswer = () => {
 
         setSuccess(false);
         setModalSave(true);
-        let { rootId } = form;
+        let { rootId } = form.current;
+
+        console.log(rootId);
 
         if (typeof rootId === 'undefined' || rootId === null || rootId === '') {
             const cId = await onUploadAnswerToW3Storage([]);
             if (cId !== '') {
-                submitAnswer(cId)
+                submitAnswer(cId, '')
                     .then((res) => {
                         if (res) {
                             setSuccess(true);
                         } else {
                             setSuccess(false);
+                            onGetFormDetail();
                         }
                         setModalSave(false);
                         setModalSuccess(true);
@@ -434,6 +435,7 @@ const FormAnswer = () => {
                             type: 'error',
                             msg: String(e),
                         });
+                        onGetFormDetail();
                         setSuccess(false);
                         setModalSave(false);
                         setModalSuccess(true);
@@ -458,18 +460,20 @@ const FormAnswer = () => {
                         return Promise.reject();
                     })
                     .then((cId) => {
-                        return submitAnswer(cId);
+                        return submitAnswer(cId, rootId);
                     })
                     .then((result) => {
                         if (result) {
                             setSuccess(true);
                         } else {
+                            onGetFormDetail();
                             setSuccess(false);
                         }
                         setModalSave(false);
                         setModalSuccess(true);
                     })
                     .catch((e) => {
+                        onGetFormDetail();
                         onShowResult({
                             type: 'error',
                             msg: String(e),
@@ -529,7 +533,7 @@ const FormAnswer = () => {
         ];
 
         const blob = new Blob([JSON.stringify(storedAnswer)], { type: 'application/json' });
-        const files = [new File([blob], `${form.id}.json`)];
+        const files = [new File([blob], `${form.current.id}.json`)];
         return w3Client.put(files);
     };
 
@@ -566,7 +570,7 @@ const FormAnswer = () => {
         return true;
     };
 
-    const submitAnswer = (cId) => {
+    const submitAnswer = (cId, lastCId) => {
         const { contract } = wallet;
         const { id } = query;
         // const { defaultValue } = answer;
@@ -579,6 +583,7 @@ const FormAnswer = () => {
             .submit_answer({
                 formId: id,
                 rootId: cId,
+                lastRootId: lastCId,
             })
             .then((res) => {
                 seph.release();
@@ -711,7 +716,7 @@ const FormAnswer = () => {
             <Notify openLoading={openLoading} openSnack={openSnack} alertType={alertType} snackMsg={snackMsg} onClose={onCloseSnack} />
             <div className={styles.root}>
                 <div className={styles.content}>
-                    <div className={styles.form_title}>{form.title}</div>
+                    <div className={styles.form_title}>{form.current.title}</div>
                     {form_type === 'basic' ? renderBasicForm() : renderCardForm()}
                 </div>
             </div>

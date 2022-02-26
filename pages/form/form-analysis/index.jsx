@@ -450,7 +450,7 @@ const FormAnalysis = () => {
                             </div>
                         </div>
                     )} */}
-                    <div class={styles.modal_content}>
+                    <div className={styles.modal_content}>
                         <Analysis headers={headerTables} content={answerTables} />
                     </div>
                     {/* {cParticipant === '' && <div className={styles.participant_notify}>{notify}</div>} */}
