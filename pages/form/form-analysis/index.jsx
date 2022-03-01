@@ -451,7 +451,7 @@ const FormAnalysis = () => {
                         </div>
                     )} */}
                     <div className={styles.modal_content}>
-                        <Analysis headers={headerTables} content={answerTables} />
+                        <Analysis formName={form?.title} headers={headerTables} content={answerTables} />
                     </div>
                     {/* {cParticipant === '' && <div className={styles.participant_notify}>{notify}</div>} */}
                 </div>
@@ -466,7 +466,7 @@ const FormAnalysis = () => {
 
 export default FormAnalysis;
 
-const Analysis = ({ headers, content }) => {
+const Analysis = ({ formName, headers, content }) => {
     // const headers = ['Participant', 'Submissions date', 'Type', 'Created at', 'status'];
     const [header, setHeader] = useState(headers);
     const [rows, setRows] = useState(content);
@@ -497,9 +497,46 @@ const Analysis = ({ headers, content }) => {
         return `${month}/${day}/${year} - ${hours}:${min}:${sec}`;
     };
 
+    const onExportClicked = () => {
+        const result = [];
+        const count = {};
+        rows?.map?.((row) => {
+            const tmp = {};
+            tmp['pariticipant'] = row.participant;
+            tmp['submit time'] = onExportDate(row.submit);
+
+            row?.anws?.map?.((anw, index) => {
+                let key = headers?.[index + 2];
+                if (key in tmp) {
+                    let c = count?.[key] || 0;
+                    count[key] = c + 1;
+                    key = `${key} (${c + 1})`;
+                }
+                tmp[key] = anw;
+                return anw;
+            });
+
+            result.push(tmp);
+            return row;
+        });
+
+        const replacer = (key, value) => (value === null ? '' : value);
+        const headerx = Object.keys(result[0]);
+        const csv = [headerx.join(','), ...result.map((row) => headerx.map((fieldName) => JSON.stringify(row[fieldName], replacer)).join(','))].join('\r\n');
+
+        const fileName = `${formName?.split(' ')?.join?.('_') || ''}_result.csv`;
+        var data = new Blob([csv], { type: 'application/vnd.ms-excel' });
+        var link = document.createElement('a');
+        link.setAttribute('download', fileName);
+        link.href = URL.createObjectURL(data);
+        link.click();
+    };
+
     return (
         <div className={styles.table_root}>
-            <button className={styles.export}>Export</button>
+            <button className={styles.export} onClick={onExportClicked}>
+                Export
+            </button>
             <div className={styles.table_content}>
                 <div className={styles.table}>
                     <Table>
