@@ -451,7 +451,7 @@ const FormAnalysis = () => {
                         </div>
                     )} */}
                     <div className={styles.modal_content}>
-                        <Analysis formName={form?.title} headers={headerTables} content={answerTables} />
+                        <Analysis owner={form?.owner === userId} formName={form?.title} headers={headerTables} content={answerTables} />
                     </div>
                     {/* {cParticipant === '' && <div className={styles.participant_notify}>{notify}</div>} */}
                 </div>
@@ -466,7 +466,7 @@ const FormAnalysis = () => {
 
 export default FormAnalysis;
 
-const Analysis = ({ formName, headers, content }) => {
+const Analysis = ({ owner, formName, headers, content }) => {
     // const headers = ['Participant', 'Submissions date', 'Type', 'Created at', 'status'];
     const [header, setHeader] = useState(headers);
     const [rows, setRows] = useState(content);
@@ -534,9 +534,11 @@ const Analysis = ({ formName, headers, content }) => {
 
     return (
         <div className={styles.table_root}>
-            <button className={styles.export} onClick={onExportClicked}>
-                Export
-            </button>
+            {owner && (
+                <button className={styles.export} onClick={onExportClicked}>
+                    Export
+                </button>
+            )}
             <div className={styles.table_content}>
                 <div className={styles.table}>
                     <Table>
