@@ -292,100 +292,113 @@ const EventDetail = ({ id }) => {
             return;
         }
         setOpenLoading(true);
-        if (isRegistered) {
-            contract
-                ?.leave_event(
-                    {
-                        eventId: eventId,
-                    },
-                    50000000000000,
-                )
-                .then((res) => {
-                    if (res) {
-                        onGetEventDetail();
-                        onShowResult({
-                            type: 'success',
-                            msg: 'Leaved',
-                        });
-                        setIsRegistered(false);
-                    } else {
-                        onShowResult({
-                            type: 'error',
-                            msg: 'Could not leave',
-                        });
+        contract
+            ?.check_event_join_permission({
+                eventId: eventId,
+            }).then((res) => {
+                if (res) {
+                    if (isRegistered) {
+                        contract
+                            ?.leave_event(
+                                {
+                                    eventId: eventId,
+                                },
+                                50000000000000,
+                            )
+                            .then((res) => {
+                                if (res) {
+                                    onGetEventDetail();
+                                    onShowResult({
+                                        type: 'success',
+                                        msg: 'Leaved',
+                                    });
+                                    setIsRegistered(false);
+                                } else {
+                                    onShowResult({
+                                        type: 'error',
+                                        msg: 'Could not leave',
+                                    });
+                                }
+                            })
+                            .catch((err) => {
+                                onShowResult({
+                                    type: 'error',
+                                    msg: String(err),
+                                });
+                            });
+                        return;
                     }
-                })
-                .catch((err) => {
+                    if (event?.enroll_fee !== '0') {
+                        contract
+                            ?.join_event(
+                                {
+                                    eventId: eventId,
+                                },
+                                50000000000000,
+                                event?.enroll_fee,
+                            )
+                            .then((res) => {
+                                if (res) {
+                                    onGetEventDetail();
+                                    onShowResult({
+                                        type: 'success',
+                                        msg: 'Register succesfully',
+                                    });
+                                    setIsRegistered(true);
+                                    // setModalSuccess(true);
+                                } else {
+                                    onShowResult({
+                                        type: 'error',
+                                        msg: 'Could not register',
+                                    });
+                                }
+                            })
+                            .catch((err) => {
+                                onShowResult({
+                                    type: 'error',
+                                    msg: String(err),
+                                });
+                            });
+                    } else {
+                        contract
+                            ?.join_event(
+                                {
+                                    eventId: eventId,
+                                },
+                                50000000000000,
+                            )
+                            .then((res) => {
+                                console.log(res);
+                                if (res) {
+                                    onGetEventDetail();
+                                    onShowResult({
+                                        type: 'success',
+                                        msg: 'Register succesfully',
+                                    });
+                                    setIsRegistered(true);
+                                    // setModalSuccess(true);
+                                } else {
+                                    onShowResult({
+                                        type: 'error',
+                                        msg: 'Could not register',
+                                    });
+                                }
+                            })
+                            .catch((err) => {
+                                onShowResult({
+                                    type: 'error',
+                                    msg: String(err),
+                                });
+                            });
+                    }
+                } else {
                     onShowResult({
                         type: 'error',
-                        msg: String(err),
+                        msg: 'You are not invited',
                     });
-                });
-            return;
-        }
-        if (event?.enroll_fee !== '0') {
-            contract
-                ?.join_event(
-                    {
-                        eventId: eventId,
-                    },
-                    50000000000000,
-                    event?.enroll_fee,
-                )
-                .then((res) => {
-                    if (res) {
-                        onGetEventDetail();
-                        onShowResult({
-                            type: 'success',
-                            msg: 'Register succesfully',
-                        });
-                        setIsRegistered(true);
-                        // setModalSuccess(true);
-                    } else {
-                        onShowResult({
-                            type: 'error',
-                            msg: 'Could not register',
-                        });
-                    }
-                })
-                .catch((err) => {
-                    onShowResult({
-                        type: 'error',
-                        msg: String(err),
-                    });
-                });
-        } else {
-            contract
-                ?.join_event(
-                    {
-                        eventId: eventId,
-                    },
-                    50000000000000,
-                )
-                .then((res) => {
-                    console.log(res);
-                    if (res) {
-                        onGetEventDetail();
-                        onShowResult({
-                            type: 'success',
-                            msg: 'Register succesfully',
-                        });
-                        setIsRegistered(true);
-                        // setModalSuccess(true);
-                    } else {
-                        onShowResult({
-                            type: 'error',
-                            msg: 'Could not register',
-                        });
-                    }
-                })
-                .catch((err) => {
-                    onShowResult({
-                        type: 'error',
-                        msg: String(err),
-                    });
-                });
-        }
+                }
+            })
+
     };
 
     const retrieveImageCover = async (cover_id) => {

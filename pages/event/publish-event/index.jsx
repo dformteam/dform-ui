@@ -82,13 +82,13 @@ const Publish = ({ id }) => {
     };
 
     useEffect(() => {
-        onGetFormDetail();
+        onGetEventDetail();
         return () => {
             localStorage.removeItem('myForms');
         };
     }, []);
 
-    const onGetFormDetail = () => {
+    const onGetEventDetail = () => {
         const { contract, walletConnection } = wallet;
 
         let content = '';
@@ -269,7 +269,7 @@ const Publish = ({ id }) => {
                 end_date,
                 black_list: [...black_list_set],
                 white_list: [...white_list_set],
-            })
+            }, 100000000000000)
             .then((res) => {
                 if (res) {
                     const uri = new URL(window.location.href);
