@@ -1,4 +1,4 @@
-import { useState, useLayoutEffect } from 'react';
+import { useState, useLayoutEffect, useEffect } from 'react';
 import styles from './MoreEvent.module.scss';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
@@ -8,6 +8,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import Notify from '../../../components/Notify';
+import { Web3Storage } from 'web3.storage';
 
 
 const MoreEvent = () => {
@@ -75,44 +76,51 @@ const MoreEvent = () => {
         }
     };
 
+    const generateEvent = (event) => {
+        let event_type = 'Unknown';
+        switch (event.event_type) {
+            case 1:
+                event_type = 'In person';
+                break;
+            case 2:
+                event_type = 'Online + In person';
+                break;
+            default:
+                event_type = 'Online'
+                break;
+        }
+
+        return {
+            id: event.id,
+            name: event.name,
+            type: event_type,
+            cover_image: event.cover_image,
+            img: '/calendar.svg',
+            date: onExportDateTime(event.start_date),
+            attendees: event?.participants?.length,
+            date_timestamp: event.start_date,
+            isInterested: false,
+        };
+    };
+
     const onGetRows = async ({ total }) => {
         const { contract, walletConnection } = wallet;
         const num_page = total % 5 === 0 ? total / 5 : parseInt(total / 5) + 1;
         const page_arr = new Array(num_page).fill(0);
         const userId = walletConnection.getAccountId();
-        await Promise.all(
-            page_arr.map(async (page, index) => {
-                await contract
-                    .get_events({
-                        userId,
-                        page: index + 1,
-                    })
-                    .then((data) => {
-                        if (data) {
-                            data.data.map((event) => {
-                                let event_type = 'Online';
-                                switch (event.event_type) {
-                                    case 1:
-                                        event_type = 'In person';
-                                        break;
-                                    case 2:
-                                        event_type = 'Online + In person';
-                                        break;
-                                }
-                                let eventInfo = {
-                                    id: event.id,
-                                    name: event.name,
-                                    type: event_type,
-                                    date: onExportDateTime(event.start_date),
-                                    attendees: event.participants.length
-                                }
-                                aEvents.push(eventInfo);
-                            });
-                            setEventList([...aEvents]);
+        await contract
+            ?.get_newest_events?.({})
+            .then((data) => {
+                if (data) {
+                    data.data.map((event) => {
+                        let eventInfo = generateEvent(event);
+                        if (parseFloat(event.end_date) > Date.now()) {
+                            aEvents.push(eventInfo);
                         }
                     });
-            }),
-        );
+                    setEventList([...aEvents]);
+                }
+            });
     };
 
     const onShowResult = ({ type, msg }) => {
@@ -204,6 +212,14 @@ const MoreEvent = () => {
         }
     };
 
+    const renderInterestedIcon = (item) => {
+        if (item.isInterested) {
+            return <FavoriteIcon className={styles.event_item_icon_favor} onClick={() => onEventFavoriteClick(item)} />;
+        } else {
+            return <FavoriteBorderIcon className={styles.event_item_icon_favor} onClick={() => onEventFavoriteClick(item)} />;
+        }
+    };
+
     return (
         <>
             <Notify openLoading={openLoading} openSnack={openSnack} alertType={alertType} snackMsg={snackMsg} onClose={onCloseSnack} />
@@ -214,7 +230,7 @@ const MoreEvent = () => {
                             <input placeholder={'Find your next event'} className={styles.search_input} value={searchEventValue} onChange={e => { setSearchEventValue(e.currentTarget.value); }} />
                             <SearchIcon className={styles.search_icon} />
                         </div>
-                        <input className={styles.search_input_location} placeholder={'Location'} />
+                        {/* <input className={styles.search_input_location} placeholder={'Location'} />
                         <Select
                             value={type}
                             onChange={onTypeChange}
@@ -226,31 +242,70 @@ const MoreEvent = () => {
                             <MenuItem value={'online'}>Online</MenuItem>
                             <MenuItem value={'inPerson'}>In person</MenuItem>
                         </Select>
-                        <input type={'date'} className={styles.search_input_location} placeholder={'Date'} />
+                        <input type={'date'} className={styles.search_input_location} placeholder={'Date'} /> */}
                         <button className={styles.search_button} onClick={() => onSearchEvent(searchEventValue)}>Search</button>
                     </div>
                 </div>
                 <div className={styles.event}>
                     <div className={styles.line} />
-                    {eventList?.map?.((item) => {
-                        return (
-                            <div className={styles.event_item} key={item.id}>
-                                <img src={'/calendar.svg'} className={styles.event_item_img} alt="img" />
-                                <div className={styles.event_item_info}>
-                                    <div className={styles.event_item_date}>{item.date}</div>
-                                    <div className={styles.event_item_name} onClick={() => onEventItemClick(item.id)}>{item.name}</div>
-                                    <div className={styles.event_item_attendees}>{item.attendees} attendees</div>
-                                </div>
-                                <div className={styles.event_item_share}>
-                                    <ShareOutlinedIcon className={styles.event_item_icon} onClick={() => onGetSharedLink(item.id)} />
-                                    <FavoriteBorderIcon className={styles.event_item_icon_favor} onClick={() => onEventFavoriteClick(item.id)} />
-                                </div>
-                            </div>
-                        );
-                    })}
+                    {eventList?.map?.((item) => (
+                        < EventItem item={item} onGetSharedLink={onGetSharedLink} renderInterestedIcon={renderInterestedIcon} key={item.id} />
+                    ))}
                 </div>
             </div>
         </>
+    );
+};
+
+const EventItem = (props) => {
+    const { item, onGetSharedLink, renderInterestedIcon } = props;
+    const router = useRouter();
+    const [img, setImg] = useState('');
+
+    useEffect(() => {
+        retrieveImagesCover();
+    }, []);
+
+    const retrieveImagesCover = async () => {
+        if (item && item.cover_image && item.cover_image !== '' && item.img === '/calendar.svg') {
+            const client = new Web3Storage({ token: process.env.NEXT_PUBLIC_w3key });
+            const res = await client.get(item.cover_image);
+            if (res.ok) {
+                const files = await res.files();
+                for (const file of files) {
+                    let reader = new FileReader();
+                    reader.onload = (e) => {
+                        setImg(e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        }
+    };
+
+    return (
+        <div className={styles.event_item} key={item.id}>
+            <div className={styles.event_item_header}>
+                <div className={styles.event_item_type}>{item.type}</div>
+                <img src={img} className={styles.event_item_img} alt="img" onClick={() => router.push(`/event/event-detail?id=${item.id}`)} />
+            </div>
+            <div className={styles.event_item_info}>
+                <div className={styles.event_item_date}>{item.date}</div>
+                <div className={styles.event_item_name} onClick={() => router.push(`/event/event-detail?id=${item.id}`)}>
+                    {item.name}
+                </div>
+                <div className={styles.event_item_footer}>
+                    <div className={styles.event_item_attendees}>{item.attendees} attendees</div>
+                    <ShareOutlinedIcon
+                        className={styles.event_item_icon}
+                        onClick={() => {
+                            onGetSharedLink(item.id);
+                        }}
+                    />
+                    {renderInterestedIcon(item)}
+                </div>
+            </div>
+        </div>
     );
 };
 

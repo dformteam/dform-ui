@@ -434,7 +434,7 @@ const EventDetail = ({ id }) => {
         contract
             ?.unpublish_event?.({
                 eventId: eventId,
-            })
+            }, 50000000000000)
             .then((res) => {
                 if (res) {
                     // let state = {

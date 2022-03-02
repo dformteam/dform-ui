@@ -182,7 +182,7 @@ const Event = () => {
                     const now = Date.now();
                     await newest_events.data.map(async (event) => {
                         let eventInfo = generateEvent(event);
-                        if (eventInfo.end_timestamp > now) {
+                        if (parseFloat(eventInfo.end_timestamp) > now) {
                             newestEvents.current.push(eventInfo);
                         }
                     });
@@ -279,7 +279,6 @@ const Event = () => {
         const num_page = total % 5 === 0 ? total / 5 : parseInt(total / 5) + 1;
         const page_arr = new Array(num_page).fill(0);
         const userId = walletConnection.getAccountId();
-        const current_timestamp = Date.now();
         await Promise.all(
             page_arr.map(async (page, index) => {
                 await contract
@@ -289,11 +288,8 @@ const Event = () => {
                     })
                     .then((data) => {
                         if (data) {
-                            let current_event = {};
-                            current_event.img = '/calendar.svg';
-                            let dt = -1;
                             data?.data?.map((event) => {
-                                let event_type = 'Online';
+                                let event_type = 'Unknown';
                                 switch (event?.event_type) {
                                     case 1:
                                         event_type = 'In person';
@@ -302,25 +298,10 @@ const Event = () => {
                                         event_type = 'Online + In person';
                                         break;
                                     default:
+                                        event_type = 'Online';
                                         break;
                                 }
                                 let eventInfo = {
-                                    id: event.id,
-                                    name: event.name,
-                                    type: event_type,
-                                    date: onExportDateTime(event.start_date),
-                                    attendees: event.participants.length,
-                                    cover_image: event.cover_image,
-                                    // img: '/calendar.svg'
-                                };
-                                aEvents.push(eventInfo);
-                                let tmp_dt = current_timestamp - event.start_date;
-                                if (dt === -1 || tmp_dt < dt) {
-                                    dt = tmp_dt;
-                                    // current_event = event;
-                                }
-
-                                current_event = {
                                     id: event.id,
                                     name: event.name,
                                     type: event_type,
@@ -328,21 +309,35 @@ const Event = () => {
                                     date: onExportDateTime(event.start_date),
                                     attendees: event.participants.length,
                                     cover_image: event.cover_image,
-                                    img: '/calendar.svg',
+                                    img: '/calendar.svg'
                                 };
-
+                                if (parseFloat(event.end_date) > Date.now()) {
+                                    aEvents.push(eventInfo);
+                                }
                                 return event;
                             });
-                            retrieveImagesCover(current_event);
-                            // setNextEvent(current_event);
-                            if (eventList.length < 9) {
-                                setEventList([...aEvents]);
-                            }
+                            setEventList([...aEvents]);
                         }
                     });
             }),
         );
     };
+
+    useEffect(() => {
+        if (eventList.length > 0) {
+            const current_timestamp = Date.now();
+            let current_event = eventList[0];
+            let dt = Math.abs(current_timestamp - parseFloat(eventList[0].start_date));
+            eventList.map((event) => {
+                let tmp_dt = Math.abs(current_timestamp - parseFloat(event.start_date));
+                if (tmp_dt < dt) {
+                    dt = tmp_dt;
+                    current_event = event;
+                }
+            });
+            retrieveImagesCover(current_event);
+        }
+    }, [eventList]);
 
     const onTypeChange = (e) => {
         setType(e.target.value);

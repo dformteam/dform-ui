@@ -42,7 +42,7 @@ const MyEvent = () => {
 
     useEffect(() => {
         if (JSON.stringify(interestedEventList) !== '[]') {
-            let tmp_display = [];
+            // let tmp_display = [];
             let removing_display = new Set();
             interestedEventList.map((item, index) => {
                 const interested_event = [...eventList].map((event) => {
@@ -65,14 +65,14 @@ const MyEvent = () => {
                 setPastEventList([...passed_event]);
                 return item;
             });
-            interestedEventList?.map((event, index) => {
-                if (!removing_display.has(index)) {
-                    tmp_display.push(event);
-                }
-                return event;
-            });
+            // interestedEventList?.map((event, index) => {
+            //     if (!removing_display.has(index)) {
+            //         tmp_display.push(event);
+            //     }
+            //     return event;
+            // });
 
-            setDisplayInterestedEventList([...tmp_display]);
+            // setDisplayInterestedEventList([...tmp_display]);
         }
     }, [interestedEventList]);
 
@@ -88,7 +88,7 @@ const MyEvent = () => {
     };
 
     const generateEvent = (event) => {
-        let event_type = 'Online';
+        let event_type = 'Unknown';
         switch (event.event_type) {
             case 1:
                 event_type = 'In person';
@@ -97,6 +97,7 @@ const MyEvent = () => {
                 event_type = 'Online + In person';
                 break;
             default:
+                event_type = 'Online'
                 break;
         }
 
@@ -154,12 +155,11 @@ const MyEvent = () => {
             }),
         )
             .then(() => {
-                console.log(123123123);
                 ls_itr_event.sort((a, b) => {
                     return b.date_timestamp - a.date_timestamp;
                 });
                 setInterestedEventList([...ls_itr_event]);
-                setDisplayInterestedEventList([...ls_itr_event]);
+                // setDisplayInterestedEventList([...ls_itr_event]);
             })
             .catch((err) => {
                 console.log(err);
@@ -325,7 +325,7 @@ const MyEvent = () => {
     const onUpcomingTabClick = () => {
         setActiveTab('upcoming');
         setPastState(false);
-        setSavedState(true);
+        // setSavedState(true);
         setAttendingState(true);
         setHostingState(true);
     };
@@ -335,7 +335,7 @@ const MyEvent = () => {
         setPastState(true);
         setAttendingState(false);
         setHostingState(false);
-        setSavedState(false);
+        // setSavedState(false);
     };
 
     const handleAttendingCBChange = (e) => {
@@ -343,10 +343,10 @@ const MyEvent = () => {
         setAttendingState(isChecked);
     };
 
-    const handleSavedCBChange = (e) => {
-        let isChecked = e.target.checked;
-        setSavedState(isChecked);
-    };
+    // const handleSavedCBChange = (e) => {
+    //     let isChecked = e.target.checked;
+    //     setSavedState(isChecked);
+    // };
 
     const handleHostingCBChange = (e) => {
         let isChecked = e.target.checked;
@@ -360,7 +360,7 @@ const MyEvent = () => {
     const onSuccess = () => {
         onShowResult({
             type: 'success',
-            msg: 'copied',
+            msg: 'Copied',
         });
     };
 
@@ -404,7 +404,7 @@ const MyEvent = () => {
                                         Attending
                                     </label>
                                 </div>
-                                <div className={styles.left_menu_row}>
+                                {/* <div className={styles.left_menu_row}>
                                     <input
                                         type="checkbox"
                                         id="saved"
@@ -416,7 +416,7 @@ const MyEvent = () => {
                                     <label htmlFor="saved" className={styles.left_menu_label}>
                                         Saved
                                     </label>
-                                </div>
+                                </div> */}
                                 <div className={styles.left_menu_row}>
                                     <input
                                         type="checkbox"
@@ -485,7 +485,7 @@ const MyEvent = () => {
                             })}
                         </div>
                     )}
-                    {savedState && (
+                    {/* {savedState && (
                         <div className={styles.content_event}>
                             {displayInterestedEventList?.map?.((item, index) => {
                                 if (item && item.id) {
@@ -504,7 +504,7 @@ const MyEvent = () => {
                                 return null;
                             })}
                         </div>
-                    )}
+                    )} */}
                     {hostingState && (
                         <div className={styles.content_event}>
                             {hostingEventList?.map?.((item, index) => {
@@ -534,7 +534,7 @@ const MyEvent = () => {
 
 const EventItem = (props) => {
     const { item, label, activeTab } = props;
-    const [img, setImg] = useState('');
+    const [img, setImg] = useState('/calendar.svg');
 
     useEffect(() => {
         retrieveImagesCover();
