@@ -82,7 +82,7 @@ const Time = ({ index, onChange, defaultValue, type = '', error }) => {
                         {title} {required && <span>*</span>}
                     </div>
                 )}
-                {(type === 'edit' || first_field !== 'Type your description') && (
+                {/* {(type === 'edit' || first_field !== 'Type your description') && (
                     <input
                         className={styles.time_description}
                         value={first_field}
@@ -90,7 +90,7 @@ const Time = ({ index, onChange, defaultValue, type = '', error }) => {
                         placeholder={'Type a description'}
                         disabled={type === 'edit' ? false : true}
                     />
-                )}
+                )} */}
                 {type !== 'answer' && type !== 'analysis' && (
                     <div className={styles.time_require}>
                         Question required: <Switch value={required} checked={required} onChange={onChangeRequired} />

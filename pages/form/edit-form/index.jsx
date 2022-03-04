@@ -606,7 +606,7 @@ const listElement = [
         label: 'Full Name',
         icon: AccountCircleOutlinedIcon,
         defaultValue: {
-            title: ['Name', 'Type your description', 'First Name', 'Last Name'],
+            title: ['Replace your name question detail here', 'Type your description', 'First Name', 'Last Name'],
             meta: [],
             isRequired: false,
             error: '',
@@ -619,7 +619,7 @@ const listElement = [
         label: 'Email',
         icon: EmailOutlinedIcon,
         defaultValue: {
-            title: ['Email', 'Type your description', 'Email.'],
+            title: ['Replace your email question detail here', 'Type your description', 'Email.'],
             meta: [],
             isRequired: false,
             error: '',
@@ -632,7 +632,7 @@ const listElement = [
         label: 'Address',
         icon: LocationOnOutlinedIcon,
         defaultValue: {
-            title: ['Address', 'Street Address', 'Street Address Line 2', 'City', 'State / Province', 'Postal / Zip Code'],
+            title: ['Replace your address question detail here', 'Street Address', 'Street Address Line 2', 'City', 'State / Province', 'Postal / Zip Code'],
             meta: [],
             isRequired: false,
             error: '',
@@ -645,7 +645,7 @@ const listElement = [
         label: 'Phone',
         icon: LocalPhoneOutlinedIcon,
         defaultValue: {
-            title: ['Phone Number', 'Type your description', 'Please enter a valid phone number.'],
+            title: ['Replace your phone number question detail here', 'Type your description', 'Please enter a valid phone number.'],
             meta: [],
             isRequired: false,
             error: '',
@@ -658,7 +658,7 @@ const listElement = [
         label: 'Date Picker',
         icon: DateRangeOutlinedIcon,
         defaultValue: {
-            title: ['Date Picker', 'Type your description', 'Please pick a date.'],
+            title: ['Replace your date picker question detail here', 'Type your description', 'Please pick a date.'],
             meta: [],
             isRequired: false,
             error: '',
@@ -682,7 +682,7 @@ const listElement = [
         label: 'Short Text',
         icon: ShortTextOutlinedIcon,
         defaultValue: {
-            title: ['Type a question', 'Type your description'],
+            title: ['Replace your short question detail here', 'Type your description'],
             meta: [],
             isRequired: false,
             error: '',
@@ -695,7 +695,7 @@ const listElement = [
         label: 'Long text',
         icon: ChromeReaderModeOutlinedIcon,
         defaultValue: {
-            title: ['Type a question', 'Type your description'],
+            title: ['Replace your long question detail here', 'Type your description'],
             meta: [],
             isRequired: false,
             error: '',
@@ -708,7 +708,7 @@ const listElement = [
         label: 'Single Choice',
         icon: AdjustOutlinedIcon,
         defaultValue: {
-            title: ['Type a question', 'Type your description'],
+            title: ['Replace your single choice question detail here', 'Type your description'],
             meta: [],
             isRequired: false,
             error: '',
@@ -721,7 +721,7 @@ const listElement = [
         label: 'Multi Choice',
         icon: CheckBoxOutlinedIcon,
         defaultValue: {
-            title: ['Type a question', 'Type your description'],
+            title: ['Replace your multichoice question detail here', 'Type your description'],
             meta: [],
             isRequired: false,
             error: '',
@@ -734,7 +734,7 @@ const listElement = [
         label: 'Time',
         icon: AccessTimeOutlinedIcon,
         defaultValue: {
-            title: ['Type a question', 'Type your description'],
+            title: ['Replace your time question detail here', 'Type your description'],
             meta: [],
             isRequired: false,
             error: '',
@@ -747,7 +747,7 @@ const listElement = [
         label: 'Rating',
         icon: StarOutlineOutlinedIcon,
         defaultValue: {
-            title: ['Type a question', 'Type your description'],
+            title: ['Replace your rating question detail here', 'Type your description'],
             meta: [],
             isRequired: false,
             error: '',

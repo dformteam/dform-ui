@@ -414,8 +414,6 @@ const FormAnswer = () => {
         setModalSave(true);
         let { rootId } = form.current;
 
-        console.log(rootId);
-
         if (typeof rootId === 'undefined' || rootId === null || rootId === '') {
             const cId = await onUploadAnswerToW3Storage([]);
             if (cId !== '') {

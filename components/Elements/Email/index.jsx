@@ -32,16 +32,16 @@ const Email = ({ index, onChange, defaultValue, type = '', error }) => {
             });
     };
 
-    const onFirstFieldChange = (e) => {
-        setFirstField(e.target.value);
-        type === 'edit' &&
-            onChange?.({
-                index,
-                title: [title, e.target.value, second_field],
-                meta: [],
-                isRequired: required,
-            });
-    };
+    // const onFirstFieldChange = (e) => {
+    //     setFirstField(e.target.value);
+    //     type === 'edit' &&
+    //         onChange?.({
+    //             index,
+    //             title: [title, e.target.value, second_field],
+    //             meta: [],
+    //             isRequired: required,
+    //         });
+    // };
 
     const onSecondFieldChange = (e) => {
         setSecondField(e.target.value);
@@ -97,7 +97,7 @@ const Email = ({ index, onChange, defaultValue, type = '', error }) => {
                         {title} {required && <span>*</span>}
                     </div>
                 )}
-                {(type === 'edit' || first_field !== 'Type your description') && (
+                {/* {(type === 'edit' || first_field !== 'Type your description') && (
                     <input
                         className={styles.email_description}
                         value={first_field}
@@ -105,7 +105,7 @@ const Email = ({ index, onChange, defaultValue, type = '', error }) => {
                         onChange={onFirstFieldChange}
                         disabled={type === 'edit' ? false : true}
                     />
-                )}
+                )} */}
                 {type !== 'answer' && type !== 'analysis' && (
                     <div className={styles.email_require}>
                         Question required: <Switch value={required} checked={required} onChange={onChangeRequired} />
