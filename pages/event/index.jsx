@@ -25,7 +25,7 @@ const Event = () => {
     const [openSnack, setOpenSnack] = useState(false);
     const [alertType, setAlertType] = useState('success');
     const [snackMsg, setSnackMsg] = useState('');
-    const [link, setLink] = useState('');
+    const [link, setLink] = useState({ link: '', name: '' });
     const [isInterestedLoad, setIsInterestedLoad] = useState(false);
     const [interestList, setInterestList] = useState([]);
 
@@ -379,10 +379,10 @@ const Event = () => {
         }
     };
 
-    const onGetSharedLink = (id) => {
+    const onGetSharedLink = (id, name) => {
         const uri = new URL(window.location.href);
         const { origin } = uri;
-        setLink(`${origin}/event/event-detail?id=${id}`);
+        setLink({ link: `${origin}/event/event-detail?id=${id}`, name });
         setModalShare(true);
     };
 
@@ -400,7 +400,7 @@ const Event = () => {
             return 'Hosting';
         }
         return 'Attending';
-    }
+    };
 
     const onRequestConnectWallet = () => {
         const { nearConfig, walletConnection } = wallet;
@@ -439,7 +439,7 @@ const Event = () => {
                                 <CheckCircleIcon className={styles.attending_icon} />
                                 {generateNextEventLabel(nextEvent)}
                             </div>
-                            <ShareOutlinedIcon className={styles.attend_item_icon} onClick={() => onGetSharedLink(nextEvent.id)} />
+                            <ShareOutlinedIcon className={styles.attend_item_icon} onClick={() => onGetSharedLink(nextEvent.id, nextEvent.name)} />
                         </div>
                     </div>
                 ) : (
@@ -532,7 +532,7 @@ const EventItem = (props) => {
                     <ShareOutlinedIcon
                         className={styles.event_item_icon}
                         onClick={() => {
-                            onGetSharedLink(item.id);
+                            onGetSharedLink(item.id, item.name);
                         }}
                     />
                     {renderInterestedIcon(item)}
