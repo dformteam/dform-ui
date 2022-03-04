@@ -16,7 +16,6 @@ import { Web3Storage } from 'web3.storage';
 const Event = () => {
     const router = useRouter();
 
-    const [eventType, setType] = useState('both');
     const [modalShare, setModalShare] = useState(false);
     const [searchEventValue, setSearchEventValue] = useState('');
     const [eventList, setEventList] = useState([]);
@@ -48,7 +47,7 @@ const Event = () => {
     }, []);
 
     useLayoutEffect(() => {
-        onGetNewestEvents();
+        onGetMaxNewestEventsRows();
     }, []);
 
     const onCloseSnack = () => {
@@ -61,12 +60,6 @@ const Event = () => {
         setAlertType(type);
         setSnackMsg(msg);
     };
-
-    // useEffect(() => {
-    //     if (nextEvent !== {}) {
-    //         retrieveImagesCover(nextEvent);
-    //     }
-    // }, [nextEvent]);
 
     useEffect(() => {
         if (interestList !== []) {
@@ -145,7 +138,7 @@ const Event = () => {
     };
 
     const generateEvent = (event) => {
-        let event_type = 'Online';
+        let event_type = 'Unknown';
         switch (event.event_type) {
             case 1:
                 event_type = 'In person';
@@ -153,8 +146,8 @@ const Event = () => {
             case 2:
                 event_type = 'Online + In person';
                 break;
-
             default:
+                event_type = 'Online';
                 break;
         }
         return {
@@ -169,29 +162,62 @@ const Event = () => {
             cover_image: event.cover_image,
             img: '/calendar.svg',
             isInterested: false,
+            start_date: event.start_date,
         };
     };
 
-    const onGetNewestEvents = () => {
-        const { contract } = wallet;
-        newestEvents.current = [];
+    const onGetMaxNewestEventsRows = () => {
+        const { contract, walletConnection } = wallet;
+        const userId = walletConnection.getAccountId();
         contract
-            ?.get_newest_events?.({})
-            .then(async (newest_events) => {
-                if (newest_events) {
-                    const now = Date.now();
-                    await newest_events.data.map(async (event) => {
-                        let eventInfo = generateEvent(event);
-                        if (parseFloat(eventInfo.end_timestamp) > now) {
-                            newestEvents.current.push(eventInfo);
-                        }
-                    });
+            ?.get_newest_events_count?.({})
+            .then((total) => {
+                onGetNewestEventsRows({ total });
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
 
-                    newestEvents.current.sort(function (a, b) {
-                        return a.date_timestamp - b.date_timestamp;
+    const onGetNewestEventsRows = async ({ total }) => {
+        const { contract, walletConnection } = wallet;
+        const num_page = total % 5 === 0 ? total / 5 : parseInt(total / 5) + 1;
+        const page_arr = new Array(num_page).fill(0);
+        const userId = walletConnection.getAccountId();
+        // const now = Date.now();
+        let tmpNewestEvents = [];
+
+        await Promise.all(
+            page_arr.map(async (page, index) => {
+                await contract
+                    .get_newest_events({
+                        page: index + 1,
+                    })
+                    .then((newest_events) => {
+                        if (newest_events) {
+                            const now = Date.now();
+                            newest_events.data.map((event) => {
+                                let eventInfo = generateEvent(event);
+                                if (parseFloat(eventInfo.end_timestamp) > now) {
+                                    tmpNewestEvents.push(eventInfo);
+                                }
+                                return event;
+                            });
+                        }
+                    })
+                    .catch((err) => {
+                        console.log(err);
                     });
-                    setNewestEventList([...newestEvents.current]);
+            }),
+        )
+            .then(() => {
+                tmpNewestEvents.sort((a, b) => {
+                    return b.date_timestamp - a.date_timestamp;
+                });
+                while (tmpNewestEvents.length > 5) {
+                    tmpNewestEvents.shift();
                 }
+                setNewestEventList([...tmpNewestEvents]);
             })
             .catch((err) => {
                 console.log(err);
@@ -201,6 +227,9 @@ const Event = () => {
     const onEventFavoriteClick = (item) => {
         const { contract, walletConnection } = wallet;
         const userId = walletConnection.getAccountId();
+        if (userId === '') {
+            onRequestConnectWallet();
+        }
         if (userId === item.owner) {
             onShowResult({
                 type: 'error',
@@ -289,28 +318,7 @@ const Event = () => {
                     .then((data) => {
                         if (data) {
                             data?.data?.map((event) => {
-                                let event_type = 'Unknown';
-                                switch (event?.event_type) {
-                                    case 1:
-                                        event_type = 'In person';
-                                        break;
-                                    case 2:
-                                        event_type = 'Online + In person';
-                                        break;
-                                    default:
-                                        event_type = 'Online';
-                                        break;
-                                }
-                                let eventInfo = {
-                                    id: event.id,
-                                    name: event.name,
-                                    type: event_type,
-                                    start_date: event.start_date,
-                                    date: onExportDateTime(event.start_date),
-                                    attendees: event.participants.length,
-                                    cover_image: event.cover_image,
-                                    img: '/calendar.svg'
-                                };
+                                let eventInfo = generateEvent(event);
                                 if (parseFloat(event.end_date) > Date.now()) {
                                     aEvents.push(eventInfo);
                                 }
@@ -379,6 +387,20 @@ const Event = () => {
         });
     };
 
+    const generateNextEventLabel = (event) => {
+        const { contract, walletConnection } = wallet;
+        const userId = walletConnection.getAccountId();
+        if (userId === event.owner) {
+            return 'Hosting';
+        }
+        return 'Attending';
+    }
+
+    const onRequestConnectWallet = () => {
+        const { nearConfig, walletConnection } = wallet;
+        walletConnection?.requestSignIn?.(nearConfig?.contractName);
+    };
+
     return (
         <>
             <Notify openLoading={openLoading} openSnack={openSnack} alertType={alertType} snackMsg={snackMsg} onClose={onCloseSnack} />
@@ -409,7 +431,7 @@ const Event = () => {
                         <div className={styles.attend_item_footer}>
                             <div className={styles.attending}>
                                 <CheckCircleIcon className={styles.attending_icon} />
-                                Attending
+                                {generateNextEventLabel(nextEvent)}
                             </div>
                             <ShareOutlinedIcon className={styles.attend_item_icon} onClick={() => onGetSharedLink(nextEvent.id)} />
                         </div>

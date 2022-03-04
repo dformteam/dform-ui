@@ -44,9 +44,9 @@ export async function initContract() {
             'get_event_count',
             'get_events',
             'get_newest_events',
+            'get_newest_events_count',
             'get_interested_events',
             'get_interested_event_count',
-            
         ],
         changeMethods: [
             'init_new_form',
@@ -70,7 +70,8 @@ export async function initContract() {
             'not_interest_event',
             // TODO Check function loi khi dat vao view
             'get_recent_event_created',
-            'check_event_join_permission'
+            'check_event_join_permission',
+            // 'get_newest_events',
         ],
         sender: walletConnection.getAccountId(),
     });

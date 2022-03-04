@@ -202,7 +202,11 @@ const EventDetail = ({ id }) => {
     };
 
     const onEventFavoriteClick = () => {
-        const { contract } = wallet;
+        const { contract, walletConnection} = wallet;
+        const userId = walletConnection.getAccountId();
+        if (userId === '') {
+            onRequestConnectWallet();
+        }
         setOpenLoading(true);
         contract
             ?.interest_event(
@@ -282,8 +286,17 @@ const EventDetail = ({ id }) => {
         });
     };
 
+    const onRequestConnectWallet = () => {
+        const { nearConfig, walletConnection } = wallet;
+        walletConnection?.requestSignIn?.(nearConfig?.contractName);
+    };
+
     const onAttendClick = () => {
-        const { contract } = wallet;
+        const { contract, walletConnection} = wallet;
+        const userId = walletConnection.getAccountId();
+        if (userId === '') {
+            onRequestConnectWallet();
+        }
         if (event.end_date <= Date.now()) {
             onShowResult({
                 type: 'error',
@@ -434,7 +447,7 @@ const EventDetail = ({ id }) => {
         contract
             ?.unpublish_event?.({
                 eventId: eventId,
-            }, 50000000000000)
+            }, 100000000000000)
             .then((res) => {
                 if (res) {
                     // let state = {
