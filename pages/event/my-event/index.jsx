@@ -30,7 +30,7 @@ const MyEvent = () => {
     const [hostingState, setHostingState] = useState(true);
     const [pastState, setPastState] = useState(false);
     const [modalShare, setModalShare] = useState(false);
-    const [link, setLink] = useState('');
+    const [link, setLink] = useState({ link: '', name: '' });
 
     const wallet = useSelector((state) => state.wallet);
     const router = useRouter();
@@ -97,7 +97,7 @@ const MyEvent = () => {
                 event_type = 'Online + In person';
                 break;
             default:
-                event_type = 'Online'
+                event_type = 'Online';
                 break;
         }
 
@@ -257,10 +257,10 @@ const MyEvent = () => {
         router.push(`/event/event-detail?id=${id}`);
     };
 
-    const onGetSharedLink = (id) => {
+    const onGetSharedLink = (id, name) => {
         const uri = new URL(window.location.href);
         const { origin } = uri;
-        setLink(`${origin}/event/event-detail?id=${id}`);
+        setLink({ link: `${origin}/event/event-detail?id=${id}`, name });
         setModalShare(true);
     };
 
@@ -571,7 +571,7 @@ const EventItem = (props) => {
                 </div>
             </div>
             <div className={styles.content_event_item_share}>
-                <ShareOutlinedIcon className={styles.content_event_item_icon} onClick={() => props.onGetSharedLink(item.id)} />
+                <ShareOutlinedIcon className={styles.content_event_item_icon} onClick={() => props.onGetSharedLink(item.id, item.name)} />
                 {/* <FavoriteBorderIcon className={styles.content_event_item_icon_favor} onClick={() => onEventFavoriteClick(item.id)} /> */}
                 {props?.renderInterestedIcon?.(item)}
             </div>

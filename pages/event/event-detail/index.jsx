@@ -41,7 +41,7 @@ const EventDetail = ({ id }) => {
     const [openConfirmation, setOpenConfirmation] = useState(false);
     const [modalSuccess, setModalSuccess] = useState(false);
     const [modalShare, setModalShare] = useState(false);
-    const [link, setLink] = useState('');
+    const [link, setLink] = useState({ link: '', name: '' });
 
     const onCloseSnack = () => {
         setOpenSnack(false);
@@ -202,7 +202,7 @@ const EventDetail = ({ id }) => {
     };
 
     const onEventFavoriteClick = () => {
-        const { contract, walletConnection} = wallet;
+        const { contract, walletConnection } = wallet;
         const userId = walletConnection.getAccountId();
         if (userId === '') {
             onRequestConnectWallet();
@@ -292,7 +292,7 @@ const EventDetail = ({ id }) => {
     };
 
     const onAttendClick = () => {
-        const { contract, walletConnection} = wallet;
+        const { contract, walletConnection } = wallet;
         const userId = walletConnection.getAccountId();
         if (userId === '') {
             onRequestConnectWallet();
@@ -308,7 +308,8 @@ const EventDetail = ({ id }) => {
         contract
             ?.check_event_join_permission({
                 eventId: eventId,
-            }).then((res) => {
+            })
+            .then((res) => {
                 if (res) {
                     if (isRegistered) {
                         contract
@@ -410,8 +411,7 @@ const EventDetail = ({ id }) => {
                         msg: 'You are not invited',
                     });
                 }
-            })
-
+            });
     };
 
     const retrieveImageCover = async (cover_id) => {
@@ -445,9 +445,12 @@ const EventDetail = ({ id }) => {
         setOpenLoading(true);
 
         contract
-            ?.unpublish_event?.({
-                eventId: eventId,
-            }, 100000000000000)
+            ?.unpublish_event?.(
+                {
+                    eventId: eventId,
+                },
+                100000000000000,
+            )
             .then((res) => {
                 if (res) {
                     // let state = {
@@ -504,7 +507,7 @@ const EventDetail = ({ id }) => {
         setModalSuccess(false);
         const uri = new URL(window.location.href);
         const { origin } = uri;
-        setLink(`${origin}/event/event-detail?id=${id}`);
+        setLink({ link: `${origin}/event/event-detail?id=${id}`, name: event.title });
         setModalShare(true);
     };
 
