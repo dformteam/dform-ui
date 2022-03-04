@@ -216,15 +216,17 @@ const MyEvent = () => {
                     })
                     .then((value) => {
                         value?.map?.((event) => {
-                            let eventInfo = generateEvent(event);
-                            if (current_timestamp >= parseFloat(event.end_date)) {
-                                tmpPast.push(eventInfo);
-                            } else if (event.owner === userId) {
-                                tmpHosting.push(eventInfo);
-                            } else {
-                                tmpUpcoming.push(eventInfo);
+                            if (event?.is_published || event.owner === userId) {
+                                let eventInfo = generateEvent(event);
+                                if (current_timestamp >= parseFloat(event.end_date)) {
+                                    tmpPast.push(eventInfo);
+                                } else if (event.owner === userId) {
+                                    tmpHosting.push(eventInfo);
+                                } else {
+                                    tmpUpcoming.push(eventInfo);
+                                }
+                                return event;
                             }
-                            return event;
                         });
 
                         // setInterestedEventList((interestedEventList) => [...interestedEventList, {}]);
