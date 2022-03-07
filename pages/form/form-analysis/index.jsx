@@ -450,9 +450,7 @@ const FormAnalysis = () => {
                             </div>
                         </div>
                     )} */}
-                    <div className={styles.modal_content}>
-                        <Analysis owner={form?.owner === userId} formName={form?.title} headers={headerTables} content={answerTables} />
-                    </div>
+                    <Analysis owner={form?.owner === userId} formName={form?.title} headers={headerTables} content={answerTables} />
                     {/* {cParticipant === '' && <div className={styles.participant_notify}>{notify}</div>} */}
                 </div>
 
