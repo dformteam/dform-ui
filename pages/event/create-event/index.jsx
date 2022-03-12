@@ -54,6 +54,13 @@ const CreateEvent = () => {
         setEventName(e.target.value);
     };
 
+    const setMetadata = async (obj) => {
+        const blob = new Blob([JSON.stringify(obj)], { type: 'application/json' })
+        const file = [ new File([blob], 'hello.json') ]
+        const client = new Web3Storage({ token: API_TOKEN })
+        return await client.put(file) // Promise<CIDString>
+    }
+
     const onChangeCover = (e) => {
         const files = e.target.files;
         fileInput.current = files;
@@ -123,12 +130,6 @@ const CreateEvent = () => {
             .then((res) => {
                 if (res) {
                     router.push(`/event/event-detail?id=created`);
-
-                    // localStorage.setItem('date_info', JSON.stringify({
-                    //     start_date: start_date,
-                    //     end_date: end_date
-                    // }));
-                    // console.log(localStorage.getItem('date_info'));
                 } else {
                     onShowResult({
                         type: 'error',
