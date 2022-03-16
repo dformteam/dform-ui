@@ -72,7 +72,6 @@ const Event = () => {
                         return event;
                     }),
                 );
-
                 return item;
             });
         }
@@ -318,11 +317,13 @@ const Event = () => {
                     .then((data) => {
                         if (data) {
                             data?.data?.map((event) => {
-                                let eventInfo = generateEvent(event);
-                                if (parseFloat(event.end_date) > Date.now()) {
-                                    aEvents.push(eventInfo);
+                                if (event?.is_published) {
+                                    let eventInfo = generateEvent(event);
+                                    if (parseFloat(event.end_date) > Date.now()) {
+                                        aEvents.push(eventInfo);
+                                    }
+                                    return event;
                                 }
-                                return event;
                             });
                             setEventList([...aEvents]);
                         }
@@ -360,6 +361,11 @@ const Event = () => {
     };
 
     const onCreateEvent = () => {
+        const { walletConnection } = wallet;
+        const userId = walletConnection.getAccountId();
+        if (userId === '') {
+            onRequestConnectWallet();
+        }
         router.push('/event/create-event');
     };
 

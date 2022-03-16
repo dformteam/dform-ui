@@ -45,15 +45,18 @@ const Calendar = (props) => {
                     })
                     .then((data) => {
                         if (data) {
+
                             data.data.map((event) => {
-                                let eventInfo = {
-                                    id: event.id,
-                                    startAt: new Date(parseFloat(event.start_date)).toISOString(),
-                                    endAt: new Date(parseFloat(event.end_date)).toISOString(),
-                                    summary: event.name,
-                                    color: colorList[Math.floor(Math.random() * colorList.length)],
-                                };
-                                events.push(eventInfo);
+                                if (event?.is_published) {
+                                    let eventInfo = {
+                                        id: event.id,
+                                        startAt: new Date(parseFloat(event.start_date)).toISOString(),
+                                        endAt: new Date(parseFloat(event.end_date)).toISOString(),
+                                        summary: event.name,
+                                        color: colorList[Math.floor(Math.random() * colorList.length)],
+                                    };
+                                    events.push(eventInfo);
+                                }
                             });
                             setDemoEvents([...events]);
                         }
@@ -74,6 +77,7 @@ const Calendar = (props) => {
     const onEventClick = (data) => {
         const msg = `Click on event action\n\n Callback data:\n\n${JSON.stringify(data)}`;
         console.log(msg);
+        router.push(`/event/event-detail?id=${data.id}`)
     };
 
     const onEventDragFinish = (prev, current, data) => {
