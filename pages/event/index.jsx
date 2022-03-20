@@ -374,8 +374,10 @@ const Event = () => {
     };
 
     const onSearchEvent = (id) => {
-        if (id !== '') {
+        if (id !== '' && !id.includes('.')) {
             router.push(`/event/event-detail?id=${id}`);
+        } else {
+            router.push(`/calendar?id=${id}`);
         }
     };
 
@@ -446,12 +448,12 @@ const Event = () => {
                     <div className={styles.attend_event_nothing}>You don't have any events</div>
                 )}
                 <div className={styles.label}>
-                    <div className={styles.label_title}>Find your event</div>
+                    <div className={styles.label_title}>Find your event or NEAR user timeline</div>
                 </div>
                 <div className={styles.search_row}>
                     <div className={styles.search_area}>
                         <input
-                            placeholder={'Find your event'}
+                            placeholder={'Find your event or NEAR user timeline'}
                             className={styles.input_search}
                             value={searchEventValue}
                             onChange={(e) => {
