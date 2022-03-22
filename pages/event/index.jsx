@@ -348,10 +348,6 @@ const Event = () => {
         }
     }, [eventList]);
 
-    const onTypeChange = (e) => {
-        setType(e.target.value);
-    };
-
     const renderInterestedIcon = (item) => {
         if (item.isInterested) {
             return <FavoriteIcon className={styles.event_item_icon_favor} onClick={() => onEventFavoriteClick(item)} />;

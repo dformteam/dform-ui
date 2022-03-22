@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import styles from './DatePicker.module.scss';
@@ -5,7 +6,7 @@ import Switch from '@mui/material/Switch';
 
 const DatePicker = ({ index, onChange, defaultValue, type = '', error }) => {
     let initValue = {
-        title: ['Date Picker', 'Type your description', 'Please pick a date.'],
+        title: ['Replace your date picker here', 'Type your description', 'Please pick a date.'],
         meta: [],
         isRequired: false,
     };
@@ -31,16 +32,16 @@ const DatePicker = ({ index, onChange, defaultValue, type = '', error }) => {
             });
     };
 
-    const onFirstFieldChange = (e) => {
-        setFirstField(e.target.value);
-        type === 'edit' &&
-            onChange?.({
-                index,
-                title: [title, e.target.value, second_field],
-                meta: [],
-                isRequired: required,
-            });
-    };
+    // const onFirstFieldChange = (e) => {
+    //     setFirstField(e.target.value);
+    //     type === 'edit' &&
+    //         onChange?.({
+    //             index,
+    //             title: [title, e.target.value, second_field],
+    //             meta: [],
+    //             isRequired: required,
+    //         });
+    // };
 
     const onSecondFieldChange = (e) => {
         setSecondField(e.target.value);
@@ -96,7 +97,7 @@ const DatePicker = ({ index, onChange, defaultValue, type = '', error }) => {
                         {title} {required && <span>*</span>}
                     </div>
                 )}
-                {(type === 'edit' || first_field !== 'Type your description') && (
+                {/* {(type === 'edit' || first_field !== 'Type your description') && (
                     <input
                         className={styles.date_picker_description}
                         value={first_field}
@@ -104,7 +105,7 @@ const DatePicker = ({ index, onChange, defaultValue, type = '', error }) => {
                         onChange={onFirstFieldChange}
                         disabled={type === 'edit' ? false : true}
                     />
-                )}
+                )} */}
                 {type !== 'answer' && type !== 'analysis' && (
                     <div className={styles.date_picker_require}>
                         Question required: <Switch value={required} checked={required} onChange={onChangeRequired} />

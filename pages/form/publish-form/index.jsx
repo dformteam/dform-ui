@@ -51,6 +51,7 @@ const Publish = () => {
     const [alertType, setAlertType] = useState('success');
     const [snackMsg, setSnackMsg] = useState('');
     const [sharedLink, setSharedLink] = useState('');
+    const [isRetry, setIsRetry] = useState(false);
 
     const onCloseSnack = () => {
         setOpenSnack(false);
@@ -242,6 +243,7 @@ const Publish = () => {
                 end_date,
                 black_list: [...black_list_set],
                 white_list: [...white_list_set],
+                isRetry,
             })
             .then((res) => {
                 if (res) {
@@ -459,6 +461,15 @@ const Publish = () => {
                                 placeholder={'The amount need to be paid by a participant'}
                             />
                         )}
+                    </div>
+                    <div className={styles.publish_fee_row}>
+                        <div className={styles.publish_fee_label}>Mutiple Answer Times</div>
+                        <button className={!isRetry ? styles.publish_fee_button_active : styles.publish_fee_button} onClick={() => setIsRetry(false)}>
+                            Once
+                        </button>
+                        <button className={isRetry ? styles.publish_fee_button_active : styles.publish_fee_button} onClick={() => setIsRetry(true)}>
+                            Multiple
+                        </button>
                     </div>
                     <div className={styles.publish_fee_row}>
                         <div className={styles.publish_fee_label}>Starting time</div>
