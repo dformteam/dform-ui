@@ -7,14 +7,16 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import LogoutSharpIcon from '@mui/icons-material/LogoutSharp';
 import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
 import DateRangeOutlinedIcon from '@mui/icons-material/DateRangeOutlined';
+import EventIcon from '@mui/icons-material/Event';
 import { useRouter } from 'next/router';
 
 const UserAccount = () => {
     const wallet = useSelector((state) => state.wallet);
     const router = useRouter();
     const aMenu = [
-        { id: 'my-form', label: 'My Form', icon: AssignmentOutlinedIcon },
-        // { id: 'my-event', label: 'My Event', icon: DateRangeOutlinedIcon },
+        { id: 'my-form', label: 'My Form', icon: AssignmentOutlinedIcon, router: '/form/my-form' },
+        { id: 'my-event', label: 'My Event', icon: EventIcon, router: '/event/my-event' },
+        { id: 'my-calendar', label: 'My Calendar', icon: DateRangeOutlinedIcon, router: '/calendar' },
     ];
     const wrapperRef = useRef(null);
 
@@ -34,9 +36,8 @@ const UserAccount = () => {
         }
     };
 
-    const onNavItemClick = (id) => {
+    const onNavItemClick = (route) => {
         setPopoverVisible(false);
-        let route = '/form/' + id;
         router.push(route);
     };
 
@@ -99,7 +100,7 @@ const UserAccount = () => {
                         {aMenu.map((item, index) => {
                             return (
                                 <Fragment key={index}>
-                                    <div className={styles.account_popover_label} onClick={() => onNavItemClick(item.id)}>
+                                    <div className={styles.account_popover_label} onClick={() => onNavItemClick(item.router)}>
                                         <item.icon className={styles.account_popover_icon} />
                                         {item.label}
                                     </div>

@@ -257,6 +257,7 @@ const CreateForm = () => {
                         type: 'success',
                         msg: 'Unpublish form successfully',
                     });
+                    setSharedLink('');
                     onGetFormDetail();
                 } else {
                     onShowResult({
