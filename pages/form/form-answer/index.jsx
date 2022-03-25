@@ -415,6 +415,7 @@ const FormAnswer = () => {
         setSuccess(false);
         setModalSave(true);
         let { rootId } = form.current;
+        console.log(rootId);
 
         if (typeof rootId === 'undefined' || rootId === null || rootId === '') {
             const cId = await onUploadAnswerToW3Storage([]);
@@ -440,9 +441,18 @@ const FormAnswer = () => {
                         setModalSave(false);
                         setModalSuccess(true);
                     });
+            } else {
+                onShowResult({
+                    type: 'error',
+                    msg: 'Submit error, Please try again',
+                });
+                setSuccess(false);
+                setModalSave(false);
+                setModalSuccess(true);
             }
         } else {
             const res = await w3Client.get(rootId);
+            console.log(res);
             if (res.ok) {
                 new Promise(async (resolve) => {
                     const files = await res.files();
@@ -482,6 +492,14 @@ const FormAnswer = () => {
                         setModalSave(false);
                         setModalSuccess(true);
                     });
+            } else {
+                onShowResult({
+                    type: 'error',
+                    msg: 'Submit error, Please try again',
+                });
+                setSuccess(false);
+                setModalSave(false);
+                setModalSuccess(true);
             }
         }
         //get answer file cid
