@@ -116,6 +116,8 @@ const FormAnswer = () => {
                     form.current = { ...res };
                     getParticipantFormDetail();
                     setType(res.type === 0 ? 'basic' : 'card');
+                } else {
+                    return redirectError('Form not found!');
                 }
             })
             .catch((err) => {

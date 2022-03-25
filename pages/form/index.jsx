@@ -139,7 +139,7 @@ const Form = () => {
         const { contract } = wallet;
         const form_type = new_form_type === 'card' ? 1 : 0;
 
-        if (user.forms_owner < 3) {
+        // if (user.forms_owner < 3) {
             contract
                 ?.init_new_form?.(
                     {
@@ -165,36 +165,36 @@ const Form = () => {
                         msg: String(err),
                     });
                 });
-        } else {
-            const halfNear = utils.format.parseNearAmount('0.5');
+        // } else {
+        //     const halfNear = utils.format.parseNearAmount('0.5');
 
-            contract
-                ?.init_new_form?.(
-                    {
-                        title: new_form_title,
-                        description: new_form_description,
-                        type: form_type,
-                    },
-                    50000000000000,
-                    halfNear,
-                )
-                .then((res) => {
-                    if (res) {
-                        router.push(`/form/edit-form?id=${res}`);
-                    } else {
-                        onShowResult({
-                            type: 'error',
-                            msg: 'Creat form failure',
-                        });
-                    }
-                })
-                .catch((err) => {
-                    onShowResult({
-                        type: 'error',
-                        msg: String(err),
-                    });
-                });
-        }
+        //     contract
+        //         ?.init_new_form?.(
+        //             {
+        //                 title: new_form_title,
+        //                 description: new_form_description,
+        //                 type: form_type,
+        //             },
+        //             50000000000000,
+        //             halfNear,
+        //         )
+        //         .then((res) => {
+        //             if (res) {
+        //                 router.push(`/form/edit-form?id=${res}`);
+        //             } else {
+        //                 onShowResult({
+        //                     type: 'error',
+        //                     msg: 'Creat form failure',
+        //                 });
+        //             }
+        //         })
+        //         .catch((err) => {
+        //             onShowResult({
+        //                 type: 'error',
+        //                 msg: String(err),
+        //             });
+        //         });
+        // }
     };
 
     const on_new_form_title_change = (e) => {
