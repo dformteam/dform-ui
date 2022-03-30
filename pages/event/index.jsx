@@ -16,7 +16,6 @@ import { Web3Storage } from 'web3.storage';
 const Event = () => {
     const router = useRouter();
 
-    const [eventType, setType] = useState('both');
     const [modalShare, setModalShare] = useState(false);
     const [searchEventValue, setSearchEventValue] = useState('');
     const [eventList, setEventList] = useState([]);
@@ -26,7 +25,7 @@ const Event = () => {
     const [openSnack, setOpenSnack] = useState(false);
     const [alertType, setAlertType] = useState('success');
     const [snackMsg, setSnackMsg] = useState('');
-    const [link, setLink] = useState('');
+    const [link, setLink] = useState({ link: '', name: '' });
     const [isInterestedLoad, setIsInterestedLoad] = useState(false);
     const [interestList, setInterestList] = useState([]);
 
@@ -48,7 +47,7 @@ const Event = () => {
     }, []);
 
     useLayoutEffect(() => {
-        onGetNewestEvents();
+        onGetMaxNewestEventsRows();
     }, []);
 
     const onCloseSnack = () => {
@@ -62,12 +61,6 @@ const Event = () => {
         setSnackMsg(msg);
     };
 
-    // useEffect(() => {
-    //     if (nextEvent !== {}) {
-    //         retrieveImagesCover(nextEvent);
-    //     }
-    // }, [nextEvent]);
-
     useEffect(() => {
         if (interestList !== []) {
             interestList.map((item) => {
@@ -79,7 +72,6 @@ const Event = () => {
                         return event;
                     }),
                 );
-
                 return item;
             });
         }
@@ -145,7 +137,7 @@ const Event = () => {
     };
 
     const generateEvent = (event) => {
-        let event_type = 'Online';
+        let event_type = 'Unknown';
         switch (event.event_type) {
             case 1:
                 event_type = 'In person';
@@ -153,8 +145,8 @@ const Event = () => {
             case 2:
                 event_type = 'Online + In person';
                 break;
-
             default:
+                event_type = 'Online';
                 break;
         }
         return {
@@ -169,29 +161,62 @@ const Event = () => {
             cover_image: event.cover_image,
             img: '/calendar.svg',
             isInterested: false,
+            start_date: event.start_date,
         };
     };
 
-    const onGetNewestEvents = () => {
-        const { contract } = wallet;
-        newestEvents.current = [];
+    const onGetMaxNewestEventsRows = () => {
+        const { contract, walletConnection } = wallet;
+        const userId = walletConnection.getAccountId();
         contract
-            ?.get_newest_events?.({})
-            .then(async (newest_events) => {
-                if (newest_events) {
-                    const now = Date.now();
-                    await newest_events.data.map(async (event) => {
-                        let eventInfo = generateEvent(event);
-                        if (eventInfo.end_timestamp > now) {
-                            newestEvents.current.push(eventInfo);
-                        }
-                    });
+            ?.get_newest_events_count?.({})
+            .then((total) => {
+                onGetNewestEventsRows({ total });
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
 
-                    newestEvents.current.sort(function (a, b) {
-                        return a.date_timestamp - b.date_timestamp;
+    const onGetNewestEventsRows = async ({ total }) => {
+        const { contract, walletConnection } = wallet;
+        const num_page = total % 5 === 0 ? total / 5 : parseInt(total / 5) + 1;
+        const page_arr = new Array(num_page).fill(0);
+        const userId = walletConnection.getAccountId();
+        // const now = Date.now();
+        let tmpNewestEvents = [];
+
+        await Promise.all(
+            page_arr.map(async (page, index) => {
+                await contract
+                    .get_newest_events({
+                        page: index + 1,
+                    })
+                    .then((newest_events) => {
+                        if (newest_events) {
+                            const now = Date.now();
+                            newest_events.data.map((event) => {
+                                let eventInfo = generateEvent(event);
+                                if (parseFloat(eventInfo.end_timestamp) > now) {
+                                    tmpNewestEvents.push(eventInfo);
+                                }
+                                return event;
+                            });
+                        }
+                    })
+                    .catch((err) => {
+                        console.log(err);
                     });
-                    setNewestEventList([...newestEvents.current]);
+            }),
+        )
+            .then(() => {
+                tmpNewestEvents.sort((a, b) => {
+                    return b.date_timestamp - a.date_timestamp;
+                });
+                while (tmpNewestEvents.length > 5) {
+                    tmpNewestEvents.shift();
                 }
+                setNewestEventList([...tmpNewestEvents]);
             })
             .catch((err) => {
                 console.log(err);
@@ -201,6 +226,9 @@ const Event = () => {
     const onEventFavoriteClick = (item) => {
         const { contract, walletConnection } = wallet;
         const userId = walletConnection.getAccountId();
+        if (userId === '') {
+            onRequestConnectWallet();
+        }
         if (userId === item.owner) {
             onShowResult({
                 type: 'error',
@@ -279,7 +307,6 @@ const Event = () => {
         const num_page = total % 5 === 0 ? total / 5 : parseInt(total / 5) + 1;
         const page_arr = new Array(num_page).fill(0);
         const userId = walletConnection.getAccountId();
-        const current_timestamp = Date.now();
         await Promise.all(
             page_arr.map(async (page, index) => {
                 await contract
@@ -289,64 +316,37 @@ const Event = () => {
                     })
                     .then((data) => {
                         if (data) {
-                            let current_event = {};
-                            current_event.img = '/calendar.svg';
-                            let dt = -1;
                             data?.data?.map((event) => {
-                                let event_type = 'Online';
-                                switch (event?.event_type) {
-                                    case 1:
-                                        event_type = 'In person';
-                                        break;
-                                    case 2:
-                                        event_type = 'Online + In person';
-                                        break;
-                                    default:
-                                        break;
+                                if (event?.is_published) {
+                                    let eventInfo = generateEvent(event);
+                                    if (parseFloat(event.end_date) > Date.now()) {
+                                        aEvents.push(eventInfo);
+                                    }
+                                    return event;
                                 }
-                                let eventInfo = {
-                                    id: event.id,
-                                    name: event.name,
-                                    type: event_type,
-                                    date: onExportDateTime(event.start_date),
-                                    attendees: event.participants.length,
-                                    cover_image: event.cover_image,
-                                    // img: '/calendar.svg'
-                                };
-                                aEvents.push(eventInfo);
-                                let tmp_dt = current_timestamp - event.start_date;
-                                if (dt === -1 || tmp_dt < dt) {
-                                    dt = tmp_dt;
-                                    // current_event = event;
-                                }
-
-                                current_event = {
-                                    id: event.id,
-                                    name: event.name,
-                                    type: event_type,
-                                    start_date: event.start_date,
-                                    date: onExportDateTime(event.start_date),
-                                    attendees: event.participants.length,
-                                    cover_image: event.cover_image,
-                                    img: '/calendar.svg',
-                                };
-
-                                return event;
                             });
-                            retrieveImagesCover(current_event);
-                            // setNextEvent(current_event);
-                            if (eventList.length < 9) {
-                                setEventList([...aEvents]);
-                            }
+                            setEventList([...aEvents]);
                         }
                     });
             }),
         );
     };
 
-    const onTypeChange = (e) => {
-        setType(e.target.value);
-    };
+    useEffect(() => {
+        if (eventList.length > 0) {
+            const current_timestamp = Date.now();
+            let current_event = eventList[0];
+            let dt = Math.abs(current_timestamp - parseFloat(eventList[0].start_date));
+            eventList.map((event) => {
+                let tmp_dt = Math.abs(current_timestamp - parseFloat(event.start_date));
+                if (tmp_dt < dt) {
+                    dt = tmp_dt;
+                    current_event = event;
+                }
+            });
+            retrieveImagesCover(current_event);
+        }
+    }, [eventList]);
 
     const renderInterestedIcon = (item) => {
         if (item.isInterested) {
@@ -357,6 +357,11 @@ const Event = () => {
     };
 
     const onCreateEvent = () => {
+        const { walletConnection } = wallet;
+        const userId = walletConnection.getAccountId();
+        if (userId === '') {
+            onRequestConnectWallet();
+        }
         router.push('/event/create-event');
     };
 
@@ -365,15 +370,17 @@ const Event = () => {
     };
 
     const onSearchEvent = (id) => {
-        if (id !== '') {
+        if (id !== '' && !id.includes('.')) {
             router.push(`/event/event-detail?id=${id}`);
+        } else {
+            router.push(`/calendar?id=${id}`);
         }
     };
 
-    const onGetSharedLink = (id) => {
+    const onGetSharedLink = (id, name) => {
         const uri = new URL(window.location.href);
         const { origin } = uri;
-        setLink(`${origin}/event/event-detail?id=${id}`);
+        setLink({ link: `${origin}/event/event-detail?id=${id}`, name });
         setModalShare(true);
     };
 
@@ -382,6 +389,20 @@ const Event = () => {
             type: 'success',
             msg: 'copied',
         });
+    };
+
+    const generateNextEventLabel = (event) => {
+        const { contract, walletConnection } = wallet;
+        const userId = walletConnection.getAccountId();
+        if (userId === event.owner) {
+            return 'Hosting';
+        }
+        return 'Attending';
+    };
+
+    const onRequestConnectWallet = () => {
+        const { nearConfig, walletConnection } = wallet;
+        walletConnection?.requestSignIn?.(nearConfig?.contractName);
     };
 
     return (
@@ -414,21 +435,21 @@ const Event = () => {
                         <div className={styles.attend_item_footer}>
                             <div className={styles.attending}>
                                 <CheckCircleIcon className={styles.attending_icon} />
-                                Attending
+                                {generateNextEventLabel(nextEvent)}
                             </div>
-                            <ShareOutlinedIcon className={styles.attend_item_icon} onClick={() => onGetSharedLink(nextEvent.id)} />
+                            <ShareOutlinedIcon className={styles.attend_item_icon} onClick={() => onGetSharedLink(nextEvent.id, nextEvent.name)} />
                         </div>
                     </div>
                 ) : (
                     <div className={styles.attend_event_nothing}>You don't have any events</div>
                 )}
                 <div className={styles.label}>
-                    <div className={styles.label_title}>Find your event</div>
+                    <div className={styles.label_title}>Find your event or NEAR user timeline</div>
                 </div>
                 <div className={styles.search_row}>
                     <div className={styles.search_area}>
                         <input
-                            placeholder={'Find your event'}
+                            placeholder={'Find your event or NEAR user timeline'}
                             className={styles.input_search}
                             value={searchEventValue}
                             onChange={(e) => {
@@ -509,7 +530,7 @@ const EventItem = (props) => {
                     <ShareOutlinedIcon
                         className={styles.event_item_icon}
                         onClick={() => {
-                            onGetSharedLink(item.id);
+                            onGetSharedLink(item.id, item.name);
                         }}
                     />
                     {renderInterestedIcon(item)}

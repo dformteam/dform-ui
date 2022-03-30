@@ -123,12 +123,6 @@ const CreateEvent = () => {
             .then((res) => {
                 if (res) {
                     router.push(`/event/event-detail?id=created`);
-
-                    // localStorage.setItem('date_info', JSON.stringify({
-                    //     start_date: start_date,
-                    //     end_date: end_date
-                    // }));
-                    // console.log(localStorage.getItem('date_info'));
                 } else {
                     onShowResult({
                         type: 'error',
@@ -249,14 +243,6 @@ const CreateEvent = () => {
         <>
             <Notify openLoading={openLoading} openSnack={openSnack} alertType={alertType} snackMsg={snackMsg} onClose={onCloseSnack} />
             <div className={styles.root}>
-                <div className={styles.button_area}>
-                    <button className={styles.button_area_button} onClick={onPreviewClick}>
-                        Preview Event
-                    </button>
-                    <button className={styles.button_area_button_save} onClick={onAttendEventClick}>
-                        Save
-                    </button>
-                </div>
                 <div className={styles.content}>
                     <div className={styles.content_title}>Create Event</div>
                     <div className={styles.content_label}>Event's name</div>
@@ -314,6 +300,14 @@ const CreateEvent = () => {
                     </div>
                     <div className={styles.content_label}>Online event link</div>
                     <input className={styles.content_input} placeholder="Enter event link" value={event_link} onChange={onChangeEventLink} />
+                    <div className={styles.button_area}>
+                        <button className={styles.button_area_button} onClick={onPreviewClick}>
+                            Preview Event
+                        </button>
+                        <button className={styles.button_area_button_save} onClick={onAttendEventClick}>
+                            Save
+                        </button>
+                    </div>
                 </div>
 
                 <Modal open={modalPreview} onClose={onCloseModalPreview} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">

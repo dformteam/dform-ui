@@ -1,8 +1,8 @@
 import getConfig from './config';
 import * as nearAPI from 'near-api-js';
 
-const nearConfig = getConfig('testnet');
-// const nearConfig = getConfig('mainnet');
+// const nearConfig = getConfig('testnet');
+const nearConfig = getConfig('mainnet');
 
 export async function initContract() {
     const near = await nearAPI.connect({
@@ -44,6 +44,7 @@ export async function initContract() {
             'get_event_count',
             'get_events',
             'get_newest_events',
+            'get_newest_events_count',
             'get_interested_events',
             'get_interested_event_count',
         ],
@@ -69,6 +70,8 @@ export async function initContract() {
             'not_interest_event',
             // TODO Check function loi khi dat vao view
             'get_recent_event_created',
+            'check_event_join_permission',
+            // 'get_newest_events',
         ],
         sender: walletConnection.getAccountId(),
     });

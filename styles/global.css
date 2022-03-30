@@ -87,3 +87,7 @@ button {
     box-shadow: none !important;
     border-radius: 24px !important;
 }
+
+.MuiPickerStaticWrapper-root {
+    background: transparent !important;
+}

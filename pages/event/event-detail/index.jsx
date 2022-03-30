@@ -41,7 +41,7 @@ const EventDetail = ({ id }) => {
     const [openConfirmation, setOpenConfirmation] = useState(false);
     const [modalSuccess, setModalSuccess] = useState(false);
     const [modalShare, setModalShare] = useState(false);
-    const [link, setLink] = useState('');
+    const [link, setLink] = useState({ link: '', name: '' });
 
     const onCloseSnack = () => {
         setOpenSnack(false);
@@ -202,7 +202,11 @@ const EventDetail = ({ id }) => {
     };
 
     const onEventFavoriteClick = () => {
-        const { contract } = wallet;
+        const { contract, walletConnection } = wallet;
+        const userId = walletConnection.getAccountId();
+        if (userId === '') {
+            onRequestConnectWallet();
+        }
         setOpenLoading(true);
         contract
             ?.interest_event(
@@ -282,8 +286,17 @@ const EventDetail = ({ id }) => {
         });
     };
 
+    const onRequestConnectWallet = () => {
+        const { nearConfig, walletConnection } = wallet;
+        walletConnection?.requestSignIn?.(nearConfig?.contractName);
+    };
+
     const onAttendClick = () => {
-        const { contract } = wallet;
+        const { contract, walletConnection } = wallet;
+        const userId = walletConnection.getAccountId();
+        if (userId === '') {
+            onRequestConnectWallet();
+        }
         if (event.end_date <= Date.now()) {
             onShowResult({
                 type: 'error',
@@ -292,100 +305,113 @@ const EventDetail = ({ id }) => {
             return;
         }
         setOpenLoading(true);
-        if (isRegistered) {
-            contract
-                ?.leave_event(
-                    {
-                        eventId: eventId,
-                    },
-                    50000000000000,
-                )
-                .then((res) => {
-                    if (res) {
-                        onGetEventDetail();
-                        onShowResult({
-                            type: 'success',
-                            msg: 'Leaved',
-                        });
-                        setIsRegistered(false);
-                    } else {
-                        onShowResult({
-                            type: 'error',
-                            msg: 'Could not leave',
-                        });
+        contract
+            ?.check_event_join_permission({
+                eventId: eventId,
+            })
+            .then((res) => {
+                if (res) {
+                    if (isRegistered) {
+                        contract
+                            ?.leave_event(
+                                {
+                                    eventId: eventId,
+                                },
+                                50000000000000,
+                            )
+                            .then((res) => {
+                                if (res) {
+                                    onGetEventDetail();
+                                    onShowResult({
+                                        type: 'success',
+                                        msg: 'Leaved',
+                                    });
+                                    setIsRegistered(false);
+                                } else {
+                                    onShowResult({
+                                        type: 'error',
+                                        msg: 'Could not leave',
+                                    });
+                                }
+                            })
+                            .catch((err) => {
+                                onShowResult({
+                                    type: 'error',
+                                    msg: String(err),
+                                });
+                            });
+                        return;
                     }
-                })
-                .catch((err) => {
+                    if (event?.enroll_fee !== '0') {
+                        contract
+                            ?.join_event(
+                                {
+                                    eventId: eventId,
+                                },
+                                50000000000000,
+                                event?.enroll_fee,
+                            )
+                            .then((res) => {
+                                if (res) {
+                                    onGetEventDetail();
+                                    onShowResult({
+                                        type: 'success',
+                                        msg: 'Register succesfully',
+                                    });
+                                    setIsRegistered(true);
+                                    // setModalSuccess(true);
+                                } else {
+                                    onShowResult({
+                                        type: 'error',
+                                        msg: 'Could not register',
+                                    });
+                                }
+                            })
+                            .catch((err) => {
+                                onShowResult({
+                                    type: 'error',
+                                    msg: String(err),
+                                });
+                            });
+                    } else {
+                        contract
+                            ?.join_event(
+                                {
+                                    eventId: eventId,
+                                },
+                                50000000000000,
+                            )
+                            .then((res) => {
+                                console.log(res);
+                                if (res) {
+                                    onGetEventDetail();
+                                    onShowResult({
+                                        type: 'success',
+                                        msg: 'Register succesfully',
+                                    });
+                                    setIsRegistered(true);
+                                    // setModalSuccess(true);
+                                } else {
+                                    onShowResult({
+                                        type: 'error',
+                                        msg: 'Could not register',
+                                    });
+                                }
+                            })
+                            .catch((err) => {
+                                onShowResult({
+                                    type: 'error',
+                                    msg: String(err),
+                                });
+                            });
+                    }
+                } else {
                     onShowResult({
                         type: 'error',
-                        msg: String(err),
+                        msg: 'You are not invited',
                     });
-                });
-            return;
-        }
-        if (event?.enroll_fee !== '0') {
-            contract
-                ?.join_event(
-                    {
-                        eventId: eventId,
-                    },
-                    50000000000000,
-                    event?.enroll_fee,
-                )
-                .then((res) => {
-                    if (res) {
-                        onGetEventDetail();
-                        onShowResult({
-                            type: 'success',
-                            msg: 'Register succesfully',
-                        });
-                        setIsRegistered(true);
-                        // setModalSuccess(true);
-                    } else {
-                        onShowResult({
-                            type: 'error',
-                            msg: 'Could not register',
-                        });
-                    }
-                })
-                .catch((err) => {
-                    onShowResult({
-                        type: 'error',
-                        msg: String(err),
-                    });
-                });
-        } else {
-            contract
-                ?.join_event(
-                    {
-                        eventId: eventId,
-                    },
-                    50000000000000,
-                )
-                .then((res) => {
-                    console.log(res);
-                    if (res) {
-                        onGetEventDetail();
-                        onShowResult({
-                            type: 'success',
-                            msg: 'Register succesfully',
-                        });
-                        setIsRegistered(true);
-                        // setModalSuccess(true);
-                    } else {
-                        onShowResult({
-                            type: 'error',
-                            msg: 'Could not register',
-                        });
-                    }
-                })
-                .catch((err) => {
-                    onShowResult({
-                        type: 'error',
-                        msg: String(err),
-                    });
-                });
-        }
+                }
+            });
     };
 
     const retrieveImageCover = async (cover_id) => {
@@ -419,9 +445,12 @@ const EventDetail = ({ id }) => {
         setOpenLoading(true);
 
         contract
-            ?.unpublish_event?.({
-                eventId: eventId,
-            })
+            ?.unpublish_event?.(
+                {
+                    eventId: eventId,
+                },
+                100000000000000,
+            )
             .then((res) => {
                 if (res) {
                     // let state = {
@@ -478,7 +507,7 @@ const EventDetail = ({ id }) => {
         setModalSuccess(false);
         const uri = new URL(window.location.href);
         const { origin } = uri;
-        setLink(`${origin}/event/event-detail?id=${id}`);
+        setLink({ link: `${origin}/event/event-detail?id=${id}`, name: event.title });
         setModalShare(true);
     };
 

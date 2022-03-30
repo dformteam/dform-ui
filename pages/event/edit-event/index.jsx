@@ -29,6 +29,7 @@ const EditEvent = ({ id }) => {
     const [start_date, setStartingDate] = useState(Date.now());
     const [end_date, setEndingDate] = useState(Date.now());
     const [event_link, setEventLink] = useState('');
+    const [event_img, setEventImg] = useState('');
 
     const onCloseSnack = () => {
         setOpenSnack(false);
@@ -54,6 +55,7 @@ const EditEvent = ({ id }) => {
             })
             .then((res) => {
                 if (res) {
+                    console.log('event => ', res);
                     console.log(res);
                     const { status, owner } = res;
                     if (status === 0 && owner !== userId) {
@@ -71,6 +73,7 @@ const EditEvent = ({ id }) => {
                         );
                         setEventLink(res?.url);
                         setEventType(res?.type);
+                        setEventImg(res?.cover_img);
                     }
                 }
             })
@@ -95,14 +98,14 @@ const EditEvent = ({ id }) => {
         }
 
         const { contract } = wallet;
+        setOpenLoading(true);
         let rootCid = '';
-        if (typeof fireEvent.current !== 'undefined') {
+        if (imgSelected) {
             const client = new Web3Storage({ token: process.env.NEXT_PUBLIC_w3key });
             rootCid = await client.put(fileInput.current);
         }
 
         const des = event_descriptions.filter((x) => x.value !== null && typeof x.value !== 'undefined' && x.value !== '').map((x) => x.value);
-        setOpenLoading(true);
 
         contract
             ?.update_event_info?.(
@@ -112,7 +115,7 @@ const EditEvent = ({ id }) => {
                     description: des,
                     location: 'Hanoi',
                     privacy: [],
-                    cover_img: rootCid,
+                    cover_img: rootCid || event_img,
                     type: parseInt(event_type),
                     start_date,
                     end_date,

@@ -30,11 +30,11 @@ const style = {
 };
 
 const Share = (props) => {
-    const shareUrl = props.link;
-    const title = 'dSuite';
+    const { link, name } = props.link;
+    const title = `Join ${name} via dSuite`;
 
     const onCopyLink = () => {
-        navigator.clipboard.writeText(shareUrl);
+        navigator.clipboard.writeText(link);
         props.onCloseModal();
         props.onSuccess();
     };
@@ -47,22 +47,22 @@ const Share = (props) => {
                 </Typography>
                 <div className={styles.line_gradient} />
                 <div className={styles.container}>
-                    <FacebookShareButton url={shareUrl} quote={title} className={styles.container_network}>
+                    <FacebookShareButton url={link} quote={title} className={styles.container_network}>
                         <FacebookIcon size={32} round />
                         <div className={styles.container_network_title}>Facebook</div>
                     </FacebookShareButton>
 
-                    <TwitterShareButton url={shareUrl} title={title} className={styles.container_network}>
+                    <TwitterShareButton url={link} title={title} className={styles.container_network}>
                         <TwitterIcon size={32} round />
                         <div className={styles.container_network_title}>Twitter</div>
                     </TwitterShareButton>
 
-                    <TelegramShareButton url={shareUrl} title={title} className={styles.container_network}>
+                    <TelegramShareButton url={link} title={title} className={styles.container_network}>
                         <TelegramIcon size={32} round />
                         <div className={styles.container_network_title}>Telegram</div>
                     </TelegramShareButton>
 
-                    <EmailShareButton url={shareUrl} title={title} className={styles.container_network}>
+                    <EmailShareButton url={link} title={title} className={styles.container_network}>
                         <EmailIcon size={32} round />
                         <div className={styles.container_network_title}>Email</div>
                     </EmailShareButton>
