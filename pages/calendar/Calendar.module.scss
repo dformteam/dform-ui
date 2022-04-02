@@ -22,6 +22,18 @@
         align-items: center;
         font-weight: 600;
     }
+
+    &_share {
+        @extend .button_area_button;
+        background: var(--color-background);
+        color: var(--color-primary);
+        box-shadow: var(--color-boxshadow);
+        margin-left: 10px;
+    }
+
+    &_share > svg {
+        margin-right: 5px;
+    }
 }
 
 .label_title {
@@ -29,4 +41,61 @@
     margin-right: auto;
     font-size: 18px;
     font-weight: 600;
+}
+
+.modal {
+    width: 100%;
+    height: max-content;
+    display: flex;
+    flex-direction: column;
+    margin-top: 30px;
+
+    &_row {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        margin: 10px 0;
+        cursor: pointer;
+
+        &_label {
+            flex: 1;
+            margin-right: 20px;
+            font-weight: 600;
+        }
+
+        &_accept {
+            height: 48px;
+            padding: 0 20px;
+            background: var(--color-gradient);
+            color: var(--color-text-button);
+            margin-left: 10px;
+        }
+
+        &_deny {
+            @extend .modal_row_accept;
+            background: var(--color-background);
+            color: var(--color-primary);
+            box-shadow: var(--color-boxshadow);
+            margin-left: 20px;
+        }
+    }
+
+    &_content {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+        border-bottom: 1px solid var(--color-border);
+
+        &_text {
+            font-size: 15px;
+            line-height: 24px;
+        }
+    }
+
+    &_line {
+        width: 100%;
+        height: 0;
+        border-bottom: 1px solid var(--color-border);
+    }
 }
