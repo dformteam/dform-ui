@@ -41,6 +41,7 @@ const Calendar = (props) => {
     const [snackMsg, setSnackMsg] = useState('');
     const [routerId, setRouterId] = useState('');
     const [modal, setModal] = useState(false);
+    const [notify, setNotify] = useState([]);
 
     useLayoutEffect(() => {
         onGetMaxRows();
@@ -49,6 +50,60 @@ const Calendar = (props) => {
     useEffect(() => {
         setRouterId(router.query.id);
     }, [router]);
+
+    useEffect(() => {
+        onGetPendingRequestRows();
+    }, []);
+
+    const onGetPendingRequestRows = () => {
+        const { contract, walletConnection } = wallet;
+        let userId = walletConnection.getAccountId();
+        contract
+            ?.get_pending_requests_count?.({
+                userId: userId,
+            })
+            .then((total) => {
+                onGetPendingRequests({ total });
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+
+    const onGetPendingRequests = async ({ total }) => {
+        const { contract, walletConnection } = wallet;
+        const num_page = total % 5 === 0 ? total / 5 : parseInt(total / 5) + 1;
+        const page_arr = new Array(num_page).fill(0);
+        let userId = walletConnection.getAccountId();
+        let tmpNotify = [];
+        await Promise.all(
+            page_arr.map(async (page, index) => {
+                await contract
+                    .get_pending_requests({
+                        userId,
+                        page: index + 1,
+                    })
+                    .then((data) => {
+                        if (data) {
+                            data.data.map((requets) => {
+                                let duration = (parseFloat(requets.end_date) - parseFloat(requets.start_date)) / (60 * 1000);
+                                let rqObj = {
+                                    id: requets.id,
+                                    title: `Meeting request from ${requets.requestor}`,
+                                    description: requets.description,
+                                    duration: `${duration} minutes`,
+                                    name: requets.name,
+                                    email: requets.email,
+                                }
+                                tmpNotify.push(rqObj);
+                            });
+                        }
+                    });
+            }),
+        ).then(() => {
+            setNotify([...tmpNotify]);
+        });
+    };
 
     const onGetMaxRows = () => {
         const { contract, walletConnection } = wallet;
@@ -193,6 +248,35 @@ const Calendar = (props) => {
         });
     };
 
+    const onResponseMeetingRequest = (id, status) => {
+        const { contract, walletConnection } = wallet;
+        const userId = walletConnection.getAccountId();
+        setModal(false);
+        setOpenLoading(true);
+        contract
+            ?.response_meeting_request(
+                {
+                    id: id,
+                    approve: status
+                },
+                300000000000000,
+            )
+            .then((res) => {
+                setOpenLoading(false);
+                onShowResult({
+                    type: 'success',
+                    msg: 'Meeting request confirmed',
+                });
+                setTimeout(() => { router.reload(); }, 3000)
+            })
+            .catch((err) => {
+                onShowResult({
+                    type: 'error',
+                    msg: String(err),
+                });
+            });
+    }
+
     const generateButton = (id) => {
         if (!id) {
             return <div className={styles.button_area}>
@@ -200,8 +284,10 @@ const Calendar = (props) => {
                     Create Event
                 </button>
                 <button className={styles.button_area_button} style={{ marginLeft: 10 }} onClick={onShareCalendarClick}>
-                    {/* {!router.query.id ? 'Share Your Calendar' : 'Book a Meeting'} */}
                     Share Your Calendar
+                </button>
+                <button className={styles.button_area_share} onClick={onNotifyClick}>
+                    <NotificationsActiveOutlinedIcon /> Notifications
                 </button>
             </div>
         } else {
@@ -225,17 +311,7 @@ const Calendar = (props) => {
             <Notify openLoading={openLoading} openSnack={openSnack} alertType={alertType} snackMsg={snackMsg} onClose={onCloseSnack} />
             <div className={styles.root}>
                 {generateMessage()}
-                <div className={styles.button_area}>
-                    <button className={styles.button_area_button} onClick={onCreateEventClick}>
-                        Create Event
-                    </button>
-                    <button className={styles.button_area_share} onClick={onShareCalendarClick}>
-                        Share Your Calendar
-                    </button>
-                    <button className={styles.button_area_share} onClick={onNotifyClick}>
-                        <NotificationsActiveOutlinedIcon /> Notifications
-                    </button>
-                </div>
+                {generateButton(router.query.id)}
                 <Kalend
                     kalendRef={props.kalendRef}
                     onNewEventClick={onNewEventClick}
@@ -255,13 +331,15 @@ const Calendar = (props) => {
                 <Modal open={modal} onClose={onCloseModal} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
                     <Box sx={style}>
                         <Typography id="modal-modal-title" variant="h6" component="h2" textAlign="center">
-                            Booking Requests
+                            Your Pending Meeting Requests
                         </Typography>
                         <div className={styles.modal}>
-                            {aNotify.map((item, index) => {
+                            {notify.map((item, index) => {
                                 return (
                                     <Fragment key={index}>
-                                        <NotifyItem item={item} />
+                                        <NotifyItem
+                                            item={item}
+                                            onResponseMeetingRequest={onResponseMeetingRequest} />
                                         <div className={styles.modal_line} />
                                     </Fragment>
                                 );
@@ -275,7 +353,7 @@ const Calendar = (props) => {
 };
 
 const NotifyItem = (props) => {
-    const { item } = props;
+    const { item, onResponseMeetingRequest } = props;
     const [expand, setExpand] = useState(false);
 
     return (
@@ -283,8 +361,8 @@ const NotifyItem = (props) => {
             <div className={styles.modal_row} onClick={() => setExpand(!expand)}>
                 <div className={styles.modal_row_label}>{item.title}</div>
                 {expand ? <ArrowDropDownOutlinedIcon /> : <ArrowRightOutlinedIcon />}
-                <button className={styles.modal_row_accept}>Accept</button>
-                <button className={styles.modal_row_deny}>Deny</button>
+                <button className={styles.modal_row_accept} onClick={() => onResponseMeetingRequest(item.id, true)}>Accept </button>
+                <button className={styles.modal_row_deny} onClick={() => onResponseMeetingRequest(item.id, false)}>Deny</button>
             </div>
             {expand && (
                 <div className={styles.modal_content}>
