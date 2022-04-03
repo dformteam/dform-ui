@@ -15,8 +15,8 @@ const UserAccount = () => {
     const router = useRouter();
     const aMenu = [
         { id: 'my-form', label: 'My Form', icon: AssignmentOutlinedIcon, router: '/form/my-form' },
-        // { id: 'my-event', label: 'My Event', icon: EventIcon, router: '/event/my-event' },
-        // { id: 'my-calendar', label: 'My Calendar', icon: DateRangeOutlinedIcon, router: '/calendar' },
+        { id: 'my-event', label: 'My Event', icon: EventIcon, router: '/event/my-event' },
+        { id: 'my-calendar', label: 'My Calendar', icon: DateRangeOutlinedIcon, router: '/calendar' },
     ];
     const wrapperRef = useRef(null);
 

@@ -42,7 +42,7 @@ const Header = (props) => {
                         actived={cPath.indexOf('/form') === 0}
                     />
                 </div>
-                {/* <div className={styles.nav_item}>
+                <div className={styles.nav_item}>
                     <NavItem icon={<EventIcon className={styles.nav_icon} />} content={'EVENT'} href={'/event'} actived={cPath.indexOf('/event') === 0} />
                 </div>
                 <div className={styles.nav_item}>
@@ -52,7 +52,7 @@ const Header = (props) => {
                         href={'/calendar'}
                         actived={cPath.indexOf('/calendar') === 0}
                     />
-                </div> */}
+                </div>
             </div>
             <div className={styles.account}>
                 <Account />
