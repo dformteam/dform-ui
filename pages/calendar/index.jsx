@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { Fragment, useEffect, useLayoutEffect, useState } from 'react';
 import styles from './Calendar.module.scss';
 import Kalend, { CalendarView } from 'kalend';
 import 'kalend/dist/styles/index.css';
@@ -6,6 +6,26 @@ import { useRouter } from 'next/router';
 import { useSelector } from 'react-redux';
 import ModalShare from '../../components/Share';
 import Notify from '../../components/Notify';
+import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
+import ArrowRightOutlinedIcon from '@mui/icons-material/ArrowRightOutlined';
+import ArrowDropDownOutlinedIcon from '@mui/icons-material/ArrowDropDownOutlined';
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+
+const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    minWidth: 800,
+    bgcolor: '#fff',
+    borderRadius: '24px',
+    boxShadow: 24,
+    p: 4,
+    outline: 'none',
+    paddingTop: '20px',
+};
 
 const Calendar = (props) => {
     const events = [];
@@ -20,6 +40,7 @@ const Calendar = (props) => {
     const [alertType, setAlertType] = useState('success');
     const [snackMsg, setSnackMsg] = useState('');
     const [routerId, setRouterId] = useState('');
+    const [modal, setModal] = useState(false);
 
     useLayoutEffect(() => {
         onGetMaxRows();
@@ -96,7 +117,7 @@ const Calendar = (props) => {
     const onEventClick = (data) => {
         const msg = `Click on event action\n\n Callback data:\n\n${JSON.stringify(data)}`;
         console.log(msg);
-        router.push(`/event/event-detail?id=${data.id}`)
+        router.push(`/event/event-detail?id=${data.id}`);
     };
 
     const onEventDragFinish = (prev, current, data) => {
@@ -115,7 +136,7 @@ const Calendar = (props) => {
     const onShareCalendarClick = () => {
         const { contract, walletConnection } = wallet;
         const accountId = walletConnection.getAccountId();
-        console.log('accountId => ', typeof (accountId));
+        console.log('accountId => ', typeof accountId);
         if (accountId !== '') {
             const uri = new URL(window.location.href);
             const { origin } = uri;
@@ -139,8 +160,13 @@ const Calendar = (props) => {
         } else {
             return null;
         }
-        return <div className={styles.label_title}><br />{message}</div>;
-    }
+        return (
+            <div className={styles.label_title}>
+                <br />
+                {message}
+            </div>
+        );
+    };
 
     const onCloseSnack = () => {
         setOpenSnack(false);
@@ -164,6 +190,14 @@ const Calendar = (props) => {
         });
     };
 
+    const onNotifyClick = () => {
+        setModal(true);
+    };
+
+    const onCloseModal = () => {
+        setModal(false);
+    };
+
     return (
         <>
             <Notify openLoading={openLoading} openSnack={openSnack} alertType={alertType} snackMsg={snackMsg} onClose={onCloseSnack} />
@@ -173,8 +207,11 @@ const Calendar = (props) => {
                     <button className={styles.button_area_button} onClick={onCreateEventClick}>
                         Create Event
                     </button>
-                    <button className={styles.button_area_button} style={{ marginLeft: 10 }} onClick={onShareCalendarClick}>
+                    <button className={styles.button_area_share} onClick={onShareCalendarClick}>
                         Share Your Calendar
+                    </button>
+                    <button className={styles.button_area_share} onClick={onNotifyClick}>
+                        <NotificationsActiveOutlinedIcon /> Notifications
                     </button>
                 </div>
                 <Kalend
@@ -192,10 +229,75 @@ const Calendar = (props) => {
                     selectedView={props.selectedView}
                 />
                 {modalShare && <ModalShare link={link} onCloseModal={onCloseModalShare} onSuccess={onSuccess} />}
+
+                <Modal open={modal} onClose={onCloseModal} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+                    <Box sx={style}>
+                        <Typography id="modal-modal-title" variant="h6" component="h2" textAlign="center">
+                            Booking Requests
+                        </Typography>
+                        <div className={styles.modal}>
+                            {aNotify.map((item, index) => {
+                                return (
+                                    <Fragment key={index}>
+                                        <NotifyItem item={item} />
+                                        <div className={styles.modal_line} />
+                                    </Fragment>
+                                );
+                            })}
+                        </div>
+                    </Box>
+                </Modal>
             </div>
         </>
-
     );
 };
+
+const NotifyItem = (props) => {
+    const { item } = props;
+    const [expand, setExpand] = useState(false);
+
+    return (
+        <>
+            <div className={styles.modal_row} onClick={() => setExpand(!expand)}>
+                <div className={styles.modal_row_label}>{item.title}</div>
+                {expand ? <ArrowDropDownOutlinedIcon /> : <ArrowRightOutlinedIcon />}
+                <button className={styles.modal_row_accept}>Accept</button>
+                <button className={styles.modal_row_deny}>Deny</button>
+            </div>
+            {expand && (
+                <div className={styles.modal_content}>
+                    <div className={styles.modal_content_text}>Description: {item.description}</div>
+                    <div className={styles.modal_content_text}>Duration: {item.duration}</div>
+                    <div className={styles.modal_content_text}>Name: {item.name}</div>
+                    <div className={styles.modal_content_text}>Email: {item.email}</div>
+                </div>
+            )}
+        </>
+    );
+};
+
+const aNotify = [
+    {
+        title: 'Daily meeting in Wednesday, October 24 10:00',
+        description: 'Daily meeting',
+        duration: '30 minutes',
+        name: 'Nguyen Trung Duc',
+        email: 'ducnt00622@gmail.com',
+    },
+    {
+        title: 'Daily meeting in Wednesday, October 24 10:00',
+        description: 'Daily meeting',
+        duration: '30 minutes',
+        name: 'Nguyen Trung Duc',
+        email: 'ducnt00622@gmail.com',
+    },
+    {
+        title: 'Daily meeting in Wednesday, October 24 10:00',
+        description: 'Daily meeting',
+        duration: '30 minutes',
+        name: 'Nguyen Trung Duc',
+        email: 'ducnt00622@gmail.com',
+    },
+];
 
 export default Calendar;
