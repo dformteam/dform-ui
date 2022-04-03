@@ -113,17 +113,20 @@ const Calendar = (props) => {
     };
 
     const onShareCalendarClick = () => {
-        const { contract, walletConnection } = wallet;
-        const accountId = walletConnection.getAccountId();
-        console.log('accountId => ', typeof (accountId));
-        if (accountId !== '') {
-            const uri = new URL(window.location.href);
-            const { origin } = uri;
-            setLink(`${origin}/calendar?id=${accountId}`);
-            setLink({ link: `${origin}/calendar?id=${accountId}`, name: accountId });
-            setModalShare(true);
+        if (!router.query.id) {
+            const { contract, walletConnection } = wallet;
+            const accountId = walletConnection.getAccountId();
+            if (accountId !== '') {
+                const uri = new URL(window.location.href);
+                const { origin } = uri;
+                setLink(`${origin}/calendar?id=${accountId}`);
+                setLink({ link: `${origin}/calendar?id=${accountId}`, name: accountId });
+                setModalShare(true);
+            } else {
+                onRequestConnectWallet();
+            }
         } else {
-            onRequestConnectWallet();
+            router.push(`/calendar/calendar-other?id=${router.query.id}`);
         }
     };
 
@@ -164,19 +167,32 @@ const Calendar = (props) => {
         });
     };
 
+    const generateButton = (id) => {
+        if (!id) {
+            return <div className={styles.button_area}>
+                <button className={styles.button_area_button} onClick={onCreateEventClick}>
+                    Create Event
+                </button>
+                <button className={styles.button_area_button} style={{ marginLeft: 10 }} onClick={onShareCalendarClick}>
+                    {/* {!router.query.id ? 'Share Your Calendar' : 'Book a Meeting'} */}
+                    Share Your Calendar
+                </button>
+            </div>
+        } else {
+            return <div className={styles.button_area}>
+                <button className={styles.button_area_button} style={{ marginLeft: 10 }} onClick={onShareCalendarClick}>
+                    Book a Meeting
+                </button>
+            </div>
+        }
+    }
+
     return (
         <>
             <Notify openLoading={openLoading} openSnack={openSnack} alertType={alertType} snackMsg={snackMsg} onClose={onCloseSnack} />
             <div className={styles.root}>
                 {generateMessage()}
-                <div className={styles.button_area}>
-                    <button className={styles.button_area_button} onClick={onCreateEventClick}>
-                        Create Event
-                    </button>
-                    <button className={styles.button_area_button} style={{ marginLeft: 10 }} onClick={onShareCalendarClick}>
-                        Share Your Calendar
-                    </button>
-                </div>
+                {generateButton(router.query.id)}
                 <Kalend
                     kalendRef={props.kalendRef}
                     onNewEventClick={onNewEventClick}

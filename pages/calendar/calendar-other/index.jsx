@@ -28,7 +28,7 @@ const style = {
 const CalendarOther = () => {
     const router = useRouter();
     const [date, setDate] = useState(new Date());
-    const [showBooking, setShowBooking] = useState(false);
+    const [showBooking, setShowBooking] = useState(true);
     const [time, setTime] = useState();
     const [modal, setModal] = useState(false);
     const [openLoading, setOpenLoading] = useState(false);
@@ -37,6 +37,7 @@ const CalendarOther = () => {
     const [snackMsg, setSnackMsg] = useState('');
 
     const onTimeClick = (item) => {
+        console.log('item = ', item);
         setTime(item.id);
     };
 
@@ -76,6 +77,7 @@ const CalendarOther = () => {
                             className={styles.row_booking_button_cancel}
                             onClick={() => {
                                 setShowBooking(false);
+                                router.push(`/calendar?id=${router.query.id}`)
                             }}
                         >
                             Cancel
@@ -100,6 +102,7 @@ const CalendarOther = () => {
                                 value={date}
                                 shouldDisableDate={isWeekend}
                                 onChange={(newValue) => {
+                                    console.log('newValue = ', newValue.);
                                     setDate(newValue);
                                 }}
                                 renderInput={(params) => <TextField {...params} />}
@@ -155,20 +158,20 @@ const CalendarOther = () => {
 };
 
 const aTimes = [
-    { id: 0, label: '09:00', value: '' },
-    { id: 1, label: '09:30', value: '' },
-    { id: 2, label: '10:00', value: '' },
-    { id: 3, label: '10:30', value: '' },
-    { id: 4, label: '11:00', value: '' },
-    { id: 5, label: '11:30', value: '' },
-    { id: 6, label: '12:00', value: '' },
-    { id: 7, label: '09:00', value: '' },
-    { id: 8, label: '09:30', value: '' },
-    { id: 9, label: '10:00', value: '' },
-    { id: 10, label: '10:30', value: '' },
-    { id: 11, label: '11:00', value: '' },
-    { id: 12, label: '11:30', value: '' },
-    { id: 13, label: '12:00', value: '' },
+    { id: 0, label: '09:00', value: '09:00' },
+    { id: 1, label: '09:30', value: '09:30' },
+    { id: 2, label: '10:00', value: '10:00' },
+    { id: 3, label: '10:30', value: '10:30' },
+    { id: 4, label: '11:00', value: '11:00' },
+    { id: 5, label: '11:30', value: '11:30' },
+    { id: 6, label: '12:00', value: '12:00' },
+    { id: 7, label: '09:00', value: '09:00' },
+    { id: 8, label: '09:30', value: '09:30' },
+    { id: 9, label: '10:00', value: '10:00' },
+    { id: 10, label: '10:30', value: '10:30' },
+    { id: 11, label: '11:00', value: '11:00' },
+    { id: 12, label: '11:30', value: '11:30' },
+    { id: 13, label: '12:00', value: '12:00' },
 ];
 
 export default CalendarOther;
