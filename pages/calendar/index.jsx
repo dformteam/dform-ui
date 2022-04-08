@@ -27,6 +27,14 @@ const style = {
     paddingTop: '20px',
 };
 
+const EVENT_TYPE = {
+    ONLINE: 0,
+    INPERSON: 1,
+    ONLINE_AND_INPERSON: 2,
+    MEETING_REQUEST: 3
+}
+
+
 const Calendar = (props) => {
     const events = [];
     const router = useRouter();
@@ -143,11 +151,20 @@ const Calendar = (props) => {
                         if (data) {
                             data.data.map((event) => {
                                 if (event?.is_published) {
+                                    let summary = event.name;
+                                    if (event.event_type == EVENT_TYPE.MEETING_REQUEST) {
+                                        summary = summary.split('[Meeting]')[1];
+                                        let name_prefix = event.owner;
+                                        if (event.owner == accountId) {
+                                            name_prefix = event.participants[0];
+                                        }
+                                        summary = `[Meeting with ${name_prefix}] ${summary}`;
+                                    }
                                     let eventInfo = {
                                         id: event.id,
                                         startAt: new Date(parseFloat(event.start_date)).toISOString(),
                                         endAt: new Date(parseFloat(event.end_date)).toISOString(),
-                                        summary: userId === accountId ? event.name : 'Busy',
+                                        summary: userId === accountId ? summary : 'Busy',
                                         color: userId === accountId ? colorList[Math.floor(Math.random() * colorList.length)] : 'orange',
                                     };
                                     events.push(eventInfo);
@@ -263,10 +280,17 @@ const Calendar = (props) => {
             )
             .then((res) => {
                 setOpenLoading(false);
-                onShowResult({
-                    type: 'success',
-                    msg: 'Meeting request confirmed',
-                });
+                if (status) {
+                    onShowResult({
+                        type: 'success',
+                        msg: 'Meeting request confirmed',
+                    });
+                } else {
+                    onShowResult({
+                        type: 'success',
+                        msg: 'Meeting request has been denied',
+                    });
+                }
                 setTimeout(() => { router.reload(); }, 3000)
             })
             .catch((err) => {

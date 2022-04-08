@@ -105,15 +105,8 @@ const CalendarOther = () => {
     }
 
     const onDurationChange = (duration) => {
-        if (parseFloat(duration) < 5) {
-            onShowResult({
-                type: 'error',
-                msg: 'The meeting duration can not be less than 5 minutes',
-            });
-        } else {
-            generateAvailableTime(duration);
-            setCurrentDuration(parseFloat(duration));
-        }
+        generateAvailableTime(duration);
+        setCurrentDuration(parseFloat(duration));
     }
 
     const onRequestConnectWallet = () => {
@@ -166,6 +159,17 @@ const CalendarOther = () => {
                 });
             });
         setModal(false);
+    }
+
+    const onConfirm = () => {
+        if (currentDuration < 5) {
+            onShowResult({
+                type: 'error',
+                msg: 'The meeting duration can not be less than 5 minutes',
+            });
+        } else {
+            setModal(true);
+        }
     }
 
     return (
@@ -234,7 +238,7 @@ const CalendarOther = () => {
                     </div>
                 </div>
                 {showBooking && (
-                    <button className={styles.confirm} onClick={() => setModal(true)}>
+                    <button className={styles.confirm} onClick={() => onConfirm()}>
                         Confirm
                     </button>
                 )}
