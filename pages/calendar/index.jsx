@@ -301,6 +301,17 @@ const Calendar = (props) => {
             });
     }
 
+    const generateNotify = () => {
+        let color = 'black';
+        if (notify.length > 0) {
+            color = 'red';
+        }
+        return (
+            <button className={styles.button_area_share} onClick={onNotifyClick}>
+                <NotificationsActiveOutlinedIcon style={{ color: color }} /> {`(${notify.length})`}
+            </button>)
+    }
+
     const generateButton = (id) => {
         if (!id) {
             return <div className={styles.button_area}>
@@ -310,9 +321,10 @@ const Calendar = (props) => {
                 <button className={styles.button_area_button} style={{ marginLeft: 10 }} onClick={onShareCalendarClick}>
                     Share Your Calendar
                 </button>
-                <button className={styles.button_area_share} onClick={onNotifyClick}>
-                    <NotificationsActiveOutlinedIcon /> Notifications
-                </button>
+                {/* <button className={styles.button_area_share} onClick={onNotifyClick}>
+                    <NotificationsActiveOutlinedIcon style={{ color: 'red' }} /> (1)
+                </button> */}
+                {generateNotify()}
             </div>
         } else {
             return <div className={styles.button_area}>
