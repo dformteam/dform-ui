@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { useRouter } from 'next/router';
 import styles from './CalendarOther.module.scss';
 import isWeekend from 'date-fns/isWeekend';
@@ -39,14 +39,20 @@ const CalendarOther = () => {
     const [alertType, setAlertType] = useState('success');
     const [snackMsg, setSnackMsg] = useState('');
     const [listTime, setListTime] = useState([]);
+    const [listBusyTime, setListBusyTime] = useState([]);
     const [currentDuration, setCurrentDuration] = useState(0);
     const [currentName, setCurrentName] = useState('');
     const [currentEmail, setCurrentEmail] = useState('');
     const [currentDescription, setCurrentDescription] = useState('');
+    const [routerId, setRouterId] = useState('');
 
     const onTimeClick = (item) => {
         setTime(item);
     };
+
+    useEffect(() => {
+        setRouterId(router.query.id);
+    }, [router]);
 
     useEffect(() => {
         if (router.query.transactionHashes) {
@@ -79,7 +85,79 @@ const CalendarOther = () => {
         setSnackMsg(msg);
     };
 
-    const generateAvailableTime = (duration) => {
+    useLayoutEffect(() => {
+        onGetMaxRows();
+    }, [routerId]);
+
+    const onGetMaxRows = () => {
+        const { contract } = wallet;
+        let userId = routerId;
+        contract
+            ?.get_event_count?.({
+                userId: userId,
+            })
+            .then((total) => {
+                onGetRows({ total });
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+
+    const onGetRows = async ({ total }) => {
+        const { contract } = wallet;
+        const num_page = total % 5 === 0 ? total / 5 : parseInt(total / 5) + 1;
+        const page_arr = new Array(num_page).fill(0);
+        let userId = routerId;
+        await Promise.all(
+            page_arr.map(async (page, index) => {
+                await contract
+                    .get_events({
+                        userId,
+                        page: index + 1,
+                    })
+                    .then((data) => {
+                        if (data) {
+                            data.data.map((event) => {
+                                if (event?.is_published) {
+                                    if (parseFloat(event.end_date) - parseFloat(event.start_date) <= 86400000) {
+                                        let time_info = {
+                                            start: parseFloat(event.start_date),
+                                            end: parseFloat(event.end_date)
+                                        }
+                                        if (!listBusyTime.includes(time_info)) {
+                                            setListBusyTime(listBusyTime => [...listBusyTime, time_info]);
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    });
+            }),
+        );
+    };
+
+    const getTimestampFromTime = (time, cdate = date) => {
+        let dateArray = cdate.toString().split(' ');
+        dateArray[4] = time?.value;
+        return new Date(dateArray.toString().replaceAll(',', ' ')).getTime();
+    }
+
+    const checkBusyTime = (start_time, duration) => {
+        let output = false;
+        let end_time = start_time + duration * 60 * 1000;
+        for (let i = 0; i < listBusyTime.length; i++) {
+            let isStart = (start_time >= listBusyTime[i].start) && (start_time <= listBusyTime[i].end);
+            let isEnd = (end_time >= listBusyTime[i].start) && (end_time <= listBusyTime[i].end);
+            if (isStart || isEnd) {
+                output = true;
+                break;
+            }
+        }
+        return output;
+    }
+
+    const generateAvailableTime = (duration = currentDuration, cdate = date) => {
         let timeList = [];
         let listObj = [];
         for (let i = 0; i < 1440; i = i + parseFloat(duration)) {
@@ -98,6 +176,10 @@ const CalendarOther = () => {
                 id: i,
                 label: label,
                 value: value
+            }
+
+            if (checkBusyTime(getTimestampFromTime(timeObj, cdate), duration)) {
+                timeObj.label = 'Busy';
             }
             listObj.push(timeObj);
         }
@@ -212,11 +294,13 @@ const CalendarOther = () => {
                     <div className={styles.content_calendar}>
                         <LocalizationProvider dateAdapter={AdapterDateFns}>
                             <StaticDatePicker
+                                disablePast
                                 orientation="landscape"
                                 openTo="day"
                                 value={date}
                                 shouldDisableDate={isWeekend}
                                 onChange={(newValue) => {
+                                    generateAvailableTime(currentDuration, newValue);
                                     setDate(newValue);
                                 }}
                                 renderInput={(params) => <TextField {...params} />}
@@ -230,6 +314,7 @@ const CalendarOther = () => {
                                     <button
                                         className={time?.label === item.label ? styles.content_time_buttonA : styles.content_time_button}
                                         onClick={() => onTimeClick(item)}
+                                        disabled={item.label === 'Busy' ? true : false}
                                     >
                                         {item.label}
                                     </button>
