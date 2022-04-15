@@ -187,7 +187,11 @@ const CalendarOther = () => {
     }
 
     const onDurationChange = (duration) => {
-        generateAvailableTime(duration);
+        if (duration) {
+            generateAvailableTime(duration);
+        } else {
+            setListTime([])
+        }
         setCurrentDuration(parseFloat(duration));
     }
 
