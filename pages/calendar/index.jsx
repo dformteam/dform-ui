@@ -59,7 +59,11 @@ const Calendar = (props) => {
     }, [routerId]);
 
     useEffect(() => {
-        setRouterId(router.query.id);
+        if (router.query.account_id) {
+            router.push(`/calendar?id=${router.query.id}`);
+        } else {
+            setRouterId(router.query.id);
+        }
     }, [router]);
 
     useEffect(() => {
