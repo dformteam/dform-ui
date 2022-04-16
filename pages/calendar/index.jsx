@@ -9,6 +9,7 @@ import Notify from '../../components/Notify';
 import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
 import ArrowRightOutlinedIcon from '@mui/icons-material/ArrowRightOutlined';
 import ArrowDropDownOutlinedIcon from '@mui/icons-material/ArrowDropDownOutlined';
+import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -31,9 +32,8 @@ const EVENT_TYPE = {
     ONLINE: 0,
     INPERSON: 1,
     ONLINE_AND_INPERSON: 2,
-    MEETING_REQUEST: 3
-}
-
+    MEETING_REQUEST: 3,
+};
 
 const Calendar = (props) => {
     const events = [];
@@ -50,6 +50,9 @@ const Calendar = (props) => {
     const [routerId, setRouterId] = useState('');
     const [modal, setModal] = useState(false);
     const [notify, setNotify] = useState([]);
+    const [modalSetting, setModalSetting] = useState(false);
+    const [free, setFree] = useState(true);
+    const [fee, setFee] = useState('0');
 
     useLayoutEffect(() => {
         onGetMaxRows();
@@ -102,7 +105,7 @@ const Calendar = (props) => {
                                     duration: `${duration} minutes`,
                                     name: requets.name,
                                     email: requets.email,
-                                }
+                                };
                                 tmpNotify.push(rqObj);
                             });
                         }
@@ -150,7 +153,7 @@ const Calendar = (props) => {
                     .then((data) => {
                         if (data) {
                             data.data.map((event) => {
-                                if (event?.is_published) {
+                                if (event?.is_modaled) {
                                     let summary = event.name;
                                     if (event.event_type == EVENT_TYPE.MEETING_REQUEST) {
                                         summary = summary.split('[Meeting]')[1];
@@ -274,7 +277,7 @@ const Calendar = (props) => {
             ?.response_meeting_request(
                 {
                     id: id,
-                    approve: status
+                    approve: status,
                 },
                 300000000000000,
             )
@@ -291,7 +294,9 @@ const Calendar = (props) => {
                         msg: 'Meeting request has been denied',
                     });
                 }
-                setTimeout(() => { router.reload(); }, 3000)
+                setTimeout(() => {
+                    router.reload();
+                }, 3000);
             })
             .catch((err) => {
                 onShowResult({
@@ -299,7 +304,7 @@ const Calendar = (props) => {
                     msg: String(err),
                 });
             });
-    }
+    };
 
     const generateNotify = () => {
         let color = 'black';
@@ -309,37 +314,58 @@ const Calendar = (props) => {
         return (
             <button className={styles.button_area_share} onClick={onNotifyClick}>
                 <NotificationsActiveOutlinedIcon style={{ color: color }} /> {`(${notify.length})`}
-            </button>)
-    }
+            </button>
+        );
+    };
 
     const generateButton = (id) => {
         if (!id) {
-            return <div className={styles.button_area}>
-                <button className={styles.button_area_button} onClick={onCreateEventClick}>
-                    Create Event
-                </button>
-                <button className={styles.button_area_button} style={{ marginLeft: 10 }} onClick={onShareCalendarClick}>
-                    Share Your Calendar
-                </button>
-                {/* <button className={styles.button_area_share} onClick={onNotifyClick}>
+            return (
+                <div className={styles.button_area}>
+                    <button className={styles.button_area_button} onClick={onCreateEventClick}>
+                        Create Event
+                    </button>
+                    <button className={styles.button_area_button} style={{ marginLeft: 10 }} onClick={onShareCalendarClick}>
+                        Share Your Calendar
+                    </button>
+                    {/* <button className={styles.button_area_share} onClick={onNotifyClick}>
                     <NotificationsActiveOutlinedIcon style={{ color: 'red' }} /> (1)
                 </button> */}
-                {generateNotify()}
-            </div>
+                    {generateNotify()}
+                    <button className={styles.button_area_setting} onClick={onSettingClick}>
+                        <SettingsOutlinedIcon />
+                    </button>
+                </div>
+            );
         } else {
-            return <div className={styles.button_area}>
-                <button className={styles.button_area_button} style={{ marginLeft: 10 }} onClick={onShareCalendarClick}>
-                    Book a Meeting
-                </button>
-            </div>
+            return (
+                <div className={styles.button_area}>
+                    <button className={styles.button_area_button} style={{ marginLeft: 10 }} onClick={onShareCalendarClick}>
+                        Book a Meeting
+                    </button>
+                </div>
+            );
         }
-    }
+    };
+
     const onNotifyClick = () => {
         setModal(true);
     };
 
     const onCloseModal = () => {
         setModal(false);
+    };
+
+    const onSettingClick = () => {
+        setModalSetting(true);
+    };
+
+    const onCloseModalSetting = () => {
+        setModalSetting(false);
+    };
+
+    const onFeeChange = (e) => {
+        setFee(e.target.value);
     };
 
     return (
@@ -373,13 +399,52 @@ const Calendar = (props) => {
                             {notify.map((item, index) => {
                                 return (
                                     <Fragment key={index}>
-                                        <NotifyItem
-                                            item={item}
-                                            onResponseMeetingRequest={onResponseMeetingRequest} />
+                                        <NotifyItem item={item} onResponseMeetingRequest={onResponseMeetingRequest} />
                                         <div className={styles.modal_line} />
                                     </Fragment>
                                 );
                             })}
+                        </div>
+                    </Box>
+                </Modal>
+
+                <Modal open={modalSetting} onClose={onCloseModalSetting} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+                    <Box sx={style}>
+                        <Typography id="modal-modal-title" variant="h6" component="h2" textAlign="center">
+                            Setting
+                        </Typography>
+                        <div className={styles.modal}>
+                            <div className={styles.modal_row}>
+                                <div className={styles.modal_row_label}>Invite Question</div>
+                            </div>
+                            <div className={styles.modal_line} />
+                            <div className={styles.modal_row}>
+                                <div className={styles.modal_row_label}>When people can book the meeting?</div>
+                            </div>
+                            <div className={styles.modal_line} />
+                            <div className={styles.modal_row}>
+                                <div className={styles.modal_row_label}>Set fee for book a meeting</div>
+                            </div>
+                            <div className={styles.modal_fee_row}>
+                                <button className={free ? styles.modal_fee_button_active : styles.modal_fee_button} onClick={() => setFree(true)}>
+                                    Free
+                                </button>
+                                <button className={!free ? styles.modal_fee_button_active : styles.modal_fee_button} onClick={() => setFree(false)}>
+                                    Paid
+                                </button>
+                                {!free && (
+                                    <input
+                                        className={styles.modal_fee_input}
+                                        type={'number'}
+                                        onChange={onFeeChange}
+                                        placeholder={'The amount need to be paid for a booking'}
+                                    />
+                                )}
+                            </div>
+                            <div className={styles.modal_line} />
+                            <div className={styles.modal_row}>
+                                <div className={styles.modal_row_label}>Add trust people</div>
+                            </div>
                         </div>
                     </Box>
                 </Modal>
@@ -397,8 +462,12 @@ const NotifyItem = (props) => {
             <div className={styles.modal_row} onClick={() => setExpand(!expand)}>
                 <div className={styles.modal_row_label}>{item.title}</div>
                 {expand ? <ArrowDropDownOutlinedIcon /> : <ArrowRightOutlinedIcon />}
-                <button className={styles.modal_row_accept} onClick={() => onResponseMeetingRequest(item.id, true)}>Accept </button>
-                <button className={styles.modal_row_deny} onClick={() => onResponseMeetingRequest(item.id, false)}>Deny</button>
+                <button className={styles.modal_row_accept} onClick={() => onResponseMeetingRequest(item.id, true)}>
+                    Accept
+                </button>
+                <button className={styles.modal_row_deny} onClick={() => onResponseMeetingRequest(item.id, false)}>
+                    Deny
+                </button>
             </div>
             {expand && (
                 <div className={styles.modal_content}>
