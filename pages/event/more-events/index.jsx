@@ -362,7 +362,7 @@ const EventItem = (props) => {
     return (
         <div className={styles.event_item} key={item.id}>
             <div className={styles.event_item_header}>
-                <img src={img} className={styles.event_item_img} alt="img" onClick={() => router.push(`/event/event-detail?id=${item.id}`)} />
+                <img src={img || '/calendar.svg'} className={styles.event_item_img} alt="img" onClick={() => router.push(`/event/event-detail?id=${item.id}`)} />
             </div>
             <div className={styles.event_item_info}>
                 <div className={styles.event_item_date}>{item.date}</div>
