@@ -279,6 +279,7 @@ const Calendar = (props) => {
         const userId = walletConnection.getAccountId();
         setModal(false);
         setOpenLoading(true);
+
         contract
             ?.response_meeting_request(
                 {
@@ -377,6 +378,9 @@ const Calendar = (props) => {
     const update_setting = () => {
         const { contract } = wallet;
         let yocto_enroll_fee = utils.format.parseNearAmount(`${fee}`);
+        setModalSetting(false);
+        setOpenLoading(true);
+
         contract
             ?.update_calendar_setting?.({
                 meeting_fee: yocto_enroll_fee,
@@ -385,19 +389,19 @@ const Calendar = (props) => {
                 if (res) {
                     onShowResult({
                         type: 'success',
-                        message: 'update setting success',
+                        msg: 'update setting success',
                     });
                 } else {
                     onShowResult({
                         type: 'error',
-                        message: 'update setting fail',
+                        msg: 'update setting fail',
                     });
                 }
             })
             .catch((err) => {
                 onShowResult({
                     type: 'error',
-                    message: String(err),
+                    msg: String(err),
                 });
             });
     };
@@ -483,7 +487,9 @@ const Calendar = (props) => {
                                 <button className={styles.modal_row_button_cancel} onClick={() => setModalSetting(false)}>
                                     Cancel
                                 </button>
-                                <button className={styles.modal_row_button_create}>Save</button>
+                                <button className={styles.modal_row_button_create} onClick={update_setting}>
+                                    Save
+                                </button>
                             </div>
                         </div>
                     </Box>
