@@ -479,6 +479,12 @@ const Calendar = (props) => {
                             <div className={styles.modal_row}>
                                 <div className={styles.modal_row_label}>Add trust people</div>
                             </div>
+                            <div className={styles.modal_row_button}>
+                                <button className={styles.modal_row_button_cancel} onClick={() => setModalSetting(false)}>
+                                    Cancel
+                                </button>
+                                <button className={styles.modal_row_button_create}>Save</button>
+                            </div>
                         </div>
                     </Box>
                 </Modal>
