@@ -91,6 +91,29 @@
             box-shadow: var(--color-boxshadow);
             margin-left: 20px;
         }
+
+        &_button {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 30px 0 0;
+
+            &_cancel {
+                width: 140px;
+                height: 48px;
+                margin: 0 10px;
+                border: 1px solid var(--color-border);
+                color: var(--color-secondary);
+            }
+
+            &_create {
+                @extend .modal_row_button_cancel;
+                background: var(--color-gradient);
+                color: var(--color-text-button);
+                border: none;
+            }
+        }
     }
 
     &_content {
