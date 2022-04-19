@@ -29,6 +29,7 @@ const style = {
 const CalendarOther = () => {
     const router = useRouter();
     const wallet = useSelector((state) => state.wallet);
+
     const [date, setDate] = useState(new Date());
     const [showBooking, setShowBooking] = useState(true);
     const [time, setTime] = useState();
@@ -67,7 +68,7 @@ const CalendarOther = () => {
         let dateArray = date.toString().split(' ');
         dateArray[4] = time?.value;
         setSelectedTime(new Date(dateArray.toString().replaceAll(',', ' ')).getTime());
-    }, [time])
+    }, [time]);
 
     const onCloseModal = () => {
         setModal(false);
@@ -123,10 +124,10 @@ const CalendarOther = () => {
                                     if (parseFloat(event.end_date) - parseFloat(event.start_date) <= 86400000) {
                                         let time_info = {
                                             start: parseFloat(event.start_date),
-                                            end: parseFloat(event.end_date)
-                                        }
+                                            end: parseFloat(event.end_date),
+                                        };
                                         if (!listBusyTime.includes(time_info)) {
-                                            setListBusyTime(listBusyTime => [...listBusyTime, time_info]);
+                                            setListBusyTime((listBusyTime) => [...listBusyTime, time_info]);
                                         }
                                     }
                                 }
@@ -141,21 +142,21 @@ const CalendarOther = () => {
         let dateArray = cdate.toString().split(' ');
         dateArray[4] = time?.value;
         return new Date(dateArray.toString().replaceAll(',', ' ')).getTime();
-    }
+    };
 
     const checkBusyTime = (start_time, duration) => {
         let output = false;
         let end_time = start_time + duration * 60 * 1000;
         for (let i = 0; i < listBusyTime.length; i++) {
-            let isStart = (start_time >= listBusyTime[i].start) && (start_time <= listBusyTime[i].end);
-            let isEnd = (end_time >= listBusyTime[i].start) && (end_time <= listBusyTime[i].end);
+            let isStart = start_time >= listBusyTime[i].start && start_time <= listBusyTime[i].end;
+            let isEnd = end_time >= listBusyTime[i].start && end_time <= listBusyTime[i].end;
             if (isStart || isEnd) {
                 output = true;
                 break;
             }
         }
         return output;
-    }
+    };
 
     const generateAvailableTime = (duration = currentDuration, cdate = date) => {
         let timeList = [];
@@ -175,8 +176,8 @@ const CalendarOther = () => {
             let timeObj = {
                 id: i,
                 label: label,
-                value: value
-            }
+                value: value,
+            };
 
             if (checkBusyTime(getTimestampFromTime(timeObj, cdate), duration)) {
                 timeObj.label = 'Busy';
@@ -184,23 +185,23 @@ const CalendarOther = () => {
             listObj.push(timeObj);
         }
         setListTime(listObj);
-    }
+    };
 
     const onDurationChange = (duration) => {
         if (duration) {
             generateAvailableTime(duration);
         } else {
-            setListTime([])
+            setListTime([]);
         }
         setCurrentDuration(parseFloat(duration));
-    }
+    };
 
     const onRequestConnectWallet = () => {
         const { nearConfig, walletConnection } = wallet;
         walletConnection?.requestSignIn?.(nearConfig?.contractName);
     };
 
-    const onBooking = () => {
+    const onBooking = async () => {
         const { contract, walletConnection } = wallet;
         const userId = walletConnection.getAccountId();
         if (userId === '') {
@@ -209,43 +210,87 @@ const CalendarOther = () => {
         let start_date = selectedTime;
         let end_date = selectedTime + currentDuration * 60 * 1000;
         setOpenLoading(true);
-        contract
-            ?.request_a_meeting(
-                {
-                    receiver: router.query.id,
-                    start_date: start_date.toString(),
-                    end_date: end_date.toString(),
-                    name: currentName,
-                    email: currentEmail,
-                    description: currentDescription
-                },
-                300000000000000,
-            )
-            .then((res) => {
-                setOpenLoading(false);
-                if (res) {
-                    onShowResult({
-                        type: 'success',
-                        msg: 'Your meeting request was sent',
-                    });
-                    setTimeout(() => {
-                        router.push(`/calendar?id=${router.query.id}`);
-                    }, 5000)
-                } else {
+        const meeting_fee = await contract?.get_meeting_fee({
+            userId: userId,
+        });
+
+        if (meeting_fee === '0' || meeting_fee === null) {
+            contract
+                ?.request_a_meeting(
+                    {
+                        receiver: router.query.id,
+                        start_date: start_date.toString(),
+                        end_date: end_date.toString(),
+                        name: currentName,
+                        email: currentEmail,
+                        description: currentDescription,
+                    },
+                    50000000000000,
+                )
+                .then((res) => {
+                    setOpenLoading(false);
+                    if (res) {
+                        onShowResult({
+                            type: 'success',
+                            msg: 'Your meeting request was sent',
+                        });
+                        setTimeout(() => {
+                            router.push(`/calendar?id=${router.query.id}`);
+                        }, 5000);
+                    } else {
+                        onShowResult({
+                            type: 'error',
+                            msg: 'Can not send your meeting request',
+                        });
+                    }
+                })
+                .catch((err) => {
                     onShowResult({
                         type: 'error',
-                        msg: 'Can not send your meeting request',
+                        msg: String(err),
                     });
-                }
-            })
-            .catch((err) => {
-                onShowResult({
-                    type: 'error',
-                    msg: String(err),
                 });
-            });
+        } else if (meeting_fee !== '0') {
+            contract
+                ?.request_a_meeting(
+                    {
+                        receiver: router.query.id,
+                        start_date: start_date.toString(),
+                        end_date: end_date.toString(),
+                        name: currentName,
+                        email: currentEmail,
+                        description: currentDescription,
+                    },
+                    50000000000000,
+                    meeting_fee,
+                )
+                .then((res) => {
+                    setOpenLoading(false);
+                    if (res) {
+                        onShowResult({
+                            type: 'success',
+                            msg: 'Your meeting request was sent',
+                        });
+                        setTimeout(() => {
+                            router.push(`/calendar?id=${router.query.id}`);
+                        }, 5000);
+                    } else {
+                        onShowResult({
+                            type: 'error',
+                            msg: 'Can not send your meeting request',
+                        });
+                    }
+                })
+                .catch((err) => {
+                    onShowResult({
+                        type: 'error',
+                        msg: String(err),
+                    });
+                });
+        }
+
         setModal(false);
-    }
+    };
 
     const onConfirm = () => {
         if (currentDuration < 5) {
@@ -256,7 +301,7 @@ const CalendarOther = () => {
         } else {
             setModal(true);
         }
-    }
+    };
 
     return (
         <>
@@ -268,7 +313,13 @@ const CalendarOther = () => {
                             <div className={styles.row_booking_content_label}>Select Date {'&'} Time</div>
                             <div className={styles.row_booking_content_row}>
                                 <div className={styles.row_booking_content_row_label}>Duration</div>
-                                <input className={styles.row_booking_content_row_input} type={'number'} onChange={e => { onDurationChange(e.target.value) }} />
+                                <input
+                                    className={styles.row_booking_content_row_input}
+                                    type={'number'}
+                                    onChange={(e) => {
+                                        onDurationChange(e.target.value);
+                                    }}
+                                />
                                 {'minutes.'}
                             </div>
                         </div>
@@ -278,7 +329,7 @@ const CalendarOther = () => {
                             className={styles.row_booking_button_cancel}
                             onClick={() => {
                                 setShowBooking(false);
-                                router.push(`/calendar?id=${router.query.id}`)
+                                router.push(`/calendar?id=${router.query.id}`);
                             }}
                         >
                             Cancel
@@ -339,15 +390,30 @@ const CalendarOther = () => {
                         <div className={styles.modal}>
                             <div className={styles.modal_row}>
                                 <div className={styles.modal_row_label}>Name </div>
-                                <input className={styles.modal_row_input} onChange={e => { setCurrentName(e.currentTarget.value); }} />
+                                <input
+                                    className={styles.modal_row_input}
+                                    onChange={(e) => {
+                                        setCurrentName(e.currentTarget.value);
+                                    }}
+                                />
                             </div>
                             <div className={styles.modal_row}>
                                 <div className={styles.modal_row_label}>Email</div>
-                                <input className={styles.modal_row_input} onChange={e => { setCurrentEmail(e.currentTarget.value); }} />
+                                <input
+                                    className={styles.modal_row_input}
+                                    onChange={(e) => {
+                                        setCurrentEmail(e.currentTarget.value);
+                                    }}
+                                />
                             </div>
                             <div className={styles.modal_row}>
                                 <div className={styles.modal_row_label}>Description</div>
-                                <textarea className={styles.modal_row_textarea} onChange={e => { setCurrentDescription(e.currentTarget.value); }} />
+                                <textarea
+                                    className={styles.modal_row_textarea}
+                                    onChange={(e) => {
+                                        setCurrentDescription(e.currentTarget.value);
+                                    }}
+                                />
                             </div>
                             <button className={styles.confirm} onClick={() => onBooking()}>
                                 Booking

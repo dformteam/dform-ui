@@ -13,6 +13,7 @@ import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import { utils } from 'near-api-js';
 
 const style = {
     position: 'absolute',
@@ -38,6 +39,7 @@ const EVENT_TYPE = {
 const Calendar = (props) => {
     const events = [];
     const router = useRouter();
+
     const colorList = ['red', 'blue', 'orange', 'green', 'violet'];
     const [demoEvents, setDemoEvents] = useState(events);
     const wallet = useSelector((state) => state.wallet);
@@ -370,6 +372,34 @@ const Calendar = (props) => {
 
     const onFeeChange = (e) => {
         setFee(e.target.value);
+    };
+
+    const update_setting = () => {
+        const { contract } = wallet;
+        let yocto_enroll_fee = utils.format.parseNearAmount(`${fee}`);
+        contract
+            ?.update_calendar_setting?.({
+                meeting_fee: yocto_enroll_fee,
+            })
+            .then((res) => {
+                if (res) {
+                    onShowResult({
+                        type: 'success',
+                        message: 'update setting success',
+                    });
+                } else {
+                    onShowResult({
+                        type: 'error',
+                        message: 'update setting fail',
+                    });
+                }
+            })
+            .catch((err) => {
+                onShowResult({
+                    type: 'error',
+                    message: String(err),
+                });
+            });
     };
 
     return (
