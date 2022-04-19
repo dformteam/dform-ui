@@ -2,7 +2,6 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    padding: 0 5%;
     align-items: center;
 }
 
@@ -11,7 +10,7 @@
     min-width: 600px;
     height: max-content;
     display: flex;
-    padding: 50px 0 20px;
+    padding: 0 2%;
 }
 
 .modal_content {
@@ -20,10 +19,12 @@
 }
 
 .content_left {
-    width: 450px;
+    width: 350px;
     height: max-content;
     display: flex;
     flex-direction: column;
+    padding: 20px 0;
+    margin-right: 10px;
 }
 
 .form_analysis_title {
@@ -103,7 +104,7 @@
 }
 
 .participant_area {
-    width: 50%;
+    width: 100%;
     display: flex;
     margin: 15px 0px;
     align-items: center;
@@ -135,7 +136,7 @@
     text-overflow: ellipsis;
 }
 
-.participant_area:hover>.participant_area_name {
+.participant_area:hover > .participant_area_name {
     text-decoration: underline;
 }
 
@@ -156,7 +157,7 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    padding: 20px;
+    padding: 20px 0;
 }
 
 .export {
@@ -180,19 +181,29 @@
 }
 
 .table {
+    width: calc(96vw - 335px);
     height: calc(100vh - 240px);
     display: flex;
     flex-direction: column;
     overflow: auto;
+    table-layout: fixed;
 }
 
 .table_title {
     font-weight: 600 !important;
-    border-bottom: 1px solid var(--color-border) !important;
+    border: 1px solid var(--color-border) !important;
+    max-width: 300px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .cell {
-    border-bottom: 1px solid var(--color-border) !important;
+    border: 1px solid var(--color-border) !important;
+    max-width: 300px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .cell_action {
@@ -203,10 +214,4 @@
 .cell_title {
     @extend .cell;
     font-size: 16px !important;
-    color: var(--color-link) !important;
-    cursor: pointer;
-}
-
-.cell_title:hover {
-    text-decoration: underline;
 }

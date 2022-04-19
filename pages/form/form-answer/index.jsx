@@ -116,6 +116,8 @@ const FormAnswer = () => {
                     form.current = { ...res };
                     getParticipantFormDetail();
                     setType(res.type === 0 ? 'basic' : 'card');
+                } else {
+                    return redirectError('Form not found!');
                 }
             })
             .catch((err) => {
@@ -438,6 +440,14 @@ const FormAnswer = () => {
                         setModalSave(false);
                         setModalSuccess(true);
                     });
+            } else {
+                onShowResult({
+                    type: 'error',
+                    msg: 'Submit error, Please try again',
+                });
+                setSuccess(false);
+                setModalSave(false);
+                setModalSuccess(true);
             }
         } else {
             const res = await w3Client.get(rootId);
@@ -480,6 +490,14 @@ const FormAnswer = () => {
                         setModalSave(false);
                         setModalSuccess(true);
                     });
+            } else {
+                onShowResult({
+                    type: 'error',
+                    msg: 'Submit error, Please try again',
+                });
+                setSuccess(false);
+                setModalSave(false);
+                setModalSuccess(true);
             }
         }
         //get answer file cid

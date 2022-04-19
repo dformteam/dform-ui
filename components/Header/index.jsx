@@ -14,7 +14,7 @@ const Header = (props) => {
     const router = useRouter();
 
     const getActiveClassName = () => {
-        const { router } = props;
+        // const { router } = props;
         return router.pathname;
     };
     const cPath = getActiveClassName();
