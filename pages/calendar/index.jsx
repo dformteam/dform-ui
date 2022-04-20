@@ -161,10 +161,10 @@ const Calendar = (props) => {
                             data.data.map((event) => {
                                 if (event?.is_modaled) {
                                     let summary = event.name;
-                                    if (event.event_type == EVENT_TYPE.MEETING_REQUEST) {
+                                    if (event.event_type === EVENT_TYPE.MEETING_REQUEST) {
                                         summary = summary.split('[Meeting]')[1];
                                         let name_prefix = event.owner;
-                                        if (event.owner == accountId) {
+                                        if (event.owner === accountId) {
                                             name_prefix = event.participants[0];
                                         }
                                         summary = `[Meeting with ${name_prefix}] ${summary}`;
