@@ -159,32 +159,35 @@ const CalendarOther = () => {
     };
 
     const generateAvailableTime = (duration = currentDuration, cdate = date) => {
-        let timeList = [];
-        let listObj = [];
-        for (let i = 0; i < 1440; i = i + parseFloat(duration)) {
-            timeList.push(i);
-        }
-        for (let i = 0; i < timeList.length; i++) {
-            let hour = Math.floor(timeList[i] / 60);
-            let min = timeList[i] % 60;
-            let label_hour = hour.toString();
-            let label_min = min.toString();
-            if (hour < 10) label_hour = `0${hour}`;
-            if (min < 10) label_min = `0${min}`;
-            let label = `${label_hour}:${label_min}`;
-            let value = `${label}:00`;
-            let timeObj = {
-                id: i,
-                label: label,
-                value: value,
-            };
-
-            if (checkBusyTime(getTimestampFromTime(timeObj, cdate), duration)) {
-                timeObj.label = 'Busy';
+        if (duration > 0) {
+            let timeList = [];
+            let listObj = [];
+            for (let i = 0; i < 1440; i = i + parseFloat(duration)) {
+                timeList.push(i);
             }
-            listObj.push(timeObj);
+
+            for (let i = 0; i < timeList.length; i++) {
+                let hour = Math.floor(timeList[i] / 60);
+                let min = timeList[i] % 60;
+                let label_hour = hour.toString();
+                let label_min = min.toString();
+                if (hour < 10) label_hour = `0${hour}`;
+                if (min < 10) label_min = `0${min}`;
+                let label = `${label_hour}:${label_min}`;
+                let value = `${label}:00`;
+                let timeObj = {
+                    id: i,
+                    label: label,
+                    value: value,
+                };
+
+                if (checkBusyTime(getTimestampFromTime(timeObj, cdate), duration)) {
+                    timeObj.label = 'Busy';
+                }
+                listObj.push(timeObj);
+            }
+            setListTime(listObj);
         }
-        setListTime(listObj);
     };
 
     const onDurationChange = (duration) => {
