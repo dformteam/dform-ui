@@ -11,6 +11,9 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Notify from '../../../components/Notify';
 import { useSelector } from 'react-redux';
+import getConfig from '../../../backed/config'
+
+const nearConfig = getConfig('testnet');
 
 const style = {
     position: 'absolute',
@@ -56,12 +59,38 @@ const CalendarOther = () => {
         setRouterId(router.query.id);
     }, [router]);
 
-    useEffect(() => {
+    useEffect(async () => {
+        const { contract, walletConnection } = wallet;
+        let userId = walletConnection.getAccountId();
         if (router.query.transactionHashes) {
-            onShowResult({
-                type: 'success',
-                msg: 'Your meeting request was sent',
-            });
+            let objectWithData = {
+                "jsonrpc": "2.0",
+                "id": "dontcare",
+                "method": "tx",
+                "params": [router.query.transactionHashes, userId]
+              }
+            const res = await fetch(nearConfig.nodeUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(objectWithData),
+            })
+
+            const data = await res.json();
+
+            if (data?.result?.status?.SuccessValue) {
+                onShowResult({
+                    type: 'success',
+                    msg: 'Your meeting request was sent',
+                });
+            } else {
+                onShowResult({
+                    type: 'error',
+                    msg: 'Something went wrong, please try again',
+                });
+            }
+            
         }
     }, [router.query]);
 

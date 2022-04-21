@@ -11,6 +11,9 @@ import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
+import getConfig from '../../../backed/config'
+
+const nearConfig = getConfig('testnet');
 
 const CreateEvent = () => {
     const wallet = useSelector((state) => state.wallet);
@@ -37,9 +40,35 @@ const CreateEvent = () => {
         setOpenSnack(false);
     };
 
-    useEffect(() => {
+    useEffect(async () => {
+        const { contract, walletConnection } = wallet;
+        let userId = walletConnection.getAccountId();
         if (router.query.transactionHashes) {
-            router.push(`/event/event-detail?id=created`);
+            let objectWithData = {
+                "jsonrpc": "2.0",
+                "id": "dontcare",
+                "method": "tx",
+                "params": [router.query.transactionHashes, userId]
+              }
+            const res = await fetch(nearConfig.nodeUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(objectWithData),
+            })
+
+            const data = await res.json();
+
+            if (data?.result?.status?.SuccessValue) {
+                router.push(`/event/event-detail?id=${atob(data?.result?.status?.SuccessValue).replaceAll('"', '')}`);
+            } else {
+                onShowResult({
+                    type: 'error',
+                    msg: 'Something went wrong, please try again',
+                });
+            }
+            
         }
     }, [router.query]);
 

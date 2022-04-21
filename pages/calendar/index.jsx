@@ -55,10 +55,15 @@ const Calendar = (props) => {
     const [modalSetting, setModalSetting] = useState(false);
     const [free, setFree] = useState(true);
     const [fee, setFee] = useState('0');
+    const [currentMeetingFee, setCurrentMeetingFee] = useState(0);
 
     useLayoutEffect(() => {
         onGetMaxRows();
     }, [routerId]);
+
+    useLayoutEffect(() => {
+        getMeetingFee()
+    }, [])
 
     useEffect(() => {
         if (router.query.account_id) {
@@ -71,6 +76,22 @@ const Calendar = (props) => {
     useEffect(() => {
         onGetPendingRequestRows();
     }, []);
+
+    const getMeetingFee = () => {
+        const { contract, walletConnection } = wallet;
+        let userId = walletConnection.getAccountId();
+        contract
+            ?.get_meeting_fee?.({
+                userId: userId,
+            })
+            .then((total) => {
+                let fee = utils.format.formatNearAmount(total);
+                setCurrentMeetingFee(fee)
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    }
 
     const onGetPendingRequestRows = () => {
         const { contract, walletConnection } = wallet;
@@ -475,7 +496,7 @@ const Calendar = (props) => {
                                         className={styles.modal_fee_input}
                                         type={'number'}
                                         onChange={onFeeChange}
-                                        placeholder={'The amount need to be paid for a booking'}
+                                        placeholder={currentMeetingFee !== 0 ? `Current Fee: ${currentMeetingFee} NEAR` : 'The amount need to be paid for a booking'}
                                     />
                                 )}
                             </div>
