@@ -46,6 +46,7 @@ const CalendarOther = () => {
     const [currentEmail, setCurrentEmail] = useState('');
     const [currentDescription, setCurrentDescription] = useState('');
     const [routerId, setRouterId] = useState('');
+    const [pendingRequests, setPendingRequests] = useState([]);
 
     const onTimeClick = (item) => {
         setTime(item);
@@ -89,6 +90,57 @@ const CalendarOther = () => {
     useLayoutEffect(() => {
         onGetMaxRows();
     }, [routerId]);
+
+    useLayoutEffect(() => {
+        onGetPendingRequestRows();
+    }, [routerId]);
+
+    const onGetPendingRequestRows = () => {
+        const { contract } = wallet;
+        let userId = routerId;
+        contract
+            ?.get_pending_requests_count?.({
+                userId: userId,
+            })
+            .then((total) => {
+                onGetPendingRequests({ total });
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+
+    const onGetPendingRequests = async ({ total }) => {
+        const { contract } = wallet;
+        const num_page = total % 5 === 0 ? total / 5 : parseInt(total / 5) + 1;
+        const page_arr = new Array(num_page).fill(0);
+        let userId = routerId;
+        await Promise.all(
+            page_arr.map(async (page, index) => {
+                await contract
+                    .get_pending_requests({
+                        userId,
+                        page: index + 1,
+                    })
+                    .then((data) => {
+                        if (data) {
+                            data.data.map((requets) => {
+                                if (parseFloat(requets.end_date) - parseFloat(requets.start_date) <= 86400000) {
+                                    let time_info = {
+                                        start: parseFloat(requets.start_date),
+                                        end: parseFloat(requets.end_date),
+                                    };
+                                    if (!listBusyTime.includes(time_info)) {
+                                        setListBusyTime((listBusyTime) => [...listBusyTime, time_info]);
+                                    }
+                                }
+                            });
+                        }
+                    });
+            }),
+        )
+    };
+
 
     const onGetMaxRows = () => {
         const { contract } = wallet;
@@ -135,7 +187,9 @@ const CalendarOther = () => {
                         }
                     });
             }),
-        );
+        ).then(() => {
+            generateAvailableTime();
+        });
     };
 
     const getTimestampFromTime = (time, cdate = date) => {
@@ -159,6 +213,7 @@ const CalendarOther = () => {
     };
 
     const generateAvailableTime = (duration = currentDuration, cdate = date) => {
+        // console.log(listBusyTime);
         if (duration > 0) {
             let timeList = [];
             let listObj = [];
