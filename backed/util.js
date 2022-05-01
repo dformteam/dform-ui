@@ -51,6 +51,7 @@ export async function initContract() {
             'get_pending_requests',
             'get_pending_requests_count',
             'get_meeting',
+            'get_available_time'
         ],
         changeMethods: [
             'init_new_form',

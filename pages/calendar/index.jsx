@@ -51,7 +51,7 @@ const Calendar = (props) => {
     const router = useRouter();
 
     const colorList = ['red', 'blue', 'orange', 'green', 'violet'];
-    const [demoEvents, setDemoEvents] = useState(events);
+    const [eventsList, setEventsList] = useState(events);
     const wallet = useSelector((state) => state.wallet);
     const [link, setLink] = useState({ link: '', name: '' });
     const [modalShare, setModalShare] = useState(false);
@@ -70,17 +70,21 @@ const Calendar = (props) => {
     const [tabInList, setTabInList] = useState(0);
 
     const [time, setTime] = useState([
-        { id: 0, label: 'Mon', check: true, startTime: '09:00', endTime: '17:00' },
-        { id: 1, label: 'Tue', check: true, startTime: '09:00', endTime: '17:00' },
-        { id: 2, label: 'Wed', check: true, startTime: '09:00', endTime: '17:00' },
-        { id: 3, label: 'Thur', check: true, startTime: '09:00', endTime: '17:00' },
-        { id: 4, label: 'Fri', check: true, startTime: '09:00', endTime: '17:00' },
-        { id: 5, label: 'Sat', check: false, startTime: '09:00', endTime: '17:00' },
-        { id: 6, label: 'Sun', check: false, startTime: '09:00', endTime: '17:00' },
+        { id: 0, label: 'Sun', check: false, startTime: '09:00', endTime: '17:00' },
+        { id: 1, label: 'Mon', check: true, startTime: '09:00', endTime: '17:00' },
+        { id: 2, label: 'Tue', check: true, startTime: '09:00', endTime: '17:00' },
+        { id: 3, label: 'Wed', check: true, startTime: '09:00', endTime: '17:00' },
+        { id: 4, label: 'Thur', check: true, startTime: '09:00', endTime: '17:00' },
+        { id: 5, label: 'Fri', check: true, startTime: '09:00', endTime: '17:00' },
+        { id: 6, label: 'Sat', check: false, startTime: '09:00', endTime: '17:00' },
     ]);
 
     useLayoutEffect(() => {
         onGetMaxRows();
+    }, [routerId]);
+
+    useLayoutEffect(() => {
+        getAvailableTime();
     }, [routerId]);
 
     useLayoutEffect(() => {
@@ -99,6 +103,21 @@ const Calendar = (props) => {
         onGetPendingRequestRows();
     }, []);
 
+    const getAvailableTime = () => {
+        const { contract, walletConnection } = wallet;
+        let userId = walletConnection.getAccountId();
+        contract
+            ?.get_available_time?.({
+                userId: userId,
+            })
+            .then((data) => {
+                setTime(JSON.parse(atob(data)))
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    }
+
     const getMeetingFee = () => {
         const { contract, walletConnection } = wallet;
         let userId = walletConnection.getAccountId();
@@ -108,6 +127,7 @@ const Calendar = (props) => {
             })
             .then((total) => {
                 let fee = utils.format.formatNearAmount(total);
+                setFree(!!!fee);
                 setCurrentMeetingFee(fee);
             })
             .catch((err) => {
@@ -202,7 +222,7 @@ const Calendar = (props) => {
                     .then((data) => {
                         if (data) {
                             data.data.map((event) => {
-                                if (event?.is_modaled) {
+                                if (event) {
                                     let summary = event.name;
                                     if (event.event_type === EVENT_TYPE.MEETING_REQUEST) {
                                         summary = summary.split('[Meeting]')[1];
@@ -222,7 +242,7 @@ const Calendar = (props) => {
                                     events.push(eventInfo);
                                 }
                             });
-                            setDemoEvents([...events]);
+                            setEventsList([...events]);
                         }
                     });
             }),
@@ -245,7 +265,7 @@ const Calendar = (props) => {
     };
 
     const onEventDragFinish = (prev, current, data) => {
-        setDemoEvents(data);
+        setEventsList(data);
     };
 
     const onCreateEventClick = () => {
@@ -282,7 +302,7 @@ const Calendar = (props) => {
 
     const generateMessage = () => {
         let message = 'This NEAR Account not available';
-        if (demoEvents !== [] && routerId) {
+        if (eventsList !== [] && routerId) {
             message = `You are watching ${routerId}'s timeline`;
         } else {
             return null;
@@ -418,26 +438,28 @@ const Calendar = (props) => {
         setFee(e.target.value);
     };
 
-    const update_setting = () => {
+    const updateSetting = () => {
         const { contract } = wallet;
         let yocto_enroll_fee = utils.format.parseNearAmount(`${fee}`);
         setModalSetting(false);
         setOpenLoading(true);
+        let ava_time = btoa(JSON.stringify(time))
 
         contract
             ?.update_calendar_setting?.({
                 meeting_fee: yocto_enroll_fee,
+                available_time: ava_time
             })
             .then((res) => {
                 if (res) {
                     onShowResult({
                         type: 'success',
-                        msg: 'update setting success',
+                        msg: 'Update setting success',
                     });
                 } else {
                     onShowResult({
                         type: 'error',
-                        msg: 'update setting fail',
+                        msg: 'Update setting fail',
                     });
                 }
             })
@@ -460,7 +482,7 @@ const Calendar = (props) => {
                             initialView={CalendarView.WEEK}
                             disabledViews={[]}
                             onEventClick={onEventClick}
-                            events={demoEvents}
+                            events={eventsList}
                             initialDate={new Date().toISOString()}
                             hourHeight={60}
                             // timezone={'Europe/Berlin'}
@@ -689,7 +711,7 @@ const Calendar = (props) => {
                             <button className={styles.modal_row_button_cancel} onClick={() => setModalSetting(false)}>
                                 Cancel
                             </button>
-                            <button className={styles.modal_row_button_create} onClick={update_setting}>
+                            <button className={styles.modal_row_button_create} onClick={updateSetting}>
                                 Save
                             </button>
                         </div>
