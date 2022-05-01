@@ -49,6 +49,7 @@ const CalendarOther = () => {
     const [currentEmail, setCurrentEmail] = useState('');
     const [currentDescription, setCurrentDescription] = useState('');
     const [routerId, setRouterId] = useState('');
+    const [listAvailableTime, setListAvailableTime] = useState([]);
     const [pendingRequests, setPendingRequests] = useState([]);
 
     const onTimeClick = (item) => {
@@ -68,7 +69,7 @@ const CalendarOther = () => {
                 "id": "dontcare",
                 "method": "tx",
                 "params": [router.query.transactionHashes, userId]
-              }
+            }
             const res = await fetch(nearConfig.nodeUrl, {
                 method: 'POST',
                 headers: {
@@ -90,7 +91,7 @@ const CalendarOther = () => {
                     msg: 'Something went wrong, please try again',
                 });
             }
-            
+
         }
     }, [router.query]);
 
@@ -99,6 +100,25 @@ const CalendarOther = () => {
         dateArray[4] = time?.value;
         setSelectedTime(new Date(dateArray.toString().replaceAll(',', ' ')).getTime());
     }, [time]);
+
+    useLayoutEffect(() => {
+        getAvailableTime();
+    }, [routerId]);
+
+    const getAvailableTime = () => {
+        const { contract, walletConnection } = wallet;
+        let userId = routerId;
+        contract
+            ?.get_available_time?.({
+                userId: userId,
+            })
+            .then((data) => {
+                setListAvailableTime(JSON.parse(atob(data)));
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    }
 
     const onCloseModal = () => {
         setModal(false);
@@ -241,8 +261,30 @@ const CalendarOther = () => {
         return output;
     };
 
+    const checkAvailableTime = (timeValue, day, duration) => {
+        let timeList = timeValue.split(':');
+        const timeStart = parseInt(timeList[0]) + parseInt(timeList[1]) / 60;
+        const timeEnd = timeStart + duration / 60;
+        var result = false;
+        listAvailableTime.forEach((item) => {
+            if (item.id === day) {
+                if (!item.check) {
+                    result = true;
+                } else {
+                    let ls_startTime = item.startTime.split(':');
+                    let ls_endTime = item.endTime.split(':');
+                    let startTheDay = parseInt(ls_startTime[0]) + parseInt(ls_startTime[1]) / 60;
+                    let endTheDay = parseInt(ls_endTime[0]) + parseInt(ls_endTime[1]) / 60;
+                    if ((timeEnd > endTheDay) || (timeStart < startTheDay)) {
+                        result = true
+                    }
+                }
+            }
+        })
+        return result;
+    }
+
     const generateAvailableTime = (duration = currentDuration, cdate = date) => {
-        // console.log(listBusyTime);
         if (duration > 0) {
             let timeList = [];
             let listObj = [];
@@ -268,7 +310,11 @@ const CalendarOther = () => {
                 if (checkBusyTime(getTimestampFromTime(timeObj, cdate), duration)) {
                     timeObj.label = 'Busy';
                 }
-                listObj.push(timeObj);
+                let weekDay = new Date(getTimestampFromTime(timeObj, cdate)).getDay();
+                if (!checkAvailableTime(timeObj.value, weekDay, duration)) {
+                    listObj.push(timeObj);
+                }
+                // listObj.push(timeObj);
             }
             setListTime(listObj);
         }
@@ -390,6 +436,18 @@ const CalendarOther = () => {
         }
     };
 
+    // { id: 0, label: 'Sun', check: false, startTime: '09:00', endTime: '17:00' }
+
+    const disableDate = (date) => {
+        var res = false;
+        listAvailableTime.forEach((item) => {
+            if (item.id === date.getDay()) {
+                res = !item.check;
+            }
+        })
+        return res;
+    }
+
     return (
         <>
             <Notify openLoading={openLoading} openSnack={openSnack} alertType={alertType} snackMsg={snackMsg} onClose={onCloseSnack} />
@@ -440,7 +498,8 @@ const CalendarOther = () => {
                                 orientation="landscape"
                                 openTo="day"
                                 value={date}
-                                shouldDisableDate={isWeekend}
+                                // shouldDisableDate={isWeekend}
+                                shouldDisableDate={disableDate}
                                 onChange={(newValue) => {
                                     generateAvailableTime(currentDuration, newValue);
                                     setDate(newValue);
