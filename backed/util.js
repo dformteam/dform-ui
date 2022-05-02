@@ -48,8 +48,8 @@ export async function initContract() {
             'get_interested_events',
             'get_interested_event_count',
             'get_meeting_fee',
-            'get_pending_requests',
-            'get_pending_requests_count',
+            // 'get_pending_requests',
+            // 'get_pending_requests_count',
             'get_meeting',
             'get_available_time'
         ],

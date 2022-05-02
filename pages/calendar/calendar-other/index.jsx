@@ -12,6 +12,7 @@ import Typography from '@mui/material/Typography';
 import Notify from '../../../components/Notify';
 import { useSelector } from 'react-redux';
 import getConfig from '../../../backed/config'
+import { utils } from 'near-api-js';
 
 const nearConfig = getConfig('testnet');
 
@@ -50,7 +51,9 @@ const CalendarOther = () => {
     const [currentDescription, setCurrentDescription] = useState('');
     const [routerId, setRouterId] = useState('');
     const [listAvailableTime, setListAvailableTime] = useState([]);
-    const [pendingRequests, setPendingRequests] = useState([]);
+    // const [pendingRequests, setPendingRequests] = useState([]);
+    const [meetingFee, setMeetingFee] = useState(0);
+
 
     const onTimeClick = (item) => {
         setTime(item);
@@ -102,8 +105,32 @@ const CalendarOther = () => {
     }, [time]);
 
     useLayoutEffect(() => {
-        getAvailableTime();
+        if (routerId !== '') {
+            getAvailableTime();
+        }
     }, [routerId]);
+
+    useLayoutEffect(() => {
+        if (routerId !== '') {
+            getMeetingFee();
+        }
+    }, [routerId]);
+
+    const getMeetingFee = () => {
+        const { contract } = wallet;
+        let userId = routerId;
+        contract
+            ?.get_meeting_fee?.({
+                userId: userId,
+            })
+            .then((total) => {
+                let fee = utils.format.formatNearAmount(total);
+                setMeetingFee(fee);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
 
     const getAvailableTime = () => {
         const { contract, walletConnection } = wallet;
@@ -140,9 +167,9 @@ const CalendarOther = () => {
         onGetMaxRows();
     }, [routerId]);
 
-    useLayoutEffect(() => {
-        onGetPendingRequestRows();
-    }, [routerId]);
+    // useLayoutEffect(() => {
+    //     onGetPendingRequestRows();
+    // }, [routerId]);
 
     const onGetPendingRequestRows = () => {
         const { contract } = wallet;
@@ -346,7 +373,7 @@ const CalendarOther = () => {
         const meeting_fee = await contract?.get_meeting_fee({
             userId: userId,
         });
-
+        const depositeAmount = utils.format.parseNearAmount(meetingFee);
         if (meeting_fee === '0' || meeting_fee === null) {
             contract
                 ?.request_a_meeting(
@@ -359,6 +386,7 @@ const CalendarOther = () => {
                         description: currentDescription,
                     },
                     50000000000000,
+                    depositeAmount
                 )
                 .then((res) => {
                     setOpenLoading(false);
