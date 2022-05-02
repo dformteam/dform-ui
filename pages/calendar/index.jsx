@@ -39,6 +39,8 @@ const style = {
     paddingTop: '20px',
 };
 
+const DAY_NAME = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
 const EVENT_TYPE = {
     ONLINE: 0,
     INPERSON: 1,
@@ -48,10 +50,13 @@ const EVENT_TYPE = {
 
 const Calendar = (props) => {
     const events = [];
+    const meetings = [];
     const router = useRouter();
 
     const colorList = ['red', 'blue', 'orange', 'green', 'violet'];
     const [eventsList, setEventsList] = useState(events);
+    const [meetingsUcmList, setMeetingsUcmList] = useState(meetings);
+    const [meetingsPstList, setMeetingsPstList] = useState(meetings);
     const wallet = useSelector((state) => state.wallet);
     const [link, setLink] = useState({ link: '', name: '' });
     const [modalShare, setModalShare] = useState(false);
@@ -99,9 +104,9 @@ const Calendar = (props) => {
         }
     }, [router]);
 
-    useEffect(() => {
-        onGetPendingRequestRows();
-    }, []);
+    // useEffect(() => {
+    //     onGetPendingRequestRows();
+    // }, []);
 
     const getAvailableTime = () => {
         const { contract, walletConnection } = wallet;
@@ -208,6 +213,9 @@ const Calendar = (props) => {
         const num_page = total % 5 === 0 ? total / 5 : parseInt(total / 5) + 1;
         const page_arr = new Array(num_page).fill(0);
         const accountId = walletConnection.getAccountId();
+        let tmpUcmMeetings = [];
+        let tmpPstMeetings = [];
+        const current_timestamp = Date.now();
         let userId = walletConnection.getAccountId();
         if (routerId) {
             userId = routerId;
@@ -218,8 +226,7 @@ const Calendar = (props) => {
                     .get_events({
                         userId,
                         page: index + 1,
-                    })
-                    .then((data) => {
+                    }).then((data) => {
                         if (data) {
                             data.data.map((event) => {
                                 if (event) {
@@ -230,7 +237,31 @@ const Calendar = (props) => {
                                         if (event.owner === accountId) {
                                             name_prefix = event.participants[0];
                                         }
+                                        let eventDescription = '';
+                                        event?.description?.map((des, index) => {
+                                            eventDescription = eventDescription + des + '\n';
+                                        })
                                         summary = `[Meeting with ${name_prefix}] ${summary}`;
+                                        let mt_start_time = new Date(parseFloat(event.start_date));
+                                        let mt_end_time = new Date(parseFloat(event.end_date));
+
+                                        let meeting = {
+                                            id: event.id,
+                                            title: `Daily meeting in ${mt_start_time.toString().split('GMT')[0]}`,
+                                            time: `${mt_start_time.toString().split(' ')[4].split(':').slice(0, -1).join(':')} - ${mt_end_time.toString().split(' ')[4].split(':').slice(0, -1).join(':')}`,
+                                            date: DAY_NAME[mt_start_time.getDay()],
+                                            description: eventDescription,
+                                            duration: `${(parseFloat(event.end_date) - parseFloat(event.start_date)) / (60 * 1000)} minutes`,
+                                            name: event.name.split('[Meeting] ')[1],
+                                            email: event.url,
+                                            date_timestamp: event.start_date,
+                                        }
+                                        if (current_timestamp >= parseFloat(event.end_date)) {
+                                            tmpPstMeetings.push(meeting);
+                                        } else {
+                                            tmpUcmMeetings.push(meeting);
+                                        }
+                                        // meetings.push(meeting);
                                     }
                                     let eventInfo = {
                                         id: event.id,
@@ -243,10 +274,20 @@ const Calendar = (props) => {
                                 }
                             });
                             setEventsList([...events]);
+                            // setMeetingsList([...meetings]);
                         }
                     });
             }),
-        );
+        ).then(() => {
+            tmpPstMeetings.sort((a, b) => {
+                return b.date_timestamp - a.date_timestamp;
+            });
+            tmpUcmMeetings.sort((a, b) => {
+                return b.date_timestamp - a.date_timestamp;
+            });
+            setMeetingsPstList([...tmpPstMeetings]);
+            setMeetingsUcmList([...tmpUcmMeetings]);
+        });
     };
 
     const onNewEventClick = (data) => {
@@ -337,6 +378,10 @@ const Calendar = (props) => {
         });
     };
 
+    const onCancelMeeting = (id) => {
+        router.push(`/event/event-detail?id=${id}`);
+    }
+
     const onResponseMeetingRequest = (id, status) => {
         const { contract, walletConnection } = wallet;
         const userId = walletConnection.getAccountId();
@@ -401,7 +446,7 @@ const Calendar = (props) => {
                     {/* <button className={styles.button_area_share} onClick={onNotifyClick}>
                     <NotificationsActiveOutlinedIcon style={{ color: 'red' }} /> (1)
                 </button> */}
-                    {generateNotify()}
+                    {/* {generateNotify()} */}
                     <button className={styles.button_area_setting} onClick={onSettingClick}>
                         <SettingsOutlinedIcon />
                     </button>
@@ -537,17 +582,24 @@ const Calendar = (props) => {
                             </Tabs>
                         </Box>
                         <TabPanel value={tabInList} index={0}>
-                            {aEvents.map((item, index) => {
+                            {meetingsUcmList[0] ? meetingsUcmList.map((item, index) => {
                                 return (
                                     <Fragment key={index}>
-                                        <EventItem item={item} />
+                                        <EventItem item={item} onCancelMeeting={onCancelMeeting} />
                                         <div className={styles.modal_line} />
                                     </Fragment>
                                 );
-                            })}
+                            }) : 'You do not have any upcoming meeting'}
                         </TabPanel>
                         <TabPanel value={tabInList} index={1}>
-                            Past
+                            {meetingsPstList[0] ? meetingsPstList.map((item, index) => {
+                                return (
+                                    <Fragment key={index}>
+                                        <EventItem item={item} onCancelMeeting={onCancelMeeting} />
+                                        <div className={styles.modal_line} />
+                                    </Fragment>
+                                );
+                            }) : 'You do not have any meetings before'}
                         </TabPanel>
                     </Box>
                 </div>
@@ -600,7 +652,7 @@ const Calendar = (props) => {
 
                 {modalShare && <ModalShare link={link} onCloseModal={onCloseModalShare} onSuccess={onSuccess} />}
 
-                <Modal open={modal} onClose={onCloseModal} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+                {/* <Modal open={modal} onClose={onCloseModal} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
                     <Box sx={style}>
                         <Typography id="modal-modal-title" variant="h6" component="h2" textAlign="center">
                             Your Pending Meeting Requests
@@ -616,7 +668,7 @@ const Calendar = (props) => {
                             })}
                         </div>
                     </Box>
-                </Modal>
+                </Modal> */}
 
                 <Modal open={modalSetting} onClose={onCloseModalSetting} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
                     <Box sx={style}>
@@ -751,9 +803,10 @@ const NotifyItem = (props) => {
 };
 
 const EventItem = (props) => {
-    const { item } = props;
+    const { item, onCancelMeeting } = props;
+    const router = useRouter();
     const [expand, setExpand] = useState(false);
-
+    //onClick={router.push(`/event/event-detail?id=${item.id}`)}
     return (
         <>
             <div className={styles.listview_row_date}>{item.date}</div>
@@ -767,11 +820,11 @@ const EventItem = (props) => {
             {expand && (
                 <div className={styles.listview_content}>
                     <div className={styles.listview_content_left}>
-                        <button className={styles.listview_content_left_btn}>
+                        <button className={styles.listview_content_left_btn} onClick={() => { router.push(`/event/event-detail?id=${item.id}`) }} >
                             <CachedOutlinedIcon />
                             Reschedule
                         </button>
-                        <button className={styles.listview_content_left_btn}>
+                        <button className={styles.listview_content_left_btn} onClick={() => { onCancelMeeting(item.id) }} >
                             <CloseOutlinedIcon />
                             Cancel
                         </button>
