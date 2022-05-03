@@ -318,7 +318,6 @@ const CalendarOther = () => {
             for (let i = 0; i < 1440; i = i + parseFloat(duration)) {
                 timeList.push(i);
             }
-
             for (let i = 0; i < timeList.length; i++) {
                 let hour = Math.floor(timeList[i] / 60);
                 let min = timeList[i] % 60;
@@ -333,12 +332,12 @@ const CalendarOther = () => {
                     label: label,
                     value: value,
                 };
-
-                if (checkBusyTime(getTimestampFromTime(timeObj, cdate), duration)) {
+                const temp_timestamp = getTimestampFromTime(timeObj, cdate);
+                if (checkBusyTime(temp_timestamp, duration)) {
                     timeObj.label = 'Busy';
                 }
-                let weekDay = new Date(getTimestampFromTime(timeObj, cdate)).getDay();
-                if (!checkAvailableTime(timeObj.value, weekDay, duration)) {
+                let weekDay = new Date(temp_timestamp).getDay();
+                if (!checkAvailableTime(timeObj.value, weekDay, duration) && (temp_timestamp > Date.now())) {
                     listObj.push(timeObj);
                 }
                 // listObj.push(timeObj);

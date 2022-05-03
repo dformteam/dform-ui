@@ -69,7 +69,7 @@ const Calendar = (props) => {
     const [notify, setNotify] = useState([]);
     const [modalSetting, setModalSetting] = useState(false);
     const [free, setFree] = useState(true);
-    const [fee, setFee] = useState('0');
+    // const [fee, setFee] = useState('0');
     const [currentMeetingFee, setCurrentMeetingFee] = useState(0);
     const [tabActive, setTabActive] = useState('listview');
     const [tabInList, setTabInList] = useState(0);
@@ -229,7 +229,7 @@ const Calendar = (props) => {
                     }).then((data) => {
                         if (data) {
                             data.data.map((event) => {
-                                if (event) {
+                                if (event && event.is_published) {
                                     let summary = event.name;
                                     if (event.event_type === EVENT_TYPE.MEETING_REQUEST) {
                                         summary = summary.split('[Meeting]')[1];
@@ -247,7 +247,7 @@ const Calendar = (props) => {
 
                                         let meeting = {
                                             id: event.id,
-                                            title: `Daily meeting in ${mt_start_time.toString().split('GMT')[0]}`,
+                                            title: `Meeting in ${mt_start_time.toString().split('GMT')[0]}`,
                                             time: `${mt_start_time.toString().split(' ')[4].split(':').slice(0, -1).join(':')} - ${mt_end_time.toString().split(' ')[4].split(':').slice(0, -1).join(':')}`,
                                             date: DAY_NAME[mt_start_time.getDay()],
                                             description: eventDescription,
@@ -255,6 +255,7 @@ const Calendar = (props) => {
                                             name: event.name.split('[Meeting] ')[1],
                                             email: event.url,
                                             date_timestamp: event.start_date,
+                                            is_claimed: event.is_claimed,
                                         }
                                         if (current_timestamp >= parseFloat(event.end_date)) {
                                             tmpPstMeetings.push(meeting);
@@ -283,7 +284,7 @@ const Calendar = (props) => {
                 return b.date_timestamp - a.date_timestamp;
             });
             tmpUcmMeetings.sort((a, b) => {
-                return b.date_timestamp - a.date_timestamp;
+                return a.date_timestamp - b.date_timestamp;
             });
             setMeetingsPstList([...tmpPstMeetings]);
             setMeetingsUcmList([...tmpUcmMeetings]);
@@ -377,10 +378,6 @@ const Calendar = (props) => {
             msg: 'copied',
         });
     };
-
-    const onCancelMeeting = (id) => {
-        router.push(`/event/event-detail?id=${id}`);
-    }
 
     const onResponseMeetingRequest = (id, status) => {
         const { contract, walletConnection } = wallet;
@@ -480,12 +477,13 @@ const Calendar = (props) => {
     };
 
     const onFeeChange = (e) => {
-        setFee(e.target.value);
+        setCurrentMeetingFee(e.target.value)
+        // setFee(e.target.value);
     };
 
     const updateSetting = () => {
         const { contract } = wallet;
-        let yocto_enroll_fee = utils.format.parseNearAmount(`${fee}`);
+        let yocto_enroll_fee = utils.format.parseNearAmount(`${currentMeetingFee}`);
         setModalSetting(false);
         setOpenLoading(true);
         let ava_time = btoa(JSON.stringify(time))
@@ -595,7 +593,7 @@ const Calendar = (props) => {
                             {meetingsPstList[0] ? meetingsPstList.map((item, index) => {
                                 return (
                                     <Fragment key={index}>
-                                        <EventItem item={item} onCancelMeeting={onCancelMeeting} />
+                                        <EventItem item={item} onCancelMeeting={onCancelMeeting} tabInList={tabInList} />
                                         <div className={styles.modal_line} />
                                     </Fragment>
                                 );
@@ -623,6 +621,40 @@ const Calendar = (props) => {
         let tmp = [...time];
         tmp[item.id] = { ...item, endTime: e.target.value || item.startTime };
         setTime(tmp);
+    };
+
+    const onCancelMeeting = (eventId) => {
+        const { contract } = wallet;
+
+        setOpenLoading(true);
+
+        contract
+            ?.unpublish_event?.(
+                {
+                    eventId: eventId,
+                },
+                100000000000000,
+            )
+            .then((res) => {
+                if (res) {
+                    setOpenLoading(false);
+                    onShowResult({
+                        type: 'success',
+                        msg: 'Your meeting has been cancelled',
+                    });
+                } else {
+                    onShowResult({
+                        type: 'error',
+                        msg: 'Somethings went wrong, please try again!',
+                    });
+                }
+            })
+            .catch((err) => {
+                onShowResult({
+                    type: 'error',
+                    msg: String(err),
+                });
+            });
     };
 
     return (
@@ -803,7 +835,7 @@ const NotifyItem = (props) => {
 };
 
 const EventItem = (props) => {
-    const { item, onCancelMeeting } = props;
+    const { item, onCancelMeeting, tabInList } = props;
     const router = useRouter();
     const [expand, setExpand] = useState(false);
     //onClick={router.push(`/event/event-detail?id=${item.id}`)}
@@ -820,14 +852,30 @@ const EventItem = (props) => {
             {expand && (
                 <div className={styles.listview_content}>
                     <div className={styles.listview_content_left}>
-                        <button className={styles.listview_content_left_btn} onClick={() => { router.push(`/event/event-detail?id=${item.id}`) }} >
-                            <CachedOutlinedIcon />
-                            Reschedule
-                        </button>
-                        <button className={styles.listview_content_left_btn} onClick={() => { onCancelMeeting(item.id) }} >
-                            <CloseOutlinedIcon />
-                            Cancel
-                        </button>
+                        {
+                            !tabInList && (
+                                <div>
+                                    <button className={styles.listview_content_left_btn} onClick={() => { router.push(`/event/event-detail?id=${item.id}`) }} >
+                                        <CachedOutlinedIcon />
+                                        Reschedule
+                                    </button>
+                                    <button className={styles.listview_content_left_btn} onClick={() => { onCancelMeeting(item.id) }} >
+                                        <CloseOutlinedIcon />
+                                        Cancel
+                                    </button>
+                                </div>
+                            )
+                        }
+                        {
+                            !!tabInList && (
+                                <div>
+                                    <button className={styles.listview_content_left_btn} onClick={() => { router.push(`/event/event-detail?id=${item.id}`) }} disabled={item.is_claimed}>
+                                        <CachedOutlinedIcon />
+                                        {!item.is_claimed ? 'Claim Reward' : 'Claimed'}
+                                    </button>
+                                </div>
+                            )
+                        }
                     </div>
                     <div className={styles.listview_content_right}>
                         <div className={styles.listview_content_text}>Description: {item.description}</div>
@@ -848,7 +896,7 @@ const tab = [
 
 const aEvents = [
     {
-        title: 'Daily meeting in Wednesday, October 24 10:00',
+        title: 'Meeting in Wednesday, October 24 10:00',
         time: '09h00 - 09h30',
         date: 'Thursday, 28 April 2022',
         description: 'Daily meeting',
