@@ -35,17 +35,32 @@ const EventDetail = ({ id }) => {
     const [openSnack, setOpenSnack] = useState(false);
     const [alertType, setAlertType] = useState('success');
     const [snackMsg, setSnackMsg] = useState('');
-    const [event, setEvent] = useState({});
+    // const [event, setEvent] = useState({});
+    const [event, setEvent] = useState();
     const [newestEventList, setNewestEventList] = useState([]);
     const [eventId, setEventId] = useState(id);
     const [openConfirmation, setOpenConfirmation] = useState(false);
     const [modalSuccess, setModalSuccess] = useState(false);
     const [modalShare, setModalShare] = useState(false);
     const [link, setLink] = useState({ link: '', name: '' });
+    const [ownerButtonLabel, setOwnerButtonLabel] = useState('');
+    const [diasbleOwnerButton, setDiasbleOwnerButton] = useState(false);
 
     const onCloseSnack = () => {
         setOpenSnack(false);
     };
+
+    useEffect(() => {
+        if (parseFloat(event?.end_date) <= Date.now()) {
+            setOwnerButtonLabel(!event?.is_claimed ? 'Claim' : 'Claimed');
+        } else {
+            setOwnerButtonLabel('Unpublish');
+        }
+    }, [event]);
+
+    useEffect(() => {
+        setDiasbleOwnerButton(event?.is_claimed);
+    }, [event])
 
     const onShowResult = ({ type, msg }) => {
         setOpenSnack(true);
@@ -160,10 +175,10 @@ const EventDetail = ({ id }) => {
                                 break;
                         }
                         let eventInfo = {
-                            id: event.id,
-                            name: event.name,
+                            id: event?.id,
+                            name: event?.name,
                             type: event_type,
-                            date: onExportDateTime(event.start_date),
+                            date: onExportDateTime(event?.start_date),
                             attendees: event?.participants?.length,
                         };
                         newestEvents.push(eventInfo);
@@ -186,6 +201,7 @@ const EventDetail = ({ id }) => {
             })
             .then((res) => {
                 if (res) {
+                    console.log('get_event = ', res);
                     const { status, owner } = res;
                     if (status === 0 && owner !== userId) {
                         redirectError('You do not permission to access this page');
@@ -211,7 +227,7 @@ const EventDetail = ({ id }) => {
         contract
             ?.interest_event(
                 {
-                    eventId: event.id,
+                    eventId: event?.id,
                 },
                 50000000000000,
             )
@@ -259,7 +275,7 @@ const EventDetail = ({ id }) => {
                 })
                 .then((data) => {
                     if (data) {
-                        // console.log(data);
+                        console.log(data);
                         const pIndex = raws.current.findIndex((x) => x?.page === data?.page);
                         if (pIndex === -1) {
                             raws.current.push(data);
@@ -297,7 +313,7 @@ const EventDetail = ({ id }) => {
         if (userId === '') {
             onRequestConnectWallet();
         }
-        if (event.end_date <= Date.now()) {
+        if (event?.end_date <= Date.now()) {
             onShowResult({
                 type: 'error',
                 msg: 'This Event has ended!',
@@ -494,12 +510,50 @@ const EventDetail = ({ id }) => {
         }
     };
 
-    const onAcceptUnpublish = () => {
+    const onAcceptDialog = () => {
         setOpenConfirmation(false);
-        onUnpublishEventClick();
+        if (parseFloat(event?.end_date) <= Date.now()) {
+            if (!event?.is_claimed) {
+                onClaimEventReward();
+            }
+        } else {
+            onUnpublishEventClick();
+        }
     };
 
-    const onDenyUnpublish = () => {
+    const onClaimEventReward = () => {
+        const { contract, walletConnection } = wallet;
+        setOpenLoading(true);
+        contract
+            ?.claim_event_reward(
+                {
+                    eventId: event?.id,
+                },
+                50000000000000,
+            )
+            .then((res) => {
+                if (res) {
+                    let amount = utils.format.formatNearAmount(res);
+                    onShowResult({
+                        type: 'success',
+                        msg: `${amount} NEAR was claimed!`,
+                    });
+                } else {
+                    onShowResult({
+                        type: 'error',
+                        msg: 'Error while claim your reward, please try again later!',
+                    });
+                }
+            })
+            .catch((err) => {
+                onShowResult({
+                    type: 'error',
+                    msg: String(err),
+                });
+            });
+    };
+
+    const onDenyDialog = () => {
         setOpenConfirmation(false);
     };
 
@@ -507,7 +561,7 @@ const EventDetail = ({ id }) => {
         setModalSuccess(false);
         const uri = new URL(window.location.href);
         const { origin } = uri;
-        setLink({ link: `${origin}/event/event-detail?id=${id}`, name: event.title });
+        setLink({ link: `${origin}/event/event-detail?id=${id}`, name: event?.title });
         setModalShare(true);
     };
 
@@ -522,10 +576,35 @@ const EventDetail = ({ id }) => {
         });
     };
 
+    // const renderAttendButton = () => {
+    //     console.log('asadasas = ', parseFloat(event?.end_date) <= Date.now());
+    //     console.log('event?.end_date = ', event?.end_date);
+    //     console.log('Date.now()e = ', Date.now());
+
+    //     if (parseFloat(event?.end_date) <= Date.now()) {
+    //         return (
+    //             (<button className={styles.content_button_attend} onClick={onAttendClick} disabled={event?.is_claimed} >
+    //                 {!event?.is_claimed ? 'Claim' : 'Claimed'}
+    //             </button>)
+    //         )
+    //     } else {
+    //         return (
+    //             <button className={styles.content_button_attend} onClick={onAttendClick} >
+    //                 {isRegistered ? 'Un-Register' : 'Register'}
+    //             </button>
+    //         )
+    //     }
+    //     return (
+    //         (event !== {}) && (<button className={styles.content_button_attend} onClick={onAttendClick} disabled={event?.is_claimed} >
+    //             {renderAttendButtonState()}
+    //         </button>)
+    //     )
+    // }
+
     return (
         <>
             <Notify openLoading={openLoading} openSnack={openSnack} alertType={alertType} snackMsg={snackMsg} onClose={onCloseSnack} />
-            {openConfirmation && <Confirmation label={confirmationLabel} onAccept={onAcceptUnpublish} onCancel={onDenyUnpublish} />}
+            {openConfirmation && <Confirmation label={confirmationLabel} onAccept={onAcceptDialog} onCancel={onDenyDialog} />}
 
             <div className={styles.root}>
                 <div className={styles.content}>
@@ -541,8 +620,8 @@ const EventDetail = ({ id }) => {
                     )}
                     {event?.status !== 0 && event?.owner === userId && (
                         <div className={styles.content_button_area}>
-                            <button className={styles.content_button_area_button} onClick={() => setOpenConfirmation(true)}>
-                                <UnpublishedOutlinedIcon className={styles.content_button_area_button_icon} /> Unpublish
+                            <button className={styles.content_button_area_button} onClick={() => setOpenConfirmation(true)} disabled={diasbleOwnerButton}>
+                                <UnpublishedOutlinedIcon className={styles.content_button_area_button_icon} /> {ownerButtonLabel}
                             </button>
                         </div>
                     )}
@@ -582,13 +661,13 @@ const EventDetail = ({ id }) => {
                                     <div className={styles.content_detail_info_column}>
                                         <div className={styles.content_detail_info_date}>
                                             {eventType.map((type) => {
-                                                if (event.type === type.typeId) {
+                                                if (event?.type === type.typeId) {
                                                     return type.label;
                                                 }
                                                 return '';
                                             })}
                                         </div>
-                                        <div className={styles.content_detail_info_link}>{event.url || 'This event has no link'}</div>
+                                        <div className={styles.content_detail_info_link}>{event?.url || 'This event has no link'}</div>
                                     </div>
                                 </div>
                             </div>
@@ -662,7 +741,7 @@ const EventDetail = ({ id }) => {
                                     {/* <FavoriteBorderIcon className={styles.content_action_icon_favor} /> */}
                                     {renderInterestedIcon()}
                                 </div>
-                                <button className={styles.content_button_attend} onClick={onAttendClick}>
+                                <button className={styles.content_button_attend} onClick={onAttendClick} >
                                     {isRegistered ? 'Un-Register' : 'Register'}
                                 </button>
                             </>
@@ -709,7 +788,7 @@ const eventType = [
 
 const confirmationLabel = {
     title: 'Confirmation',
-    desc: 'Are you sure to unpublish this event?',
+    desc: 'Are you sure to process this action?',
     accept: 'Accept',
     cancel: 'Deny',
 };

@@ -11,6 +11,10 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Notify from '../../../components/Notify';
 import { useSelector } from 'react-redux';
+import getConfig from '../../../backed/config'
+import { utils } from 'near-api-js';
+
+const nearConfig = getConfig('testnet');
 
 const style = {
     position: 'absolute',
@@ -46,7 +50,10 @@ const CalendarOther = () => {
     const [currentEmail, setCurrentEmail] = useState('');
     const [currentDescription, setCurrentDescription] = useState('');
     const [routerId, setRouterId] = useState('');
-    const [pendingRequests, setPendingRequests] = useState([]);
+    const [listAvailableTime, setListAvailableTime] = useState([]);
+    // const [pendingRequests, setPendingRequests] = useState([]);
+    const [meetingFee, setMeetingFee] = useState(0);
+
 
     const onTimeClick = (item) => {
         setTime(item);
@@ -56,12 +63,38 @@ const CalendarOther = () => {
         setRouterId(router.query.id);
     }, [router]);
 
-    useEffect(() => {
+    useEffect(async () => {
+        const { contract, walletConnection } = wallet;
+        let userId = walletConnection.getAccountId();
         if (router.query.transactionHashes) {
-            onShowResult({
-                type: 'success',
-                msg: 'Your meeting request was sent',
-            });
+            let objectWithData = {
+                "jsonrpc": "2.0",
+                "id": "dontcare",
+                "method": "tx",
+                "params": [router.query.transactionHashes, userId]
+            }
+            const res = await fetch(nearConfig.nodeUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(objectWithData),
+            })
+
+            const data = await res.json();
+
+            if (data?.result?.status?.SuccessValue) {
+                onShowResult({
+                    type: 'success',
+                    msg: 'Your meeting request was sent',
+                });
+            } else {
+                onShowResult({
+                    type: 'error',
+                    msg: 'Something went wrong, please try again',
+                });
+            }
+
         }
     }, [router.query]);
 
@@ -70,6 +103,49 @@ const CalendarOther = () => {
         dateArray[4] = time?.value;
         setSelectedTime(new Date(dateArray.toString().replaceAll(',', ' ')).getTime());
     }, [time]);
+
+    useLayoutEffect(() => {
+        if (routerId !== '') {
+            getAvailableTime();
+        }
+    }, [routerId]);
+
+    useLayoutEffect(() => {
+        if (routerId !== '') {
+            getMeetingFee();
+        }
+    }, [routerId]);
+
+    const getMeetingFee = () => {
+        const { contract } = wallet;
+        let userId = routerId;
+        contract
+            ?.get_meeting_fee?.({
+                userId: userId,
+            })
+            .then((total) => {
+                let fee = utils.format.formatNearAmount(total);
+                setMeetingFee(fee);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+
+    const getAvailableTime = () => {
+        const { contract, walletConnection } = wallet;
+        let userId = routerId;
+        contract
+            ?.get_available_time?.({
+                userId: userId,
+            })
+            .then((data) => {
+                setListAvailableTime(JSON.parse(atob(data)));
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    }
 
     const onCloseModal = () => {
         setModal(false);
@@ -91,9 +167,9 @@ const CalendarOther = () => {
         onGetMaxRows();
     }, [routerId]);
 
-    useLayoutEffect(() => {
-        onGetPendingRequestRows();
-    }, [routerId]);
+    // useLayoutEffect(() => {
+    //     onGetPendingRequestRows();
+    // }, [routerId]);
 
     const onGetPendingRequestRows = () => {
         const { contract } = wallet;
@@ -212,15 +288,36 @@ const CalendarOther = () => {
         return output;
     };
 
+    const checkAvailableTime = (timeValue, day, duration) => {
+        let timeList = timeValue.split(':');
+        const timeStart = parseInt(timeList[0]) + parseInt(timeList[1]) / 60;
+        const timeEnd = timeStart + duration / 60;
+        var result = false;
+        listAvailableTime.forEach((item) => {
+            if (item.id === day) {
+                if (!item.check) {
+                    result = true;
+                } else {
+                    let ls_startTime = item.startTime.split(':');
+                    let ls_endTime = item.endTime.split(':');
+                    let startTheDay = parseInt(ls_startTime[0]) + parseInt(ls_startTime[1]) / 60;
+                    let endTheDay = parseInt(ls_endTime[0]) + parseInt(ls_endTime[1]) / 60;
+                    if ((timeEnd > endTheDay) || (timeStart < startTheDay)) {
+                        result = true
+                    }
+                }
+            }
+        })
+        return result;
+    }
+
     const generateAvailableTime = (duration = currentDuration, cdate = date) => {
-        // console.log(listBusyTime);
         if (duration > 0) {
             let timeList = [];
             let listObj = [];
             for (let i = 0; i < 1440; i = i + parseFloat(duration)) {
                 timeList.push(i);
             }
-
             for (let i = 0; i < timeList.length; i++) {
                 let hour = Math.floor(timeList[i] / 60);
                 let min = timeList[i] % 60;
@@ -235,11 +332,15 @@ const CalendarOther = () => {
                     label: label,
                     value: value,
                 };
-
-                if (checkBusyTime(getTimestampFromTime(timeObj, cdate), duration)) {
+                const temp_timestamp = getTimestampFromTime(timeObj, cdate);
+                if (checkBusyTime(temp_timestamp, duration)) {
                     timeObj.label = 'Busy';
                 }
-                listObj.push(timeObj);
+                let weekDay = new Date(temp_timestamp).getDay();
+                if (!checkAvailableTime(timeObj.value, weekDay, duration) && (temp_timestamp > Date.now())) {
+                    listObj.push(timeObj);
+                }
+                // listObj.push(timeObj);
             }
             setListTime(listObj);
         }
@@ -271,7 +372,7 @@ const CalendarOther = () => {
         const meeting_fee = await contract?.get_meeting_fee({
             userId: userId,
         });
-
+        const depositeAmount = utils.format.parseNearAmount(meetingFee);
         if (meeting_fee === '0' || meeting_fee === null) {
             contract
                 ?.request_a_meeting(
@@ -284,6 +385,7 @@ const CalendarOther = () => {
                         description: currentDescription,
                     },
                     50000000000000,
+                    depositeAmount
                 )
                 .then((res) => {
                     setOpenLoading(false);
@@ -361,6 +463,18 @@ const CalendarOther = () => {
         }
     };
 
+    // { id: 0, label: 'Sun', check: false, startTime: '09:00', endTime: '17:00' }
+
+    const disableDate = (date) => {
+        var res = false;
+        listAvailableTime.forEach((item) => {
+            if (item.id === date.getDay()) {
+                res = !item.check;
+            }
+        })
+        return res;
+    }
+
     return (
         <>
             <Notify openLoading={openLoading} openSnack={openSnack} alertType={alertType} snackMsg={snackMsg} onClose={onCloseSnack} />
@@ -411,7 +525,8 @@ const CalendarOther = () => {
                                 orientation="landscape"
                                 openTo="day"
                                 value={date}
-                                shouldDisableDate={isWeekend}
+                                // shouldDisableDate={isWeekend}
+                                shouldDisableDate={disableDate}
                                 onChange={(newValue) => {
                                     generateAvailableTime(currentDuration, newValue);
                                     setDate(newValue);

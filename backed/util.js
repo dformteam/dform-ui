@@ -48,9 +48,11 @@ export async function initContract() {
             'get_interested_events',
             'get_interested_event_count',
             'get_meeting_fee',
-            'get_pending_requests',
-            'get_pending_requests_count',
+            // 'get_pending_requests',
+            // 'get_pending_requests_count',
             'get_meeting',
+            'get_available_time',
+            'get_claimable_amount'
         ],
         changeMethods: [
             'init_new_form',
@@ -72,6 +74,7 @@ export async function initContract() {
             'leave_event',
             'interest_event',
             'not_interest_event',
+            'claim_event_reward',
             // TODO Check function loi khi dat vao view function
             'get_recent_event_created',
             'check_event_join_permission',
