@@ -158,8 +158,10 @@ const CalendarOther = () => {
                 userId: userId,
             })
             .then((total) => {
-                let fee = utils.format.formatNearAmount(total);
-                setMeetingFee(fee);
+                if (total !== null) {
+                    let fee = utils.format.formatNearAmount(total);
+                    setMeetingFee(fee);
+                }
             })
             .catch((err) => {
                 console.log(err);
@@ -405,7 +407,7 @@ const CalendarOther = () => {
         const meeting_fee = await contract?.get_meeting_fee({
             userId: userId,
         });
-        const depositeAmount = utils.format.parseNearAmount(meetingFee);
+        // const depositeAmount = utils.format.parseNearAmount(meetingFee);
         if (meeting_fee === '0' || meeting_fee === null) {
             contract
                 ?.request_a_meeting(
@@ -417,8 +419,7 @@ const CalendarOther = () => {
                         email: currentEmail,
                         description: currentDescription,
                     },
-                    50000000000000,
-                    depositeAmount,
+                    100000000000000,
                 )
                 .then((res) => {
                     setOpenLoading(false);
@@ -455,7 +456,7 @@ const CalendarOther = () => {
                         email: currentEmail,
                         description: currentDescription,
                     },
-                    50000000000000,
+                    100000000000000,
                     meeting_fee,
                 )
                 .then((res) => {
