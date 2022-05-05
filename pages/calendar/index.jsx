@@ -583,7 +583,7 @@ const Calendar = (props) => {
                             {meetingsUcmList[0] ? meetingsUcmList.map((item, index) => {
                                 return (
                                     <Fragment key={index}>
-                                        <EventItem item={item} onCancelMeeting={onCancelMeeting} />
+                                        <EventItem item={item} onCancelMeeting={onCancelMeeting} tabInList={tabInList} onRescheduleMeeting={onRescheduleMeeting} />
                                         <div className={styles.modal_line} />
                                     </Fragment>
                                 );
@@ -593,7 +593,7 @@ const Calendar = (props) => {
                             {meetingsPstList[0] ? meetingsPstList.map((item, index) => {
                                 return (
                                     <Fragment key={index}>
-                                        <EventItem item={item} onCancelMeeting={onCancelMeeting} tabInList={tabInList} />
+                                        <EventItem item={item} onCancelMeeting={onCancelMeeting} tabInList={tabInList} onRescheduleMeeting={onRescheduleMeeting} />
                                         <div className={styles.modal_line} />
                                     </Fragment>
                                 );
@@ -656,6 +656,12 @@ const Calendar = (props) => {
                 });
             });
     };
+
+    const onRescheduleMeeting = (item) => {
+        const { walletConnection } = wallet;
+        const accountId = walletConnection.getAccountId();
+        router.push(`/calendar/calendar-other?id=${accountId}&event_id=${item}`)
+    }
 
     return (
         <>
@@ -835,10 +841,9 @@ const NotifyItem = (props) => {
 };
 
 const EventItem = (props) => {
-    const { item, onCancelMeeting, tabInList } = props;
+    const { item, onCancelMeeting, tabInList, onRescheduleMeeting } = props;
     const router = useRouter();
     const [expand, setExpand] = useState(false);
-    //onClick={router.push(`/event/event-detail?id=${item.id}`)}
     return (
         <>
             <div className={styles.listview_row_date}>{item.date}</div>
@@ -855,7 +860,7 @@ const EventItem = (props) => {
                         {
                             !tabInList && (
                                 <div>
-                                    <button className={styles.listview_content_left_btn} onClick={() => { router.push(`/event/event-detail?id=${item.id}`) }} >
+                                    <button className={styles.listview_content_left_btn} onClick={() => { onRescheduleMeeting(item.id) }} >
                                         <CachedOutlinedIcon />
                                         Reschedule
                                     </button>

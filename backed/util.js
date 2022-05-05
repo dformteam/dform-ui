@@ -75,6 +75,7 @@ export async function initContract() {
             'interest_event',
             'not_interest_event',
             'claim_event_reward',
+            'reschedule_meeting',
             // TODO Check function loi khi dat vao view function
             'get_recent_event_created',
             'check_event_join_permission',

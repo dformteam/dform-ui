@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { useRouter } from 'next/router';
 import styles from './CalendarOther.module.scss';
-import isWeekend from 'date-fns/isWeekend';
+// import isWeekend from 'date-fns/isWeekend';
 import TextField from '@mui/material/TextField';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
@@ -50,6 +50,8 @@ const CalendarOther = () => {
     const [currentEmail, setCurrentEmail] = useState('');
     const [currentDescription, setCurrentDescription] = useState('');
     const [routerId, setRouterId] = useState('');
+    const [pageTitle, setPageTitle] = useState('Select Date & Time');
+    const [event, setEvent] = useState();
     const [listAvailableTime, setListAvailableTime] = useState([]);
     // const [pendingRequests, setPendingRequests] = useState([]);
     const [meetingFee, setMeetingFee] = useState(0);
@@ -61,6 +63,28 @@ const CalendarOther = () => {
 
     useEffect(() => {
         setRouterId(router.query.id);
+    }, [router]);
+
+    useEffect(() => {
+        const { contract, walletConnection } = wallet;
+        const userId =  walletConnection.getAccountId();
+        contract
+            ?.get_event({
+                eventId: router.query.event_id,
+            })
+            .then((res) => {
+                if (res) {
+                    if (res.owner !== userId) {
+                        redirectError('You do not permission to access this page');
+                    } else {
+                        setPageTitle(`Re-schedule Event: ${res.title}`);
+                        setEvent({ ...res });
+                    }
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+            });
     }, [router]);
 
     useEffect(async () => {
@@ -411,6 +435,7 @@ const CalendarOther = () => {
                     });
                 });
         } else if (meeting_fee !== '0') {
+            setOpenLoading(true);
             contract
                 ?.request_a_meeting(
                     {
@@ -450,20 +475,58 @@ const CalendarOther = () => {
         }
 
         setModal(false);
+    }
+
+    const redirectError = (content) => {
+        const encoded_content = encodeURIComponent(content);
+        router.push(`/error?content=${encoded_content}`);
     };
 
     const onConfirm = () => {
-        if (currentDuration < 5) {
-            onShowResult({
-                type: 'error',
-                msg: 'The meeting duration can not be less than 5 minutes',
-            });
+        if (!event) {
+            if (currentDuration < 5) {
+                onShowResult({
+                    type: 'error',
+                    msg: 'The meeting duration can not be less than 5 minutes',
+                });
+            } else {
+                setModal(true);
+            }
         } else {
-            setModal(true);
-        }
-    };
+            let start_date = selectedTime;
+            let end_date = selectedTime + currentDuration * 60 * 1000;
 
-    // { id: 0, label: 'Sun', check: false, startTime: '09:00', endTime: '17:00' }
+            const { contract } = wallet;
+            setOpenLoading(true);
+            contract
+                ?.reschedule_meeting({
+                    eventId: event.id,
+                    start_date: start_date.toString(),
+                    end_date: end_date.toString()
+                })
+                .then((res) => {
+                    setOpenLoading(false);
+                    if (res) {
+                        onShowResult({
+                            type: 'success',
+                            msg: 'Your Meeting has been re-scheduled.',
+                        });
+                        setTimeout(() => {
+                            router.push('/calendar')
+                        }, [5000]);
+                    } else {
+                        onShowResult({
+                            type: 'error',
+                            msg: 'Something went wrong, please try again!',
+                        });
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+        }
+
+    };
 
     const disableDate = (date) => {
         var res = false;
@@ -482,7 +545,7 @@ const CalendarOther = () => {
                 <div className={styles.row_booking}>
                     {showBooking && (
                         <div className={styles.row_booking_content}>
-                            <div className={styles.row_booking_content_label}>Select Date {'&'} Time</div>
+                            <div className={styles.row_booking_content_label}>{pageTitle}</div>
                             <div className={styles.row_booking_content_row}>
                                 <div className={styles.row_booking_content_row_label}>Duration</div>
                                 <input
