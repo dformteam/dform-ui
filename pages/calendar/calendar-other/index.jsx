@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { useRouter } from 'next/router';
 import styles from './CalendarOther.module.scss';
-import isWeekend from 'date-fns/isWeekend';
+// import isWeekend from 'date-fns/isWeekend';
 import TextField from '@mui/material/TextField';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
@@ -66,17 +66,15 @@ const CalendarOther = () => {
     }, [router]);
 
     useEffect(() => {
-        const { contract } = wallet;
-        console.log(router);
-
+        const { contract, walletConnection } = wallet;
+        const userId =  walletConnection.getAccountId();
         contract
             ?.get_event({
                 eventId: router.query.event_id,
             })
             .then((res) => {
                 if (res) {
-                    const { status, owner } = res;
-                    if (status === 0 && owner !== userId) {
+                    if (res.owner !== userId) {
                         redirectError('You do not permission to access this page');
                     } else {
                         setPageTitle(`Re-schedule Event: ${res.title}`);
@@ -478,6 +476,11 @@ const CalendarOther = () => {
 
         setModal(false);
     }
+
+    const redirectError = (content) => {
+        const encoded_content = encodeURIComponent(content);
+        router.push(`/error?content=${encoded_content}`);
+    };
 
     const onConfirm = () => {
         if (!event) {
