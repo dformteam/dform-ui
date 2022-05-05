@@ -11,7 +11,7 @@ import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
-import getConfig from '../../../backed/config'
+import getConfig from '../../../backed/config';
 
 const nearConfig = getConfig('testnet');
 
@@ -45,18 +45,18 @@ const CreateEvent = () => {
         let userId = walletConnection.getAccountId();
         if (router.query.transactionHashes) {
             let objectWithData = {
-                "jsonrpc": "2.0",
-                "id": "dontcare",
-                "method": "tx",
-                "params": [router.query.transactionHashes, userId]
-              }
+                jsonrpc: '2.0',
+                id: 'dontcare',
+                method: 'tx',
+                params: [router.query.transactionHashes, userId],
+            };
             const res = await fetch(nearConfig.nodeUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(objectWithData),
-            })
+            });
 
             const data = await res.json();
 
@@ -68,7 +68,6 @@ const CreateEvent = () => {
                     msg: 'Something went wrong, please try again',
                 });
             }
-            
         }
     }, [router.query]);
 
@@ -133,7 +132,7 @@ const CreateEvent = () => {
         const rootCid = await client.put(fileInput.current);
 
         const des = event_descriptions.filter((x) => x.value !== null && typeof x.value !== 'undefined' && x.value !== '').map((x) => x.value);
-        
+
         contract
             ?.init_new_event?.(
                 {
@@ -226,6 +225,8 @@ const CreateEvent = () => {
                 type: 'error',
                 msg: 'Cover image could not be empty',
             });
+
+            return false;
         }
         return true;
     };
@@ -313,7 +314,7 @@ const CreateEvent = () => {
                         + Add new description
                     </button>
                     <div className={styles.content_label}>Image Cover</div>
-                    <input className={styles.content_input_file} type={'file'} id={'create_event_file'} ref={fileInput} onChange={onChangeCover} />
+                    <input className={styles.content_input_file} type={'file'} id={'create_event_file'} onChange={onChangeCover} />
                     <label htmlFor={'create_event_file'}>{imgSelected ? imgSelected : 'Choose a file...'}</label>
                     <div className={styles.content_label}>Event Type</div>
                     <div className={styles.content_row}>

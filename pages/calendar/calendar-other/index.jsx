@@ -11,7 +11,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Notify from '../../../components/Notify';
 import { useSelector } from 'react-redux';
-import getConfig from '../../../backed/config'
+import getConfig from '../../../backed/config';
 import { utils } from 'near-api-js';
 
 const nearConfig = getConfig('testnet');
@@ -56,7 +56,6 @@ const CalendarOther = () => {
     // const [pendingRequests, setPendingRequests] = useState([]);
     const [meetingFee, setMeetingFee] = useState(0);
 
-
     const onTimeClick = (item) => {
         setTime(item);
     };
@@ -67,7 +66,7 @@ const CalendarOther = () => {
 
     useEffect(() => {
         const { contract, walletConnection } = wallet;
-        const userId =  walletConnection.getAccountId();
+        const userId = walletConnection.getAccountId();
         contract
             ?.get_event({
                 eventId: router.query.event_id,
@@ -87,38 +86,49 @@ const CalendarOther = () => {
             });
     }, [router]);
 
-    useEffect(async () => {
-        const { contract, walletConnection } = wallet;
+    useEffect(() => {
+        const { walletConnection } = wallet;
         let userId = walletConnection.getAccountId();
         if (router.query.transactionHashes) {
             let objectWithData = {
-                "jsonrpc": "2.0",
-                "id": "dontcare",
-                "method": "tx",
-                "params": [router.query.transactionHashes, userId]
-            }
-            const res = await fetch(nearConfig.nodeUrl, {
+                jsonrpc: '2.0',
+                id: 'dontcare',
+                method: 'tx',
+                params: [router.query.transactionHashes, userId],
+            };
+
+            fetch(nearConfig.nodeUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(objectWithData),
             })
-
-            const data = await res.json();
-
-            if (data?.result?.status?.SuccessValue) {
-                onShowResult({
-                    type: 'success',
-                    msg: 'Your meeting request was sent',
+                .then((res) => {
+                    if (res.status === 200) {
+                        return res.json();
+                    }
+                    return Promise.reject();
+                })
+                .then((rpcData) => {
+                    if (rpcData?.result?.status?.SuccessValue) {
+                        onShowResult({
+                            type: 'success',
+                            msg: 'Your meeting request was sent',
+                        });
+                    } else {
+                        onShowResult({
+                            type: 'error',
+                            msg: 'Something went wrong, please try again',
+                        });
+                    }
+                })
+                .catch((err) => {
+                    onShowResult({
+                        type: 'error',
+                        msg: String(err),
+                    });
                 });
-            } else {
-                onShowResult({
-                    type: 'error',
-                    msg: 'Something went wrong, please try again',
-                });
-            }
-
         }
     }, [router.query]);
 
@@ -157,7 +167,7 @@ const CalendarOther = () => {
     };
 
     const getAvailableTime = () => {
-        const { contract, walletConnection } = wallet;
+        const { contract } = wallet;
         let userId = routerId;
         contract
             ?.get_available_time?.({
@@ -169,7 +179,7 @@ const CalendarOther = () => {
             .catch((err) => {
                 console.log(err);
             });
-    }
+    };
 
     const onCloseModal = () => {
         setModal(false);
@@ -238,9 +248,8 @@ const CalendarOther = () => {
                         }
                     });
             }),
-        )
+        );
     };
-
 
     const onGetMaxRows = () => {
         const { contract } = wallet;
@@ -326,14 +335,14 @@ const CalendarOther = () => {
                     let ls_endTime = item.endTime.split(':');
                     let startTheDay = parseInt(ls_startTime[0]) + parseInt(ls_startTime[1]) / 60;
                     let endTheDay = parseInt(ls_endTime[0]) + parseInt(ls_endTime[1]) / 60;
-                    if ((timeEnd > endTheDay) || (timeStart < startTheDay)) {
-                        result = true
+                    if (timeEnd > endTheDay || timeStart < startTheDay) {
+                        result = true;
                     }
                 }
             }
-        })
+        });
         return result;
-    }
+    };
 
     const generateAvailableTime = (duration = currentDuration, cdate = date) => {
         if (duration > 0) {
@@ -361,7 +370,7 @@ const CalendarOther = () => {
                     timeObj.label = 'Busy';
                 }
                 let weekDay = new Date(temp_timestamp).getDay();
-                if (!checkAvailableTime(timeObj.value, weekDay, duration) && (temp_timestamp > Date.now())) {
+                if (!checkAvailableTime(timeObj.value, weekDay, duration) && temp_timestamp > Date.now()) {
                     listObj.push(timeObj);
                 }
                 // listObj.push(timeObj);
@@ -409,7 +418,7 @@ const CalendarOther = () => {
                         description: currentDescription,
                     },
                     50000000000000,
-                    depositeAmount
+                    depositeAmount,
                 )
                 .then((res) => {
                     setOpenLoading(false);
@@ -475,7 +484,7 @@ const CalendarOther = () => {
         }
 
         setModal(false);
-    }
+    };
 
     const redirectError = (content) => {
         const encoded_content = encodeURIComponent(content);
@@ -502,7 +511,7 @@ const CalendarOther = () => {
                 ?.reschedule_meeting({
                     eventId: event.id,
                     start_date: start_date.toString(),
-                    end_date: end_date.toString()
+                    end_date: end_date.toString(),
                 })
                 .then((res) => {
                     setOpenLoading(false);
@@ -512,7 +521,7 @@ const CalendarOther = () => {
                             msg: 'Your Meeting has been re-scheduled.',
                         });
                         setTimeout(() => {
-                            router.push('/calendar')
+                            router.push('/calendar');
                         }, [5000]);
                     } else {
                         onShowResult({
@@ -525,7 +534,6 @@ const CalendarOther = () => {
                     console.log(err);
                 });
         }
-
     };
 
     const disableDate = (date) => {
@@ -534,9 +542,9 @@ const CalendarOther = () => {
             if (item.id === date.getDay()) {
                 res = !item.check;
             }
-        })
+        });
         return res;
-    }
+    };
 
     return (
         <>

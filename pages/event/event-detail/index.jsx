@@ -201,7 +201,6 @@ const EventDetail = ({ id }) => {
             })
             .then((res) => {
                 if (res) {
-                    console.log('get_event = ', res);
                     const { status, owner } = res;
                     if (status === 0 && owner !== userId) {
                         redirectError('You do not permission to access this page');
@@ -275,7 +274,6 @@ const EventDetail = ({ id }) => {
                 })
                 .then((data) => {
                     if (data) {
-                        console.log(data);
                         const pIndex = raws.current.findIndex((x) => x?.page === data?.page);
                         if (pIndex === -1) {
                             raws.current.push(data);
