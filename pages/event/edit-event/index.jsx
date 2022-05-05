@@ -55,8 +55,6 @@ const EditEvent = ({ id }) => {
             })
             .then((res) => {
                 if (res) {
-                    console.log('event => ', res);
-                    console.log(res);
                     const { status, owner } = res;
                     if (status === 0 && owner !== userId) {
                         redirectError('You do not permission to access this page');
