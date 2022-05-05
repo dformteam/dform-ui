@@ -84,15 +84,12 @@ const Calendar = (props) => {
         { id: 6, label: 'Sat', check: false, startTime: '09:00', endTime: '17:00' },
     ]);
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         onGetMaxRows();
-    }, [routerId]);
-
-    useLayoutEffect(() => {
         getAvailableTime();
     }, [routerId]);
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         getMeetingFee();
     }, []);
 
@@ -116,12 +113,12 @@ const Calendar = (props) => {
                 userId: userId,
             })
             .then((data) => {
-                setTime(JSON.parse(atob(data)))
+                setTime(JSON.parse(atob(data)));
             })
             .catch((err) => {
                 console.log(err);
             });
-    }
+    };
 
     const getMeetingFee = () => {
         const { contract, walletConnection } = wallet;
@@ -131,9 +128,13 @@ const Calendar = (props) => {
                 userId: userId,
             })
             .then((total) => {
-                let fee = utils.format.formatNearAmount(total);
-                setFree(!!!fee);
-                setCurrentMeetingFee(fee);
+                if (total !== null && total !== 0 && total !== '0') {
+                    let fee = utils.format.formatNearAmount(total);
+                    setCurrentMeetingFee(fee);
+                    setFree(false);
+                } else {
+                    setFree(true);
+                }
             })
             .catch((err) => {
                 console.log(err);
@@ -226,7 +227,8 @@ const Calendar = (props) => {
                     .get_events({
                         userId,
                         page: index + 1,
-                    }).then((data) => {
+                    })
+                    .then((data) => {
                         if (data) {
                             data.data.map((event) => {
                                 if (event && event.is_published) {
@@ -240,7 +242,7 @@ const Calendar = (props) => {
                                         let eventDescription = '';
                                         event?.description?.map((des, index) => {
                                             eventDescription = eventDescription + des + '\n';
-                                        })
+                                        });
                                         summary = `[Meeting with ${name_prefix}] ${summary}`;
                                         let mt_start_time = new Date(parseFloat(event.start_date));
                                         let mt_end_time = new Date(parseFloat(event.end_date));
@@ -248,7 +250,12 @@ const Calendar = (props) => {
                                         let meeting = {
                                             id: event.id,
                                             title: `Meeting in ${mt_start_time.toString().split('GMT')[0]}`,
-                                            time: `${mt_start_time.toString().split(' ')[4].split(':').slice(0, -1).join(':')} - ${mt_end_time.toString().split(' ')[4].split(':').slice(0, -1).join(':')}`,
+                                            time: `${mt_start_time.toString().split(' ')[4].split(':').slice(0, -1).join(':')} - ${mt_end_time
+                                                .toString()
+                                                .split(' ')[4]
+                                                .split(':')
+                                                .slice(0, -1)
+                                                .join(':')}`,
                                             date: DAY_NAME[mt_start_time.getDay()],
                                             description: eventDescription,
                                             duration: `${(parseFloat(event.end_date) - parseFloat(event.start_date)) / (60 * 1000)} minutes`,
@@ -256,7 +263,7 @@ const Calendar = (props) => {
                                             email: event.url,
                                             date_timestamp: event.start_date,
                                             is_claimed: event.is_claimed,
-                                        }
+                                        };
                                         if (current_timestamp >= parseFloat(event.end_date)) {
                                             tmpPstMeetings.push(meeting);
                                         } else {
@@ -477,7 +484,7 @@ const Calendar = (props) => {
     };
 
     const onFeeChange = (e) => {
-        setCurrentMeetingFee(e.target.value)
+        setCurrentMeetingFee(e.target.value);
         // setFee(e.target.value);
     };
 
@@ -486,12 +493,12 @@ const Calendar = (props) => {
         let yocto_enroll_fee = utils.format.parseNearAmount(`${currentMeetingFee}`);
         setModalSetting(false);
         setOpenLoading(true);
-        let ava_time = btoa(JSON.stringify(time))
+        let ava_time = btoa(JSON.stringify(time));
 
         contract
             ?.update_calendar_setting?.({
                 meeting_fee: yocto_enroll_fee,
-                available_time: ava_time
+                available_time: ava_time,
             })
             .then((res) => {
                 if (res) {
@@ -580,24 +587,38 @@ const Calendar = (props) => {
                             </Tabs>
                         </Box>
                         <TabPanel value={tabInList} index={0}>
-                            {meetingsUcmList[0] ? meetingsUcmList.map((item, index) => {
-                                return (
-                                    <Fragment key={index}>
-                                        <EventItem item={item} onCancelMeeting={onCancelMeeting} tabInList={tabInList} onRescheduleMeeting={onRescheduleMeeting} />
-                                        <div className={styles.modal_line} />
-                                    </Fragment>
-                                );
-                            }) : 'You do not have any upcoming meeting'}
+                            {meetingsUcmList[0]
+                                ? meetingsUcmList.map((item, index) => {
+                                      return (
+                                          <Fragment key={index}>
+                                              <EventItem
+                                                  item={item}
+                                                  onCancelMeeting={onCancelMeeting}
+                                                  tabInList={tabInList}
+                                                  onRescheduleMeeting={onRescheduleMeeting}
+                                              />
+                                              <div className={styles.modal_line} />
+                                          </Fragment>
+                                      );
+                                  })
+                                : 'You do not have any upcoming meeting'}
                         </TabPanel>
                         <TabPanel value={tabInList} index={1}>
-                            {meetingsPstList[0] ? meetingsPstList.map((item, index) => {
-                                return (
-                                    <Fragment key={index}>
-                                        <EventItem item={item} onCancelMeeting={onCancelMeeting} tabInList={tabInList} onRescheduleMeeting={onRescheduleMeeting} />
-                                        <div className={styles.modal_line} />
-                                    </Fragment>
-                                );
-                            }) : 'You do not have any meetings before'}
+                            {meetingsPstList[0]
+                                ? meetingsPstList.map((item, index) => {
+                                      return (
+                                          <Fragment key={index}>
+                                              <EventItem
+                                                  item={item}
+                                                  onCancelMeeting={onCancelMeeting}
+                                                  tabInList={tabInList}
+                                                  onRescheduleMeeting={onRescheduleMeeting}
+                                              />
+                                              <div className={styles.modal_line} />
+                                          </Fragment>
+                                      );
+                                  })
+                                : 'You do not have any meetings before'}
                         </TabPanel>
                     </Box>
                 </div>
@@ -660,8 +681,8 @@ const Calendar = (props) => {
     const onRescheduleMeeting = (item) => {
         const { walletConnection } = wallet;
         const accountId = walletConnection.getAccountId();
-        router.push(`/calendar/calendar-other?id=${accountId}&event_id=${item}`)
-    }
+        router.push(`/calendar/calendar-other?id=${accountId}&event_id=${item}`);
+    };
 
     return (
         <>
@@ -857,30 +878,42 @@ const EventItem = (props) => {
             {expand && (
                 <div className={styles.listview_content}>
                     <div className={styles.listview_content_left}>
-                        {
-                            !tabInList && (
-                                <div>
-                                    <button className={styles.listview_content_left_btn} onClick={() => { onRescheduleMeeting(item.id) }} >
-                                        <CachedOutlinedIcon />
-                                        Reschedule
-                                    </button>
-                                    <button className={styles.listview_content_left_btn} onClick={() => { onCancelMeeting(item.id) }} >
-                                        <CloseOutlinedIcon />
-                                        Cancel
-                                    </button>
-                                </div>
-                            )
-                        }
-                        {
-                            !!tabInList && (
-                                <div>
-                                    <button className={styles.listview_content_left_btn} onClick={() => { router.push(`/event/event-detail?id=${item.id}`) }} disabled={item.is_claimed}>
-                                        <CachedOutlinedIcon />
-                                        {!item.is_claimed ? 'Claim Reward' : 'Claimed'}
-                                    </button>
-                                </div>
-                            )
-                        }
+                        {!tabInList && (
+                            <div>
+                                <button
+                                    className={styles.listview_content_left_btn}
+                                    onClick={() => {
+                                        onRescheduleMeeting(item.id);
+                                    }}
+                                >
+                                    <CachedOutlinedIcon />
+                                    Reschedule
+                                </button>
+                                <button
+                                    className={styles.listview_content_left_btn}
+                                    onClick={() => {
+                                        onCancelMeeting(item.id);
+                                    }}
+                                >
+                                    <CloseOutlinedIcon />
+                                    Cancel
+                                </button>
+                            </div>
+                        )}
+                        {!!tabInList && (
+                            <div>
+                                <button
+                                    className={styles.listview_content_left_btn}
+                                    onClick={() => {
+                                        router.push(`/event/event-detail?id=${item.id}`);
+                                    }}
+                                    disabled={item.is_claimed}
+                                >
+                                    <CachedOutlinedIcon />
+                                    {!item.is_claimed ? 'Claim Reward' : 'Claimed'}
+                                </button>
+                            </div>
+                        )}
                     </div>
                     <div className={styles.listview_content_right}>
                         <div className={styles.listview_content_text}>Description: {item.description}</div>
