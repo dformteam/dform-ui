@@ -595,6 +595,7 @@ const Calendar = (props) => {
                                                 onCancelMeeting={onCancelMeeting}
                                                 tabInList={tabInList}
                                                 onRescheduleMeeting={onRescheduleMeeting}
+                                                routerId={routerId}
                                             />
                                             <div className={styles.modal_line} />
                                         </Fragment>
@@ -612,6 +613,7 @@ const Calendar = (props) => {
                                                 onCancelMeeting={onCancelMeeting}
                                                 tabInList={tabInList}
                                                 onRescheduleMeeting={onRescheduleMeeting}
+                                                routerId={routerId}
                                             />
                                             <div className={styles.modal_line} />
                                         </Fragment>
@@ -861,7 +863,7 @@ const Calendar = (props) => {
 // };
 
 const EventItem = (props) => {
-    const { item, onCancelMeeting, tabInList, onRescheduleMeeting } = props;
+    const { item, onCancelMeeting, tabInList, onRescheduleMeeting, routerId } = props;
     const router = useRouter();
     const [expand, setExpand] = useState(false);
     return (
@@ -877,7 +879,7 @@ const EventItem = (props) => {
             {expand && (
                 <div className={styles.listview_content}>
                     <div className={styles.listview_content_left}>
-                        {!tabInList && (
+                        {!routerId && !tabInList && (
                             <div>
                                 <button
                                     className={styles.listview_content_left_btn}
@@ -899,7 +901,7 @@ const EventItem = (props) => {
                                 </button>
                             </div>
                         )}
-                        {!!tabInList && (
+                        {!routerId && !!tabInList && (
                             <div>
                                 <button
                                     className={styles.listview_content_left_btn}
@@ -915,10 +917,10 @@ const EventItem = (props) => {
                         )}
                     </div>
                     <div className={styles.listview_content_right}>
-                        <div className={styles.listview_content_text}>Description: {item.description}</div>
                         <div className={styles.listview_content_text}>Duration: {item.duration}</div>
-                        <div className={styles.listview_content_text}>Name: {item.name}</div>
-                        <div className={styles.listview_content_text}>Email: {item.email}</div>
+                        {!routerId && (<div className={styles.listview_content_text}>Description: {item.description}</div>)}
+                        {!routerId && (<div className={styles.listview_content_text}>Name: {item.name}</div>)}
+                        {!routerId && (<div className={styles.listview_content_text}>Email: {item.email}</div>)}
                     </div>
                 </div>
             )}

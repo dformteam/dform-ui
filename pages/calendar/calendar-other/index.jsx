@@ -647,21 +647,4 @@ const CalendarOther = () => {
     );
 };
 
-const aTimes = [
-    { id: 0, label: '09:00', value: '09:00:00' },
-    { id: 1, label: '09:30', value: '09:30:00' },
-    { id: 2, label: '10:00', value: '10:00:00' },
-    { id: 3, label: '10:30', value: '10:30:00' },
-    { id: 4, label: '11:00', value: '11:00:00' },
-    { id: 5, label: '11:30', value: '11:30:00' },
-    { id: 6, label: '12:00', value: '12:00:00' },
-    { id: 7, label: '09:00', value: '09:00:00' },
-    { id: 8, label: '09:30', value: '09:30:00' },
-    { id: 9, label: '10:00', value: '10:00:00' },
-    { id: 10, label: '10:30', value: '10:30:00' },
-    { id: 11, label: '11:00', value: '11:00:00' },
-    { id: 12, label: '11:30', value: '11:30:00' },
-    { id: 13, label: '12:00', value: '12:00:00' },
-];
-
 export default CalendarOther;
