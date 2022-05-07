@@ -11,10 +11,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Notify from '../../../components/Notify';
 import { useSelector } from 'react-redux';
-import getConfig from '../../../backed/config';
-import { utils } from 'near-api-js';
-
-const nearConfig = getConfig('testnet');
+import { utils, providers } from 'near-api-js';
 
 const style = {
     position: 'absolute',
@@ -53,8 +50,6 @@ const CalendarOther = () => {
     const [pageTitle, setPageTitle] = useState('Select Date & Time');
     const [event, setEvent] = useState();
     const [listAvailableTime, setListAvailableTime] = useState([]);
-    // const [pendingRequests, setPendingRequests] = useState([]);
-    const [meetingFee, setMeetingFee] = useState(0);
 
     const onTimeClick = (item) => {
         setTime(item);
@@ -87,31 +82,13 @@ const CalendarOther = () => {
     }, [router]);
 
     useEffect(() => {
-        const { walletConnection } = wallet;
+        const { nearConfig, walletConnection } = wallet;
         let userId = walletConnection.getAccountId();
         if (router.query.transactionHashes) {
-            let objectWithData = {
-                jsonrpc: '2.0',
-                id: 'dontcare',
-                method: 'tx',
-                params: [router.query.transactionHashes, userId],
-            };
-
-            fetch(nearConfig.nodeUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(objectWithData),
-            })
-                .then((res) => {
-                    if (res.status === 200) {
-                        return res.json();
-                    }
-                    return Promise.reject();
-                })
+            const rpcConnector = new providers.JsonRpcProvider(nearConfig.nodeUrl);
+            rpcConnector.txStatus(router.query.transactionHashes, userId)
                 .then((rpcData) => {
-                    if (rpcData?.result?.status?.SuccessValue) {
+                    if (rpcData?.status?.SuccessValue) {
                         onShowResult({
                             type: 'success',
                             msg: 'Your meeting request was sent',
@@ -207,51 +184,51 @@ const CalendarOther = () => {
     //     onGetPendingRequestRows();
     // }, [routerId]);
 
-    const onGetPendingRequestRows = () => {
-        const { contract } = wallet;
-        let userId = routerId;
-        contract
-            ?.get_pending_requests_count?.({
-                userId: userId,
-            })
-            .then((total) => {
-                onGetPendingRequests({ total });
-            })
-            .catch((err) => {
-                console.log(err);
-            });
-    };
+    // const onGetPendingRequestRows = () => {
+    //     const { contract } = wallet;
+    //     let userId = routerId;
+    //     contract
+    //         ?.get_pending_requests_count?.({
+    //             userId: userId,
+    //         })
+    //         .then((total) => {
+    //             onGetPendingRequests({ total });
+    //         })
+    //         .catch((err) => {
+    //             console.log(err);
+    //         });
+    // };
 
-    const onGetPendingRequests = async ({ total }) => {
-        const { contract } = wallet;
-        const num_page = total % 5 === 0 ? total / 5 : parseInt(total / 5) + 1;
-        const page_arr = new Array(num_page).fill(0);
-        let userId = routerId;
-        await Promise.all(
-            page_arr.map(async (page, index) => {
-                await contract
-                    .get_pending_requests({
-                        userId,
-                        page: index + 1,
-                    })
-                    .then((data) => {
-                        if (data) {
-                            data.data.map((requets) => {
-                                if (parseFloat(requets.end_date) - parseFloat(requets.start_date) <= 86400000) {
-                                    let time_info = {
-                                        start: parseFloat(requets.start_date),
-                                        end: parseFloat(requets.end_date),
-                                    };
-                                    if (!listBusyTime.includes(time_info)) {
-                                        setListBusyTime((listBusyTime) => [...listBusyTime, time_info]);
-                                    }
-                                }
-                            });
-                        }
-                    });
-            }),
-        );
-    };
+    // const onGetPendingRequests = async ({ total }) => {
+    //     const { contract } = wallet;
+    //     const num_page = total % 5 === 0 ? total / 5 : parseInt(total / 5) + 1;
+    //     const page_arr = new Array(num_page).fill(0);
+    //     let userId = routerId;
+    //     await Promise.all(
+    //         page_arr.map(async (page, index) => {
+    //             await contract
+    //                 .get_pending_requests({
+    //                     userId,
+    //                     page: index + 1,
+    //                 })
+    //                 .then((data) => {
+    //                     if (data) {
+    //                         data.data.map((requets) => {
+    //                             if (parseFloat(requets.end_date) - parseFloat(requets.start_date) <= 86400000) {
+    //                                 let time_info = {
+    //                                     start: parseFloat(requets.start_date),
+    //                                     end: parseFloat(requets.end_date),
+    //                                 };
+    //                                 if (!listBusyTime.includes(time_info)) {
+    //                                     setListBusyTime((listBusyTime) => [...listBusyTime, time_info]);
+    //                                 }
+    //                             }
+    //                         });
+    //                     }
+    //                 });
+    //         }),
+    //     );
+    // };
 
     const onGetMaxRows = () => {
         const { contract } = wallet;
@@ -375,7 +352,6 @@ const CalendarOther = () => {
                 if (!checkAvailableTime(timeObj.value, weekDay, duration) && temp_timestamp > Date.now()) {
                     listObj.push(timeObj);
                 }
-                // listObj.push(timeObj);
             }
             setListTime(listObj);
         }

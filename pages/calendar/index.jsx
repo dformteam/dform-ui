@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useLayoutEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import styles from './Calendar.module.scss';
 import Kalend, { CalendarView } from 'kalend';
 import 'kalend/dist/styles/index.css';
@@ -6,7 +6,7 @@ import { useRouter } from 'next/router';
 import { useSelector } from 'react-redux';
 import ModalShare from '../../components/Share';
 import Notify from '../../components/Notify';
-import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
+// import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
 import ArrowRightOutlinedIcon from '@mui/icons-material/ArrowRightOutlined';
 import ArrowDropDownOutlinedIcon from '@mui/icons-material/ArrowDropDownOutlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
@@ -65,11 +65,10 @@ const Calendar = (props) => {
     const [alertType, setAlertType] = useState('success');
     const [snackMsg, setSnackMsg] = useState('');
     const [routerId, setRouterId] = useState('');
-    const [modal, setModal] = useState(false);
-    const [notify, setNotify] = useState([]);
+    // const [modal, setModal] = useState(false);
+    // const [notify, setNotify] = useState([]);
     const [modalSetting, setModalSetting] = useState(false);
     const [free, setFree] = useState(true);
-    // const [fee, setFee] = useState('0');
     const [currentMeetingFee, setCurrentMeetingFee] = useState(0);
     const [tabActive, setTabActive] = useState('listview');
     const [tabInList, setTabInList] = useState(0);
@@ -141,55 +140,55 @@ const Calendar = (props) => {
             });
     };
 
-    const onGetPendingRequestRows = () => {
-        const { contract, walletConnection } = wallet;
-        let userId = walletConnection.getAccountId();
-        contract
-            ?.get_pending_requests_count?.({
-                userId: userId,
-            })
-            .then((total) => {
-                onGetPendingRequests({ total });
-            })
-            .catch((err) => {
-                console.log(err);
-            });
-    };
+    // const onGetPendingRequestRows = () => {
+    //     const { contract, walletConnection } = wallet;
+    //     let userId = walletConnection.getAccountId();
+    //     contract
+    //         ?.get_pending_requests_count?.({
+    //             userId: userId,
+    //         })
+    //         .then((total) => {
+    //             onGetPendingRequests({ total });
+    //         })
+    //         .catch((err) => {
+    //             console.log(err);
+    //         });
+    // };
 
-    const onGetPendingRequests = async ({ total }) => {
-        const { contract, walletConnection } = wallet;
-        const num_page = total % 5 === 0 ? total / 5 : parseInt(total / 5) + 1;
-        const page_arr = new Array(num_page).fill(0);
-        let userId = walletConnection.getAccountId();
-        let tmpNotify = [];
-        await Promise.all(
-            page_arr.map(async (page, index) => {
-                await contract
-                    .get_pending_requests({
-                        userId,
-                        page: index + 1,
-                    })
-                    .then((data) => {
-                        if (data) {
-                            data.data.map((requets) => {
-                                let duration = (parseFloat(requets.end_date) - parseFloat(requets.start_date)) / (60 * 1000);
-                                let rqObj = {
-                                    id: requets.id,
-                                    title: `Meeting request from ${requets.requestor}`,
-                                    description: requets.description,
-                                    duration: `${duration} minutes`,
-                                    name: requets.name,
-                                    email: requets.email,
-                                };
-                                tmpNotify.push(rqObj);
-                            });
-                        }
-                    });
-            }),
-        ).then(() => {
-            setNotify([...tmpNotify]);
-        });
-    };
+    // const onGetPendingRequests = async ({ total }) => {
+    //     const { contract, walletConnection } = wallet;
+    //     const num_page = total % 5 === 0 ? total / 5 : parseInt(total / 5) + 1;
+    //     const page_arr = new Array(num_page).fill(0);
+    //     let userId = walletConnection.getAccountId();
+    //     let tmpNotify = [];
+    //     await Promise.all(
+    //         page_arr.map(async (page, index) => {
+    //             await contract
+    //                 .get_pending_requests({
+    //                     userId,
+    //                     page: index + 1,
+    //                 })
+    //                 .then((data) => {
+    //                     if (data) {
+    //                         data.data.map((requets) => {
+    //                             let duration = (parseFloat(requets.end_date) - parseFloat(requets.start_date)) / (60 * 1000);
+    //                             let rqObj = {
+    //                                 id: requets.id,
+    //                                 title: `Meeting request from ${requets.requestor}`,
+    //                                 description: requets.description,
+    //                                 duration: `${duration} minutes`,
+    //                                 name: requets.name,
+    //                                 email: requets.email,
+    //                             };
+    //                             tmpNotify.push(rqObj);
+    //                         });
+    //                     }
+    //                 });
+    //         }),
+    //     ).then(() => {
+    //         setNotify([...tmpNotify]);
+    //     });
+    // };
 
     const onGetMaxRows = () => {
         const { contract, walletConnection } = wallet;
@@ -328,7 +327,7 @@ const Calendar = (props) => {
 
     const onShareCalendarClick = () => {
         if (!router.query.id) {
-            const { contract, walletConnection } = wallet;
+            const { walletConnection } = wallet;
             const accountId = walletConnection.getAccountId();
             if (accountId !== '') {
                 const uri = new URL(window.location.href);
@@ -386,56 +385,56 @@ const Calendar = (props) => {
         });
     };
 
-    const onResponseMeetingRequest = (id, status) => {
-        const { contract, walletConnection } = wallet;
-        const userId = walletConnection.getAccountId();
-        setModal(false);
-        setOpenLoading(true);
+    // const onResponseMeetingRequest = (id, status) => {
+    //     const { contract, walletConnection } = wallet;
+    //     const userId = walletConnection.getAccountId();
+    //     setModal(false);
+    //     setOpenLoading(true);
 
-        contract
-            ?.response_meeting_request(
-                {
-                    id: id,
-                    approve: status,
-                },
-                300000000000000,
-            )
-            .then((res) => {
-                setOpenLoading(false);
-                if (status) {
-                    onShowResult({
-                        type: 'success',
-                        msg: 'Meeting request confirmed',
-                    });
-                } else {
-                    onShowResult({
-                        type: 'success',
-                        msg: 'Meeting request has been denied',
-                    });
-                }
-                setTimeout(() => {
-                    router.reload();
-                }, 3000);
-            })
-            .catch((err) => {
-                onShowResult({
-                    type: 'error',
-                    msg: String(err),
-                });
-            });
-    };
+    //     contract
+    //         ?.response_meeting_request(
+    //             {
+    //                 id: id,
+    //                 approve: status,
+    //             },
+    //             300000000000000,
+    //         )
+    //         .then((res) => {
+    //             setOpenLoading(false);
+    //             if (status) {
+    //                 onShowResult({
+    //                     type: 'success',
+    //                     msg: 'Meeting request confirmed',
+    //                 });
+    //             } else {
+    //                 onShowResult({
+    //                     type: 'success',
+    //                     msg: 'Meeting request has been denied',
+    //                 });
+    //             }
+    //             setTimeout(() => {
+    //                 router.reload();
+    //             }, 3000);
+    //         })
+    //         .catch((err) => {
+    //             onShowResult({
+    //                 type: 'error',
+    //                 msg: String(err),
+    //             });
+    //         });
+    // };
 
-    const generateNotify = () => {
-        let color = 'black';
-        if (notify.length > 0) {
-            color = 'red';
-        }
-        return (
-            <button className={styles.button_area_share} onClick={onNotifyClick}>
-                <NotificationsActiveOutlinedIcon style={{ color: color }} /> {`(${notify.length})`}
-            </button>
-        );
-    };
+    // const generateNotify = () => {
+    //     let color = 'black';
+    //     if (notify.length > 0) {
+    //         color = 'red';
+    //     }
+    //     return (
+    //         <button className={styles.button_area_share} onClick={onNotifyClick}>
+    //             <NotificationsActiveOutlinedIcon style={{ color: color }} /> {`(${notify.length})`}
+    //         </button>
+    //     );
+    // };
 
     const generateButton = (id) => {
         if (!id) {
@@ -467,13 +466,13 @@ const Calendar = (props) => {
         }
     };
 
-    const onNotifyClick = () => {
-        setModal(true);
-    };
+    // const onNotifyClick = () => {
+    //     setModal(true);
+    // };
 
-    const onCloseModal = () => {
-        setModal(false);
-    };
+    // const onCloseModal = () => {
+    //     setModal(false);
+    // };
 
     const onSettingClick = () => {
         setModalSetting(true);
@@ -589,35 +588,35 @@ const Calendar = (props) => {
                         <TabPanel value={tabInList} index={0}>
                             {meetingsUcmList[0]
                                 ? meetingsUcmList.map((item, index) => {
-                                      return (
-                                          <Fragment key={index}>
-                                              <EventItem
-                                                  item={item}
-                                                  onCancelMeeting={onCancelMeeting}
-                                                  tabInList={tabInList}
-                                                  onRescheduleMeeting={onRescheduleMeeting}
-                                              />
-                                              <div className={styles.modal_line} />
-                                          </Fragment>
-                                      );
-                                  })
+                                    return (
+                                        <Fragment key={index}>
+                                            <EventItem
+                                                item={item}
+                                                onCancelMeeting={onCancelMeeting}
+                                                tabInList={tabInList}
+                                                onRescheduleMeeting={onRescheduleMeeting}
+                                            />
+                                            <div className={styles.modal_line} />
+                                        </Fragment>
+                                    );
+                                })
                                 : 'You do not have any upcoming meeting'}
                         </TabPanel>
                         <TabPanel value={tabInList} index={1}>
                             {meetingsPstList[0]
                                 ? meetingsPstList.map((item, index) => {
-                                      return (
-                                          <Fragment key={index}>
-                                              <EventItem
-                                                  item={item}
-                                                  onCancelMeeting={onCancelMeeting}
-                                                  tabInList={tabInList}
-                                                  onRescheduleMeeting={onRescheduleMeeting}
-                                              />
-                                              <div className={styles.modal_line} />
-                                          </Fragment>
-                                      );
-                                  })
+                                    return (
+                                        <Fragment key={index}>
+                                            <EventItem
+                                                item={item}
+                                                onCancelMeeting={onCancelMeeting}
+                                                tabInList={tabInList}
+                                                onRescheduleMeeting={onRescheduleMeeting}
+                                            />
+                                            <div className={styles.modal_line} />
+                                        </Fragment>
+                                    );
+                                })
                                 : 'You do not have any meetings before'}
                         </TabPanel>
                     </Box>
@@ -833,33 +832,33 @@ const Calendar = (props) => {
     );
 };
 
-const NotifyItem = (props) => {
-    const { item, onResponseMeetingRequest } = props;
-    const [expand, setExpand] = useState(false);
+// const NotifyItem = (props) => {
+//     const { item, onResponseMeetingRequest } = props;
+//     const [expand, setExpand] = useState(false);
 
-    return (
-        <>
-            <div className={styles.modal_row} onClick={() => setExpand(!expand)}>
-                <div className={styles.modal_row_label}>{item.title}</div>
-                {expand ? <ArrowDropDownOutlinedIcon fontSize="large" /> : <ArrowRightOutlinedIcon fontSize="large" />}
-                <button className={styles.modal_row_accept} onClick={() => onResponseMeetingRequest(item.id, true)}>
-                    Accept
-                </button>
-                <button className={styles.modal_row_deny} onClick={() => onResponseMeetingRequest(item.id, false)}>
-                    Deny
-                </button>
-            </div>
-            {expand && (
-                <div className={styles.modal_content}>
-                    <div className={styles.modal_content_text}>Description: {item.description}</div>
-                    <div className={styles.modal_content_text}>Duration: {item.duration}</div>
-                    <div className={styles.modal_content_text}>Name: {item.name}</div>
-                    <div className={styles.modal_content_text}>Email: {item.email}</div>
-                </div>
-            )}
-        </>
-    );
-};
+//     return (
+//         <>
+//             <div className={styles.modal_row} onClick={() => setExpand(!expand)}>
+//                 <div className={styles.modal_row_label}>{item.title}</div>
+//                 {expand ? <ArrowDropDownOutlinedIcon fontSize="large" /> : <ArrowRightOutlinedIcon fontSize="large" />}
+//                 <button className={styles.modal_row_accept} onClick={() => onResponseMeetingRequest(item.id, true)}>
+//                     Accept
+//                 </button>
+//                 <button className={styles.modal_row_deny} onClick={() => onResponseMeetingRequest(item.id, false)}>
+//                     Deny
+//                 </button>
+//             </div>
+//             {expand && (
+//                 <div className={styles.modal_content}>
+//                     <div className={styles.modal_content_text}>Description: {item.description}</div>
+//                     <div className={styles.modal_content_text}>Duration: {item.duration}</div>
+//                     <div className={styles.modal_content_text}>Name: {item.name}</div>
+//                     <div className={styles.modal_content_text}>Email: {item.email}</div>
+//                 </div>
+//             )}
+//         </>
+//     );
+// };
 
 const EventItem = (props) => {
     const { item, onCancelMeeting, tabInList, onRescheduleMeeting } = props;
