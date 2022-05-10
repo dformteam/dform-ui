@@ -6,6 +6,7 @@ import { Provider } from 'react-redux';
 import { initContract } from '../backed/util';
 import { onUpdateWallet } from '../redux/action/wallet';
 import { hotjar } from 'react-hotjar';
+import { generateUserId } from '../backed/util';
 
 export default class MyApp extends App {
     constructor(props) {
@@ -28,6 +29,11 @@ export default class MyApp extends App {
             })
             .then(() => {
                 hotjar.initialize(2962642, 6);
+                if (sessionStorage.getItem('userId') == null) {
+                    sessionStorage.setItem('userId', generateUserId());
+                }
+                hotjar.identify(sessionStorage.getItem('userId'), { userProperty: 'value' });
+                hotjar.event('go_to_homepage');
                 this.setState({
                     isConnected: true,
                 });
