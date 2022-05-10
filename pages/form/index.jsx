@@ -72,8 +72,6 @@ const Form = () => {
             })
             .then((data) => {
                 if (data) {
-                    console.log(data);
-                    console.log(data.forms_owner, data.forms_owner < 3);
                     setUser({ ...data });
                 }
             })

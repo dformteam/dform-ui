@@ -47,6 +47,12 @@ export async function initContract() {
             'get_newest_events_count',
             'get_interested_events',
             'get_interested_event_count',
+            'get_meeting_fee',
+            // 'get_pending_requests',
+            // 'get_pending_requests_count',
+            'get_meeting',
+            'get_available_time',
+            'get_claimable_amount'
         ],
         changeMethods: [
             'init_new_form',
@@ -68,10 +74,15 @@ export async function initContract() {
             'leave_event',
             'interest_event',
             'not_interest_event',
-            // TODO Check function loi khi dat vao view
+            'claim_event_reward',
+            'reschedule_meeting',
+            // TODO Check function loi khi dat vao view function
             'get_recent_event_created',
             'check_event_join_permission',
-            // 'get_newest_events',
+            'request_a_meeting',
+            'response_meeting_request',
+            'cancel_meeting_request',
+            'update_calendar_setting',
         ],
         sender: walletConnection.getAccountId(),
     });
