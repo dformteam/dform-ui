@@ -5,6 +5,7 @@ import Layout from '../components/Layout';
 import { Provider } from 'react-redux';
 import { initContract } from '../backed/util';
 import { onUpdateWallet } from '../redux/action/wallet';
+import { hotjar } from 'react-hotjar';
 
 export default class MyApp extends App {
     constructor(props) {
@@ -23,6 +24,10 @@ export default class MyApp extends App {
                         walletConnection,
                     }),
                 );
+                return Promise.resolve();
+            })
+            .then(() => {
+                hotjar.initialize(2962642, 6);
                 this.setState({
                     isConnected: true,
                 });
