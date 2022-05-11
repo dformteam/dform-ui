@@ -29,9 +29,9 @@ export default class MyApp extends App {
             })
             .then(() => {
                 hotjar.initialize(2962642, 6);
-                if (sessionStorage.getItem('userId') == null) {
-                    sessionStorage.setItem('userId', generateUserId());
-                }
+                // if (sessionStorage.getItem('userId') == null) {
+                //     sessionStorage.setItem('userId', generateUserId());
+                // }
                 // hotjar.identify(sessionStorage.getItem('userId'), { userProperty: 'value' });
                 // hotjar.event('go_to_homepage');
                 this.setState({
