@@ -5,6 +5,7 @@ import NavItem from '../NavItem';
 import DateRangeOutlinedIcon from '@mui/icons-material/DateRangeOutlined';
 import SummarizeOutlinedIcon from '@mui/icons-material/SummarizeOutlined';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
+import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import EventIcon from '@mui/icons-material/Event';
 import { withRouter, useRouter } from 'next/router';
 import Image from 'next/image';
@@ -51,6 +52,14 @@ const Header = (props) => {
                         content={'CALENDAR'}
                         href={'/calendar'}
                         actived={cPath.indexOf('/calendar') === 0}
+                    />
+                </div>
+                <div className={styles.nav_item}>
+                    <NavItem
+                        icon={<EmailOutlinedIcon className={styles.nav_icon} />}
+                        content={'MESSAGE'}
+                        href={'/message/inbox'}
+                        actived={cPath.indexOf('/message') === 0}
                     />
                 </div>
             </div>
