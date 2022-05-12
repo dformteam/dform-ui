@@ -121,29 +121,29 @@ const CalendarOther = () => {
         }
     }, [routerId]);
 
-    useLayoutEffect(() => {
-        if (routerId !== '') {
-            getMeetingFee();
-        }
-    }, [routerId]);
+    // useLayoutEffect(() => {
+    //     if (routerId !== '') {
+    //         getMeetingFee();
+    //     }
+    // }, [routerId]);
 
-    const getMeetingFee = () => {
-        const { contract } = wallet;
-        let userId = routerId;
-        contract
-            ?.get_meeting_fee?.({
-                userId: userId,
-            })
-            .then((total) => {
-                if (total !== null) {
-                    let fee = utils.format.formatNearAmount(total);
-                    setMeetingFee(fee);
-                }
-            })
-            .catch((err) => {
-                console.log(err);
-            });
-    };
+    // const getMeetingFee = () => {
+    //     const { contract } = wallet;
+    //     let userId = routerId;
+    //     contract
+    //         ?.get_meeting_fee?.({
+    //             userId: userId,
+    //         })
+    //         .then((total) => {
+    //             if (total !== null) {
+    //                 let fee = utils.format.formatNearAmount(total);
+    //                 setMeetingFee(fee);
+    //             }
+    //         })
+    //         .catch((err) => {
+    //             console.log(err);
+    //         });
+    // };
 
     const getAvailableTime = () => {
         const { contract } = wallet;
@@ -153,7 +153,10 @@ const CalendarOther = () => {
                 userId: userId,
             })
             .then((data) => {
-                setListAvailableTime(JSON.parse(atob(data)));
+                const timeList = JSON.parse(atob(data));
+                if (timeList != {}) {
+                    setListAvailableTime(timeList);
+                }
             })
             .catch((err) => {
                 console.log(err);
@@ -515,11 +518,9 @@ const CalendarOther = () => {
 
     const disableDate = (date) => {
         var res = false;
-        listAvailableTime.forEach((item) => {
-            if (item.id === date.getDay()) {
-                res = !item.check;
-            }
-        });
+        if (listAvailableTime !== []) {
+
+        }
         return res;
     };
 

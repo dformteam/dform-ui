@@ -140,56 +140,6 @@ const Calendar = (props) => {
             });
     };
 
-    // const onGetPendingRequestRows = () => {
-    //     const { contract, walletConnection } = wallet;
-    //     let userId = walletConnection.getAccountId();
-    //     contract
-    //         ?.get_pending_requests_count?.({
-    //             userId: userId,
-    //         })
-    //         .then((total) => {
-    //             onGetPendingRequests({ total });
-    //         })
-    //         .catch((err) => {
-    //             console.log(err);
-    //         });
-    // };
-
-    // const onGetPendingRequests = async ({ total }) => {
-    //     const { contract, walletConnection } = wallet;
-    //     const num_page = total % 5 === 0 ? total / 5 : parseInt(total / 5) + 1;
-    //     const page_arr = new Array(num_page).fill(0);
-    //     let userId = walletConnection.getAccountId();
-    //     let tmpNotify = [];
-    //     await Promise.all(
-    //         page_arr.map(async (page, index) => {
-    //             await contract
-    //                 .get_pending_requests({
-    //                     userId,
-    //                     page: index + 1,
-    //                 })
-    //                 .then((data) => {
-    //                     if (data) {
-    //                         data.data.map((requets) => {
-    //                             let duration = (parseFloat(requets.end_date) - parseFloat(requets.start_date)) / (60 * 1000);
-    //                             let rqObj = {
-    //                                 id: requets.id,
-    //                                 title: `Meeting request from ${requets.requestor}`,
-    //                                 description: requets.description,
-    //                                 duration: `${duration} minutes`,
-    //                                 name: requets.name,
-    //                                 email: requets.email,
-    //                             };
-    //                             tmpNotify.push(rqObj);
-    //                         });
-    //                     }
-    //                 });
-    //         }),
-    //     ).then(() => {
-    //         setNotify([...tmpNotify]);
-    //     });
-    // };
-
     const onGetMaxRows = () => {
         const { contract, walletConnection } = wallet;
         let userId = walletConnection.getAccountId();
@@ -384,57 +334,6 @@ const Calendar = (props) => {
             msg: 'copied',
         });
     };
-
-    // const onResponseMeetingRequest = (id, status) => {
-    //     const { contract, walletConnection } = wallet;
-    //     const userId = walletConnection.getAccountId();
-    //     setModal(false);
-    //     setOpenLoading(true);
-
-    //     contract
-    //         ?.response_meeting_request(
-    //             {
-    //                 id: id,
-    //                 approve: status,
-    //             },
-    //             300000000000000,
-    //         )
-    //         .then((res) => {
-    //             setOpenLoading(false);
-    //             if (status) {
-    //                 onShowResult({
-    //                     type: 'success',
-    //                     msg: 'Meeting request confirmed',
-    //                 });
-    //             } else {
-    //                 onShowResult({
-    //                     type: 'success',
-    //                     msg: 'Meeting request has been denied',
-    //                 });
-    //             }
-    //             setTimeout(() => {
-    //                 router.reload();
-    //             }, 3000);
-    //         })
-    //         .catch((err) => {
-    //             onShowResult({
-    //                 type: 'error',
-    //                 msg: String(err),
-    //             });
-    //         });
-    // };
-
-    // const generateNotify = () => {
-    //     let color = 'black';
-    //     if (notify.length > 0) {
-    //         color = 'red';
-    //     }
-    //     return (
-    //         <button className={styles.button_area_share} onClick={onNotifyClick}>
-    //             <NotificationsActiveOutlinedIcon style={{ color: color }} /> {`(${notify.length})`}
-    //         </button>
-    //     );
-    // };
 
     const generateButton = (id) => {
         if (!id) {
