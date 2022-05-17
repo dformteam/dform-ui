@@ -4,16 +4,13 @@ import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import styles from './CreateEvent.module.scss';
 import Notify from '../../../components/Notify';
-import { utils } from 'near-api-js';
+import { utils, providers } from 'near-api-js';
 import { Web3Storage } from 'web3.storage';
 import PreviewEvent from '../../../components/PreviewEvent';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
-import getConfig from '../../../backed/config';
-
-const nearConfig = getConfig('testnet');
 
 const CreateEvent = () => {
     const wallet = useSelector((state) => state.wallet);
@@ -41,27 +38,14 @@ const CreateEvent = () => {
     };
 
     useEffect(async () => {
-        const { contract, walletConnection } = wallet;
+        const { nearConfig, walletConnection } = wallet;
         let userId = walletConnection.getAccountId();
         if (router.query.transactionHashes) {
-            let objectWithData = {
-                jsonrpc: '2.0',
-                id: 'dontcare',
-                method: 'tx',
-                params: [router.query.transactionHashes, userId],
-            };
-            const res = await fetch(nearConfig.nodeUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(objectWithData),
-            });
-
-            const data = await res.json();
-
-            if (data?.result?.status?.SuccessValue) {
-                router.push(`/event/event-detail?id=${atob(data?.result?.status?.SuccessValue).replaceAll('"', '')}`);
+            const rpcConnector = new providers.JsonRpcProvider(nearConfig.nodeUrl);
+            const res = rpcConnector.txStatus(router.query.transactionHashes, userId);
+            const data = await res;
+            if (data?.status?.SuccessValue) {
+                router.push(`/event/event-detail?id=${atob(data?.status?.SuccessValue).replaceAll('"', '')}`);
             } else {
                 onShowResult({
                     type: 'error',
