@@ -1,0 +1,195 @@
+.root {
+    width: 100%;
+    min-height: calc(100vh - 88px);
+    display: flex;
+    flex-direction: column;
+    padding: 40px 0;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    margin: 0 20px 10px;
+
+    &_button {
+        height: 48px;
+        border-radius: 8px;
+        padding: 0 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:hover {
+            background: var(--color-background);
+        }
+
+        & > svg {
+            margin-right: 10px;
+        }
+    }
+}
+
+.content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    background: var(--color-background);
+    box-shadow: var(--color-boxshadow);
+    margin: 0 20px;
+    border-radius: 24px;
+
+    &_row {
+        width: 100%;
+        display: flex;
+        padding: 10px;
+
+        &_button {
+            width: 64px;
+            height: 40px;
+            border-radius: 8px;
+            border: 1px solid var(--color-border);
+        }
+
+        &_input {
+            flex: 1;
+            margin: 0 0 0 20px;
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+
+            &_area {
+                flex: 1;
+                height: max-content;
+                display: flex;
+                align-items: center;
+                flex-wrap: wrap;
+
+                & > input {
+                    flex: 1;
+                    height: 30px;
+                    min-width: 180px;
+                    margin: 0 10px 10px 0;
+                }
+            }
+
+            &_btn {
+                height: 34px;
+                color: var(--color-link);
+                padding: 0 10px;
+                border-radius: 8px;
+
+                &:hover {
+                    background: var(--color-background);
+                    box-shadow: var(--color-boxshadow);
+                }
+            }
+
+            &_email {
+                padding: 5px 0 5px 10px;
+                margin: 0 10px 10px 0;
+                background: #eee;
+                border-radius: 8px;
+                position: relative;
+                padding-right: 30px;
+                height: 30px;
+                max-width: 500px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                line-height: 20px;
+            }
+
+            &_delete {
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: absolute;
+                right: 0;
+                top: 0;
+            }
+        }
+    }
+
+    &_subject {
+        width: 100%;
+        padding: 10px;
+
+        &_input {
+            width: 100%;
+            height: 40px;
+            border-radius: unset;
+            border-bottom: 1px solid var(--color-border);
+        }
+    }
+
+    &_detail {
+        width: 100%;
+        padding: 10px;
+        flex: 1;
+
+        &_input {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--color-border);
+            padding: 16px;
+            resize: none;
+        }
+    }
+
+    &_footer {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        padding: 10px;
+
+        &_button {
+            height: 48px;
+            border-radius: 8px;
+            padding: 0 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            border: 1px solid var(--color-border);
+
+            &:hover {
+                background: var(--color-background);
+                box-shadow: var(--color-boxshadow);
+            }
+
+            & > svg {
+                margin-right: 10px;
+            }
+
+            &_send {
+                @extend .content_footer_button;
+                background: var(--color-gradient);
+                color: var(--color-text-button);
+                border: none;
+
+                &:hover {
+                    background: var(--color-gradient);
+                }
+            }
+
+            &_attach {
+                @extend .content_footer_button;
+                border: none;
+
+                & > svg {
+                    margin-right: 0;
+                }
+            }
+        }
+    }
+}
+
+.line {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--color-border), transparent);
+}
