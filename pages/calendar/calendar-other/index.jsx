@@ -293,8 +293,10 @@ const CalendarOther = () => {
         let output = false;
         let end_time = start_time + duration * 60 * 1000;
         for (let i = 0; i < listBusyTime.length; i++) {
-            let isStart = start_time >= listBusyTime[i].start && start_time <= listBusyTime[i].end;
-            let isEnd = end_time >= listBusyTime[i].start && end_time <= listBusyTime[i].end;
+            // let isStart = start_time >= listBusyTime[i].start && start_time <= listBusyTime[i].end;
+            // let isEnd = end_time >= listBusyTime[i].start && end_time <= listBusyTime[i].end;
+            let isStart = start_time >= listBusyTime[i].start && start_time < listBusyTime[i].end;
+            let isEnd = end_time > listBusyTime[i].start && end_time <= listBusyTime[i].end;
             if (isStart || isEnd) {
                 output = true;
                 break;

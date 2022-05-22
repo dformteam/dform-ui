@@ -533,6 +533,11 @@ const Calendar = (props) => {
         );
     };
 
+    const onSetFree = () => {
+        setCurrentMeetingFee(0);
+        setFree(true);
+    }
+
     const onCheckTime = (check, item) => {
         let tmp = [...time];
         tmp[item.id] = { ...item, check };
@@ -654,7 +659,7 @@ const Calendar = (props) => {
                                 <div className={styles.modal_row_label}>Set fee for book a meeting</div>
                             </div>
                             <div className={styles.modal_fee_row}>
-                                <button className={free ? styles.modal_fee_button_active : styles.modal_fee_button} onClick={() => setFree(true)}>
+                                <button className={free ? styles.modal_fee_button_active : styles.modal_fee_button} onClick={() => onSetFree()}>
                                     Free
                                 </button>
                                 <button className={!free ? styles.modal_fee_button_active : styles.modal_fee_button} onClick={() => setFree(false)}>
