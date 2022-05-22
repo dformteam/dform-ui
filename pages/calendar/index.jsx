@@ -158,6 +158,12 @@ const Calendar = (props) => {
             });
     };
 
+    const convertTime = (time) => {
+        const h = time.getHours();
+        const m = time.getMinutes();
+        return (h > 9 ? h : '0' + h) + ':' + (m > 9 ? m : '0' + m) + ' - ' + time.toDateString();
+    };
+
     const onGetRows = async ({ total }) => {
         const { contract, walletConnection } = wallet;
         const num_page = total % 5 === 0 ? total / 5 : parseInt(total / 5) + 1;
@@ -195,10 +201,11 @@ const Calendar = (props) => {
                                         summary = `[Meeting with ${name_prefix}] ${summary}`;
                                         let mt_start_time = new Date(parseFloat(event.start_date));
                                         let mt_end_time = new Date(parseFloat(event.end_date));
+                                        let startTime = convertTime(mt_start_time);
 
                                         let meeting = {
                                             id: event.id,
-                                            title: `Meeting in ${mt_start_time.toString().split('GMT')[0]}`,
+                                            title: `Meeting in ${startTime}`,
                                             time: `${mt_start_time.toString().split(' ')[4].split(':').slice(0, -1).join(':')} - ${mt_end_time
                                                 .toString()
                                                 .split(' ')[4]
@@ -719,7 +726,7 @@ const Calendar = (props) => {
                             </div>
                         </div>
                         <div className={styles.modal_row_button}>
-                            <button className={styles.modal_row_button_cancel} onClick={() => setModalSetting(false)}>
+                            <button className={styles.modal_row_button_cancel} onClick={onCloseModalSetting}>
                                 Cancel
                             </button>
                             <button className={styles.modal_row_button_create} onClick={updateSetting}>
@@ -817,9 +824,9 @@ const EventItem = (props) => {
                     </div>
                     <div className={styles.listview_content_right}>
                         <div className={styles.listview_content_text}>Duration: {item.duration}</div>
-                        {!routerId && (<div className={styles.listview_content_text}>Description: {item.description}</div>)}
-                        {!routerId && (<div className={styles.listview_content_text}>Name: {item.name}</div>)}
-                        {!routerId && (<div className={styles.listview_content_text}>Email: {item.email}</div>)}
+                        {!routerId && <div className={styles.listview_content_text}>Description: {item.description}</div>}
+                        {!routerId && <div className={styles.listview_content_text}>Name: {item.name}</div>}
+                        {!routerId && <div className={styles.listview_content_text}>Email: {item.email}</div>}
                     </div>
                 </div>
             )}
