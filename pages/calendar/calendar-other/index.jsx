@@ -521,7 +521,11 @@ const CalendarOther = () => {
     const disableDate = (date) => {
         var res = false;
         if (listAvailableTime !== []) {
-
+            listAvailableTime.forEach((item) => {
+                if (item.id === date.getDay()) {
+                    res = !item.check;
+                }
+            })
         }
         return res;
     };
