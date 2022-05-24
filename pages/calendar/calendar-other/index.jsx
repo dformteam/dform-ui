@@ -49,7 +49,15 @@ const CalendarOther = () => {
     const [routerId, setRouterId] = useState('');
     const [pageTitle, setPageTitle] = useState('Select Date & Time');
     const [event, setEvent] = useState();
-    const [listAvailableTime, setListAvailableTime] = useState([]);
+    const [listAvailableTime, setListAvailableTime] = useState([
+        { id: 0, label: 'Sun', check: false, startTime: '09:00', endTime: '17:00' },
+        { id: 1, label: 'Mon', check: true, startTime: '09:00', endTime: '17:00' },
+        { id: 2, label: 'Tue', check: true, startTime: '09:00', endTime: '17:00' },
+        { id: 3, label: 'Wed', check: true, startTime: '09:00', endTime: '17:00' },
+        { id: 4, label: 'Thur', check: true, startTime: '09:00', endTime: '17:00' },
+        { id: 5, label: 'Fri', check: true, startTime: '09:00', endTime: '17:00' },
+        { id: 6, label: 'Sat', check: false, startTime: '09:00', endTime: '17:00' },
+    ]);
 
     const onTimeClick = (item) => {
         setTime(item);
@@ -153,9 +161,11 @@ const CalendarOther = () => {
                 userId: userId,
             })
             .then((data) => {
-                const timeList = JSON.parse(atob(data));
-                if (timeList != {}) {
-                    setListAvailableTime(timeList);
+                if (data) {
+                    const timeList = JSON.parse(atob(data));
+                    if (JSON.stringify(timeList) != '{}') {
+                        setListAvailableTime(timeList);
+                    }
                 }
             })
             .catch((err) => {
@@ -386,9 +396,9 @@ const CalendarOther = () => {
         let end_date = selectedTime + currentDuration * 60 * 1000;
         setOpenLoading(true);
         const meeting_fee = await contract?.get_meeting_fee({
-            userId: userId,
+            userId: routerId,
         });
-        // const depositeAmount = utils.format.parseNearAmount(meetingFee);
+        const depositeAmount = utils.format.parseNearAmount(meeting_fee);
         if (meeting_fee === '0' || meeting_fee === null) {
             contract
                 ?.request_a_meeting(
@@ -401,6 +411,7 @@ const CalendarOther = () => {
                         description: currentDescription,
                     },
                     100000000000000,
+                    depositeAmount
                 )
                 .then((res) => {
                     setOpenLoading(false);
@@ -521,7 +532,7 @@ const CalendarOther = () => {
     const disableDate = (date) => {
         var res = false;
         if (listAvailableTime !== []) {
-            listAvailableTime.forEach((item) => {
+            listAvailableTime?.forEach((item) => {
                 if (item.id === date.getDay()) {
                     res = !item.check;
                 }
