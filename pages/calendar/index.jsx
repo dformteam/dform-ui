@@ -399,7 +399,6 @@ const Calendar = (props) => {
         setModalSetting(false);
         setOpenLoading(true);
         let ava_time = btoa(JSON.stringify(time));
-
         contract
             ?.update_calendar_setting?.({
                 meeting_fee: yocto_enroll_fee,
