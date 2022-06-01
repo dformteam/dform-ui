@@ -399,82 +399,44 @@ const CalendarOther = () => {
             userId: routerId,
         });
         const depositeAmount = utils.format.parseNearAmount(meeting_fee);
-        if (meeting_fee === '0' || meeting_fee === null) {
-            contract
-                ?.request_a_meeting(
-                    {
-                        receiver: router.query.id,
-                        start_date: start_date.toString(),
-                        end_date: end_date.toString(),
-                        name: currentName,
-                        email: currentEmail,
-                        description: currentDescription,
-                    },
-                    100000000000000,
-                    depositeAmount
-                )
-                .then((res) => {
-                    setOpenLoading(false);
-                    if (res) {
-                        onShowResult({
-                            type: 'success',
-                            msg: 'Your meeting request was sent',
-                        });
-                        setTimeout(() => {
-                            router.push(`/calendar?id=${router.query.id}`);
-                        }, 5000);
-                    } else {
-                        onShowResult({
-                            type: 'error',
-                            msg: 'Can not send your meeting request',
-                        });
-                    }
-                })
-                .catch((err) => {
+        console.log('meeting_fee' , meeting_fee);
+        setOpenLoading(true);
+        contract
+            ?.request_a_meeting(
+                {
+                    receiver: router.query.id,
+                    start_date: start_date.toString(),
+                    end_date: end_date.toString(),
+                    name: currentName,
+                    email: currentEmail,
+                    description: currentDescription,
+                },
+                100000000000000,
+                meeting_fee,
+            )
+            .then((res) => {
+                setOpenLoading(false);
+                if (res) {
+                    onShowResult({
+                        type: 'success',
+                        msg: 'Your meeting request was sent',
+                    });
+                    setTimeout(() => {
+                        router.push(`/calendar?id=${router.query.id}`);
+                    }, 5000);
+                } else {
                     onShowResult({
                         type: 'error',
-                        msg: String(err),
+                        msg: 'Can not send your meeting request',
                     });
+                }
+            })
+            .catch((err) => {
+                onShowResult({
+                    type: 'error',
+                    msg: String(err),
                 });
-        } else if (meeting_fee !== '0') {
-            setOpenLoading(true);
-            contract
-                ?.request_a_meeting(
-                    {
-                        receiver: router.query.id,
-                        start_date: start_date.toString(),
-                        end_date: end_date.toString(),
-                        name: currentName,
-                        email: currentEmail,
-                        description: currentDescription,
-                    },
-                    100000000000000,
-                    meeting_fee,
-                )
-                .then((res) => {
-                    setOpenLoading(false);
-                    if (res) {
-                        onShowResult({
-                            type: 'success',
-                            msg: 'Your meeting request was sent',
-                        });
-                        setTimeout(() => {
-                            router.push(`/calendar?id=${router.query.id}`);
-                        }, 5000);
-                    } else {
-                        onShowResult({
-                            type: 'error',
-                            msg: 'Can not send your meeting request',
-                        });
-                    }
-                })
-                .catch((err) => {
-                    onShowResult({
-                        type: 'error',
-                        msg: String(err),
-                    });
-                });
-        }
+            });
 
         setModal(false);
     };
