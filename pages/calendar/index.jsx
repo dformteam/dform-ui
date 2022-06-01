@@ -68,8 +68,8 @@ const Calendar = (props) => {
     // const [modal, setModal] = useState(false);
     // const [notify, setNotify] = useState([]);
     const [modalSetting, setModalSetting] = useState(false);
-    const [free, setFree] = useState(true);
-    const [currentMeetingFee, setCurrentMeetingFee] = useState(0);
+    const [free, setFree] = useState(false);
+    const [currentMeetingFee, setCurrentMeetingFee] = useState(1);
     const [tabActive, setTabActive] = useState('listview');
     const [tabInList, setTabInList] = useState(0);
 
@@ -658,22 +658,21 @@ const Calendar = (props) => {
                                 <div className={styles.modal_row_label}>Set fee for book a meeting</div>
                             </div>
                             <div className={styles.modal_fee_row}>
-                                <button className={free ? styles.modal_fee_button_active : styles.modal_fee_button} onClick={() => onSetFree()}>
+                                {/* <button className={free ? styles.modal_fee_button_active : styles.modal_fee_button} onClick={() => onSetFree()}>
                                     Free
-                                </button>
-                                <button className={!free ? styles.modal_fee_button_active : styles.modal_fee_button} onClick={() => setFree(false)}>
+                                </button> */}
+                                <button className={styles.modal_fee_button_active} >
                                     Paid
                                 </button>
-                                {!free && (
-                                    <input
-                                        className={styles.modal_fee_input}
-                                        type={'number'}
-                                        onChange={onFeeChange}
-                                        placeholder={
-                                            currentMeetingFee !== 0 ? `Current Fee: ${currentMeetingFee} NEAR` : 'The amount need to be paid for a booking'
-                                        }
-                                    />
-                                )}
+                                <input
+                                    className={styles.modal_fee_input}
+                                    type={'number'}
+                                    onChange={onFeeChange}
+                                    placeholder={
+                                        currentMeetingFee !== 0 ? `Current Fee: ${currentMeetingFee} NEAR` : 'The amount need to be paid for a booking'
+                                    }
+                                />
+
                             </div>
                             <div className={styles.modal_line} />
                             <div className={styles.modal_row}>
